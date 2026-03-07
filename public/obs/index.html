@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stream Quest - OBS</title>
+<title>Minchus Mad Quest - OBS</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <script src="/socket.io/socket.io.js"></script>
 <style>
@@ -102,7 +102,7 @@ body{display:flex;flex-direction:row;align-items:stretch;background-image:radial
 </style>
 </head>
 <body>
-<div class="waiting" id="waiting"><div class="spinner"></div><h1>Stream Quest</h1><p>Waiting for the game to start...</p></div>
+<div class="waiting" id="waiting"><div class="spinner"></div><h1>Minchus Mad Quest</h1><p>Waiting for the game to start...</p></div>
 <div class="sidebar">
   <div class="player-card p1" id="card-p1">
     <div class="turn-badge">TURN</div>
@@ -123,7 +123,7 @@ body{display:flex;flex-direction:row;align-items:stretch;background-image:radial
   </div>
 </div>
 <div class="board-area">
-  <div class="game-title" id="gameTitle">Stream Quest</div>
+  <div class="game-title" id="gameTitle">Minchus Mad Quest</div>
   <div class="board-wrapper"><canvas id="board-canvas"></canvas></div>
 </div>
 <div class="overlay-bg" id="overlayBg"></div>
@@ -304,7 +304,7 @@ window.addEventListener('load',()=>{
   document.getElementById('trophyIcon').textContent=String.fromCodePoint(0x1F3C6);
   document.getElementById('popIcon').textContent=String.fromCodePoint(0x2B50);
   document.getElementById('yellowIcon').textContent=String.fromCodePoint(0x2B50);
-  document.getElementById('gameTitle').textContent=String.fromCodePoint(0x1F3AE)+' Stream Quest';
+  document.getElementById('gameTitle').textContent=String.fromCodePoint(0x1F3AE)+' Minchus Mad Quest';
 });
 window.addEventListener('resize',()=>{if(tileTypes.length)setupBoard();});
 </script>

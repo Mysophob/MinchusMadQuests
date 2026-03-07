@@ -1,4 +1,4 @@
-# 🎮 Stream Quest — Multiplayer Setup
+# 🎮 Minchus Mad Quest — Multiplayer Setup
 
 ## Quick Start
 
