@@ -3,286 +3,162 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Minchus Mad Quest — Control Room</title>
+<title>Stream Quest — Control Room</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <script src="/socket.io/socket.io.js"></script>
 <style>
 :root {
-  --bg: #1a1a2e;
-  --panel: #16213e;
-  --p1c: #e94560;
-  --p2c: #4ecdc4;
-  --accent: #f5a623;
+  --bg: #0d0d1a;
+  --panel: #141428;
+  --p1c: #ff4d6d;
+  --p2c: #00f5d4;
+  --accent: #ffbe0b;
   --text: #f0f0f0;
-  --tile-normal:  #2d3561;
-  --tile-green:   #1a5c3a;
-  --tile-purple:  #3a1a5c;
-  --tile-red:     #5c1a1a;
-  --tile-yellow:  #5c4a1a;
-  --tile-stage:   #4a3000;
-  --tile-start:   #0a3a2a;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body {
-  width: 100%; height: 100%; overflow: hidden;
-  background: var(--bg);
-  font-family: 'Nunito', sans-serif;
-  color: var(--text);
+  width:100%; height:100%; overflow:hidden;
+  background:var(--bg); font-family:'Nunito',sans-serif; color:var(--text);
   background-image:
-    radial-gradient(ellipse at 15% 15%, rgba(233,69,96,.07) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 85%, rgba(78,205,196,.07) 0%, transparent 50%);
+    radial-gradient(ellipse at 15% 15%, rgba(255,77,109,.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 85%, rgba(0,245,212,.08) 0%, transparent 50%);
 }
+body { display:flex; flex-direction:column; }
 
-/* ── MOBILE PORTRAIT: single column ─────────────────────────────────────── */
-body {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Board fills the top portion */
-.board-area {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 8px 10px 0;
-  gap: 6px;
-}
+/* ── BOARD ─────────────────── */
+.board-area { flex:1; min-height:0; display:flex; flex-direction:column; padding:8px 10px 0; gap:4px; }
 .game-title {
-  text-align:center; font-family:'Fredoka One',cursive; font-size:20px;
+  text-align:center; font-family:'Fredoka One',cursive; font-size:20px; flex-shrink:0;
   background:linear-gradient(90deg,var(--p1c),var(--accent),var(--p2c));
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-  flex-shrink: 0;
 }
 .board-wrapper { flex:1; position:relative; min-height:0; }
 #board-canvas { border-radius:14px; display:block; }
 
-/* Bottom control bar */
+/* ── BOTTOM PANEL ──────────── */
 .left-panel {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 8px 10px 10px;
-  background: rgba(0,0,0,.2);
-  border-top: 1px solid rgba(255,255,255,.06);
-  max-height: 48vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  flex-shrink:0; display:flex; flex-direction:column; gap:8px;
+  padding:8px 10px 10px;
+  background:rgba(0,0,0,.25); border-top:1px solid rgba(255,255,255,.06);
 }
 
-/* Player cards side by side */
-.players-row {
-  display: flex;
-  gap: 8px;
-}
-.players-row .player-card {
-  flex: 1;
-  min-width: 0;
-}
-
-/* ── LANDSCAPE / TABLET: side-by-side ────────────────────────────────────── */
-@media (orientation: landscape) and (min-width: 600px) {
-  body { flex-direction: row; }
-  .left-panel {
-    width: 220px;
-    flex-shrink: 0;
-    flex-direction: column;
-    max-height: none;
-    overflow-y: auto;
-    border-top: none;
-    border-right: 1px solid rgba(255,255,255,.06);
-    padding: 10px;
-  }
-  .players-row { flex-direction: column; gap: 8px; }
-  .board-area { padding: 10px 10px 10px 0; }
-}
-
-/* ── Player cards ───────────────────────────────────────────────────────── */
+/* Player cards */
+.players-row { display:flex; gap:8px; }
+.players-row .player-card { flex:1; min-width:0; }
 
 .player-card {
-  background: var(--panel); border-radius:14px; padding:10px;
-  border:2px solid transparent; transition: border-color .3s, box-shadow .3s;
+  background:var(--panel); border-radius:14px; padding:12px;
+  border:2px solid transparent; transition:border-color .3s,box-shadow .3s;
   position:relative; overflow:hidden;
 }
 .player-card::before {
   content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0;
 }
-.player-card.p1::before { background: var(--p1c); }
-.player-card.p2::before { background: var(--p2c); }
-.player-card.active { border-color: var(--accent); box-shadow: 0 0 14px rgba(245,166,35,.3); }
-.player-card.active .turn-badge { opacity:1; transform:scale(1); }
-.turn-badge {
-  position:absolute; top:8px; right:8px;
-  background: var(--accent); color:#1a1a2e;
-  font-family:'Fredoka One',cursive; font-size:8px;
-  padding:2px 6px; border-radius:20px;
-  opacity:0; transform:scale(.7); transition:all .3s;
+.player-card.p1::before { background:var(--p1c); }
+.player-card.p2::before { background:var(--p2c); }
+.player-card.active { border-color:var(--accent); box-shadow:0 0 18px rgba(255,190,11,.35); }
+.player-name-row { display:flex; align-items:center; gap:7px; margin-bottom:4px; }
+.player-avatar {
+  width:34px; height:34px; border-radius:50%; flex-shrink:0;
+  overflow:hidden; border:2px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08); display:flex; align-items:center;
+  justify-content:center; font-family:'Fredoka One',cursive; font-size:14px;
 }
-.player-name { font-family:'Fredoka One',cursive; font-size:14px; margin-bottom:2px; display:flex; align-items:center; gap:6px; }
-.dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
-.p1 .dot { background:var(--p1c); box-shadow:0 0 5px var(--p1c); }
-.p2 .dot { background:var(--p2c); box-shadow:0 0 5px var(--p2c); }
-.score-big { font-family:'Fredoka One',cursive; font-size:28px; line-height:1; margin:2px 0 2px; }
-.p1 .score-big { color:var(--p1c); }
-.p2 .score-big { color:var(--p2c); }
-.stat { font-size:10px; color:#aaa; display:flex; justify-content:space-between; }
-.stat span { color:var(--text); font-weight:800; }
-.goal-bar-wrap { margin-top:5px; }
-.goal-bar-bg { background:rgba(255,255,255,.08); border-radius:6px; height:5px; overflow:hidden; }
-.goal-bar-fill { height:100%; border-radius:6px; transition:width .5s ease; }
-.p1 .goal-bar-fill { background: var(--p1c); }
-.p2 .goal-bar-fill { background: var(--p2c); }
-.goal-label { font-size:8px; color:#666; text-align:right; margin-top:2px; }
-
-/* Override indicator */
+.player-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+.player-name { font-family:'Fredoka One',cursive; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; margin-left:auto; }
+.p1 .dot { background:var(--p1c); box-shadow:0 0 6px var(--p1c); }
+.p2 .dot { background:var(--p2c); box-shadow:0 0 6px var(--p2c); }
+.score-big { font-family:'Fredoka One',cursive; font-size:48px; line-height:1; }
+.p1 .score-big { color:var(--p1c); text-shadow:0 0 20px rgba(255,77,109,.4); }
+.p2 .score-big { color:var(--p2c); text-shadow:0 0 20px rgba(0,245,212,.4); }
 .override-badge {
-  display:none; margin-top:5px; padding:2px 7px; border-radius:7px;
-  font-size:9px; font-weight:800; text-align:center;
-  background:rgba(255,255,255,.1);
+  display:none; margin-top:4px; padding:2px 7px; border-radius:7px;
+  font-size:9px; font-weight:800; text-align:center; background:rgba(255,255,255,.1);
 }
 .override-badge.show { display:block; }
 
-/* Dice panel */
-.dice-panel {
-  background:var(--panel); border-radius:14px; padding:10px;
-  display:flex; flex-direction:row; align-items:center; gap:10px;
-  flex-wrap: wrap;
+/* Dice row — single dice centered */
+.dice-row-solo {
+  display:flex; justify-content:center; align-items:center; gap:10px;
+  padding:10px; background:var(--panel); border-radius:14px;
 }
-.dice-panel h3 { font-family:'Fredoka One',cursive; font-size:11px; color:#aaa; text-transform:uppercase; letter-spacing:1px; width:100%; margin-bottom:-4px; }
-.dice-row { display:flex; gap:8px; align-items:center; flex-shrink:0; }
 .dice {
-  width:52px; height:52px; background:white; border-radius:11px;
+  width:60px; height:60px; background:white; border-radius:12px; flex-shrink:0;
   display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr);
-  padding:7px; gap:3px;
-  box-shadow:0 4px 12px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.5);
+  padding:8px; gap:3px;
+  box-shadow:0 4px 14px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.6);
 }
-.dice.event-dice { background:#fff9e6; width:44px; height:44px; padding:6px; opacity:.4; transition:opacity .3s; }
-.dice.event-dice.active { opacity:1; }
 .dice.rolling { animation:diceRoll .5s ease-out; }
 @keyframes diceRoll {
-  0%   { transform:rotate(0deg) scale(1); }
-  20%  { transform:rotate(-15deg) scale(1.1); }
-  50%  { transform:rotate(18deg) scale(.95); }
-  80%  { transform:rotate(-8deg) scale(1.04); }
-  100% { transform:rotate(0deg) scale(1); }
+  0%  { transform:rotate(0) scale(1); }
+  20% { transform:rotate(-15deg) scale(1.1); }
+  50% { transform:rotate(18deg) scale(.95); }
+  80% { transform:rotate(-8deg) scale(1.04); }
+  100%{ transform:rotate(0) scale(1); }
 }
-.pip { width:100%; height:100%; border-radius:50%; background:#1a1a2e; display:none; }
+.pip { width:100%; height:100%; border-radius:50%; background:#0d0d1a; display:none; }
 .pip.show { display:block; }
-.event-dice .pip { background:#c0860a; }
+.roll-info { font-family:'Fredoka One',cursive; font-size:11px; color:#888; text-align:center; }
 
-.roll-btn {
-  flex: 1; min-width: 90px; padding: 14px 10px;
-  background:linear-gradient(135deg,#e94560,#c0392b);
-  border:none; border-radius:14px; color:white;
-  font-family:'Fredoka One',cursive; font-size:22px;
+/* Player pick buttons — shown instead of single ROLL */
+.pick-btns { display:flex; gap:6px; }
+.pick-btn {
+  width:100%; margin-top:8px; padding:10px 6px;
+  border:none; border-radius:12px; color:white;
+  font-family:'Fredoka One',cursive; font-size:16px;
   cursor:pointer; transition:transform .12s, box-shadow .12s;
-  box-shadow:0 5px 0 #7b241c;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;
 }
-.roll-btn:active:not(:disabled) { transform:translateY(4px); box-shadow:0 1px 0 #7b241c; }
-.roll-btn:disabled { background:#444; box-shadow:0 4px 0 #333; cursor:not-allowed; opacity:.5; }
-.roll-info { font-family:'Fredoka One',cursive; font-size:11px; color:#777; text-align:center; width:100%; }
+.pick-btn.p1-btn { background:linear-gradient(135deg,var(--p1c),#c0392b); box-shadow:0 4px 0 #8b1a2c; }
+.pick-btn.p2-btn { background:linear-gradient(135deg,var(--p2c),#00b894); box-shadow:0 4px 0 #007a60; color:#0d0d1a; }
+.pick-btn:active:not(:disabled) { transform:translateY(3px); box-shadow:0 1px 0 #444 !important; }
+.pick-btn:disabled { opacity:.4; cursor:not-allowed; }
 
-/* Stage + goal row */
-.stage-panel {
-  background:var(--panel); border-radius:14px; padding:8px 12px;
-  display:flex; align-items:center; justify-content:space-between; gap:8px;
+/* Landscape */
+@media (orientation:landscape) and (min-width:600px) {
+  body { flex-direction:row; }
+  .left-panel {
+    width:230px; flex-shrink:0; flex-direction:column;
+    max-height:none; border-top:none; border-right:1px solid rgba(255,255,255,.06); padding:10px;
+  }
+  .players-row { flex-direction:column; }
+  .board-area { padding:10px 10px 10px 0; }
 }
-.stage-panel .stage-num {
-  font-family:'Fredoka One',cursive; font-size:22px; color:var(--accent); line-height:1;
-}
-.stage-panel .stage-label { font-size:9px; color:#666; text-transform:uppercase; letter-spacing:1px; }
-.stage-panel .stage-block { text-align:center; }
-.goal-info { font-size:10px; color:#aaa; }
-.goal-info span { color:var(--accent); font-weight:800; }
 
-/* Event log */
-.event-log {
-  background:var(--panel); border-radius:14px; padding:8px 10px;
-  overflow:hidden; display:flex; flex-direction:column; gap:4px;
-}
-.event-log h3 { font-family:'Fredoka One',cursive; font-size:10px; color:#aaa; text-transform:uppercase; letter-spacing:1px; }
-.log-entries { display:flex; flex-direction:column; gap:2px; overflow:hidden; }
-.log-entry {
-  font-size:9px; padding:3px 6px; border-radius:6px;
-  background:rgba(255,255,255,.04); line-height:1.3;
-  animation:fadeIn .3s ease-out; border-left:2px solid #444;
-}
-.log-entry.p1-log { border-left-color:var(--p1c); }
-.log-entry.p2-log { border-left-color:var(--p2c); }
-.log-entry.sys    { border-left-color:var(--accent); color:var(--accent); }
-@keyframes fadeIn { from { opacity:0; transform:translateX(-6px); } to { opacity:1; transform:none; } }
-
-/* ===== BOARD ===== */
-.board-area { flex:1; display:flex; flex-direction:column; gap:8px; }
-.game-title {
-  text-align:center; font-family:'Fredoka One',cursive; font-size:26px;
-  background:linear-gradient(90deg,var(--p1c),var(--accent),var(--p2c));
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-}
-.board-wrapper { flex:1; position:relative; }
-#board-canvas { border-radius:18px; display:block; }
-
-/* ===== POPUPS ===== */
-.overlay-bg {
-  position:fixed; inset:0; background:rgba(0,0,0,.5);
-  opacity:0; pointer-events:none; transition:opacity .3s; z-index:50;
-}
+/* ── POPUPS ──────────────────── */
+.overlay-bg { position:fixed; inset:0; background:rgba(0,0,0,.55); opacity:0; pointer-events:none; transition:opacity .3s; z-index:50; }
 .overlay-bg.show { opacity:1; pointer-events:all; }
-
 .popup {
-  position:fixed; top:50%; left:50%;
-  transform:translate(-50%,-50%) scale(0);
-  background:var(--panel); border:2px solid var(--accent);
-  border-radius:22px; padding:24px 28px; text-align:center;
-  z-index:100; box-shadow:0 20px 60px rgba(0,0,0,.6);
-  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
-  min-width:300px;
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
+  background:var(--panel); border:2px solid var(--accent); border-radius:22px;
+  padding:24px 28px; text-align:center; z-index:100;
+  box-shadow:0 20px 60px rgba(0,0,0,.7);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1); min-width:300px;
 }
 .popup.show { transform:translate(-50%,-50%) scale(1); }
 .popup .pop-icon { font-size:52px; margin-bottom:8px; }
 .popup .pop-title { font-family:'Fredoka One',cursive; font-size:24px; color:var(--accent); margin-bottom:6px; }
 .popup .pop-desc { font-size:13px; color:#ccc; line-height:1.5; margin-bottom:14px; }
-
-/* Event popup auto-dismiss bar */
 .dismiss-bar { height:4px; background:rgba(255,255,255,.1); border-radius:4px; margin-top:10px; overflow:hidden; }
 .dismiss-fill { height:100%; background:var(--accent); border-radius:4px; width:100%; transition:width linear; }
 
-/* Color picker popup */
-.color-choices { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:4px; }
-.color-choice {
-  width:44px; height:44px; border-radius:12px; cursor:pointer; border:3px solid transparent;
-  transition:transform .15s, border-color .15s; font-size:20px;
-  display:flex; align-items:center; justify-content:center;
-}
-.color-choice:hover { transform:scale(1.15); border-color:white; }
-
-/* Yellow spinner */
+/* Spinner */
 .yellow-spinner-wrap {
   position:relative; width:100%; height:52px; overflow:hidden;
-  border-radius:12px; border:2px solid var(--accent);
-  background:rgba(0,0,0,.3); margin-top:6px;
+  border-radius:12px; border:2px solid var(--accent); background:rgba(0,0,0,.3); margin-top:6px;
 }
-/* fade mask top & bottom */
-.yellow-spinner-wrap::before,
-.yellow-spinner-wrap::after {
+.yellow-spinner-wrap::before,.yellow-spinner-wrap::after {
   content:''; position:absolute; left:0; right:0; height:16px; z-index:2; pointer-events:none;
 }
-.yellow-spinner-wrap::before { top:0; background:linear-gradient(to bottom, rgba(22,33,62,1), transparent); }
-.yellow-spinner-wrap::after  { bottom:0; background:linear-gradient(to top,   rgba(22,33,62,1), transparent); }
-/* highlight bar in the middle */
+.yellow-spinner-wrap::before { top:0; background:linear-gradient(to bottom,rgba(20,20,40,1),transparent); }
+.yellow-spinner-wrap::after  { bottom:0; background:linear-gradient(to top,rgba(20,20,40,1),transparent); }
 .yellow-spinner-highlight {
   position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
-  height:36px; background:rgba(245,166,35,.15); border-top:1px solid rgba(245,166,35,.4);
-  border-bottom:1px solid rgba(245,166,35,.4); z-index:1; pointer-events:none;
+  height:36px; background:rgba(255,190,11,.15); border-top:1px solid rgba(255,190,11,.4);
+  border-bottom:1px solid rgba(255,190,11,.4); z-index:1; pointer-events:none;
 }
-.yellow-spinner-track {
-  display:flex; flex-direction:column;
-  transition:transform 0s;
-  position:relative; z-index:0;
-}
+.yellow-spinner-track { display:flex; flex-direction:column; transition:transform 0s; position:relative; z-index:0; }
 .yellow-spin-item {
   height:52px; display:flex; align-items:center; padding:0 14px;
   font-family:'Nunito',sans-serif; font-weight:800; font-size:13px;
@@ -291,46 +167,45 @@ body {
 }
 .yellow-spin-item.selected { color:#fff; }
 
-/* Stage-up transition */
-.stage-transition {
+/* Bounce-back screen */
+.bounce-screen {
   position:fixed; inset:0; background:#0a0a1a;
   display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
   z-index:200; opacity:0; pointer-events:none; transition:opacity .5s;
 }
-.stage-transition.show { opacity:1; pointer-events:all; }
-.stage-transition .big-icon { font-size:80px; animation:pulse 1s ease infinite alternate; }
-@keyframes pulse { from { transform:scale(1); } to { transform:scale(1.1); } }
-.stage-transition h1 { font-family:'Fredoka One',cursive; font-size:48px; color:var(--accent); }
-.stage-transition p { font-size:16px; color:#aaa; }
+.bounce-screen.show { opacity:1; pointer-events:all; }
+.bounce-screen .big-icon { font-size:80px; animation:pulse 1s ease infinite alternate; }
+@keyframes pulse { from{transform:scale(1);} to{transform:scale(1.1);} }
+.bounce-screen h1 { font-family:'Fredoka One',cursive; font-size:clamp(28px,6vw,48px); color:var(--accent); }
+.bounce-screen p { font-size:clamp(12px,2.5vw,16px); color:#aaa; text-align:center; padding:0 20px; }
 
 /* Win screen */
 .win-screen {
-  position:fixed; inset:0; background:rgba(10,10,20,.88);
+  position:fixed; inset:0; background:rgba(10,10,20,.9);
   display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
   z-index:300; opacity:0; pointer-events:none; transition:opacity .5s;
 }
 .win-screen.show { opacity:1; pointer-events:all; }
 .win-screen .trophy { font-size:80px; animation:bounce .8s ease infinite alternate; }
-@keyframes bounce { from { transform:translateY(0); } to { transform:translateY(-12px); } }
-.win-screen h1 { font-family:'Fredoka One',cursive; font-size:52px; background:linear-gradient(90deg,var(--p1c),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+@keyframes bounce { from{transform:translateY(0);} to{transform:translateY(-12px);} }
+.win-screen h1 { font-family:'Fredoka One',cursive; font-size:clamp(28px,6vw,52px); background:linear-gradient(90deg,var(--p1c),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 .win-screen p { font-size:17px; color:#aaa; }
 .restart-btn {
   margin-top:8px; padding:12px 30px;
-  background:linear-gradient(135deg,#4ecdc4,#00b894);
-  border:none; border-radius:13px; color:#1a1a2e;
+  background:linear-gradient(135deg,var(--p2c),#00b894);
+  border:none; border-radius:13px; color:#0d0d1a;
   font-family:'Fredoka One',cursive; font-size:19px; cursor:pointer;
-  box-shadow:0 4px 0 #00756a; transition:transform .15s, box-shadow .15s;
+  box-shadow:0 4px 0 #00756a; transition:transform .15s,box-shadow .15s;
+  touch-action:manipulation;
 }
-.restart-btn:hover { transform:translateY(-2px); box-shadow:0 6px 0 #00756a; }
 .restart-btn:active { transform:translateY(2px); box-shadow:0 2px 0 #00756a; }
 
-/* ===== SETUP SCREEN ===== */
+/* ── SETUP ───────────────────── */
 #setupScreen {
-  position:fixed; inset:0; z-index:500;
-  background: var(--bg);
+  position:fixed; inset:0; z-index:500; background:var(--bg);
   background-image:
-    radial-gradient(ellipse at 20% 30%, rgba(233,69,96,.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 70%, rgba(78,205,196,.12) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 30%,rgba(255,77,109,.12) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 70%,rgba(0,245,212,.12) 0%,transparent 50%);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:20px; padding:20px; overflow-y:auto;
 }
@@ -339,76 +214,54 @@ body {
   background:linear-gradient(90deg,var(--p1c),var(--accent),var(--p2c));
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
-#setupScreen p.subtitle { font-size:clamp(11px,3vw,15px); color:#777; margin-top:-10px; text-align:center; }
+#setupScreen p.subtitle { font-size:clamp(11px,3vw,15px); color:#666; margin-top:-10px; text-align:center; }
 .setup-players { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
 .setup-card {
   background:var(--panel); border-radius:20px; padding:20px;
   display:flex; flex-direction:column; align-items:center; gap:12px;
   border:2px solid rgba(255,255,255,.07); width:clamp(150px,40vw,240px);
 }
-.setup-card.p1 { border-color: rgba(233,69,96,.3); }
-.setup-card.p2 { border-color: rgba(78,205,196,.3); }
+.setup-card.p1 { border-color:rgba(255,77,109,.3); }
+.setup-card.p2 { border-color:rgba(0,245,212,.3); }
 .setup-card h2 { font-family:'Fredoka One',cursive; font-size:clamp(16px,5vw,22px); }
 .setup-card.p1 h2 { color:var(--p1c); }
 .setup-card.p2 h2 { color:var(--p2c); }
-
 .avatar-upload-area {
   width:clamp(80px,22vw,110px); height:clamp(80px,22vw,110px); border-radius:50%;
   border:3px dashed rgba(255,255,255,.2);
   display:flex; align-items:center; justify-content:center; flex-direction:column;
-  cursor:pointer; transition:border-color .2s, transform .15s;
+  cursor:pointer; transition:border-color .2s,transform .15s;
   overflow:hidden; position:relative; background:rgba(255,255,255,.05);
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color:transparent;
 }
 .avatar-upload-area:hover { border-color:rgba(255,255,255,.5); transform:scale(1.03); }
-.avatar-upload-area img {
-  width:100%; height:100%; object-fit:cover; position:absolute; inset:0; display:none;
-}
+.avatar-upload-area img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; display:none; }
 .avatar-upload-area img.loaded { display:block; }
-.avatar-upload-area .upload-hint {
-  display:flex; flex-direction:column; align-items:center; gap:3px; pointer-events:none;
-}
+.avatar-upload-area .upload-hint { display:flex; flex-direction:column; align-items:center; gap:3px; pointer-events:none; }
 .avatar-upload-area .upload-hint span { font-size:26px; }
 .avatar-upload-area .upload-hint p { font-size:9px; color:#666; text-align:center; }
 .avatar-upload-area input[type=file] { display:none; }
 .avatar-upload-area.has-photo .upload-hint { display:none; }
-
 .name-input {
   width:100%; padding:8px 12px;
   background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
   border-radius:10px; color:var(--text); font-family:'Nunito',sans-serif;
-  font-size:14px; font-weight:700; text-align:center; outline:none;
-  transition:border-color .2s;
+  font-size:14px; font-weight:700; text-align:center; outline:none; transition:border-color .2s;
 }
 .name-input:focus { border-color:rgba(255,255,255,.35); }
-
 .start-btn {
   padding:clamp(10px,3vh,14px) clamp(28px,8vw,52px);
   background:linear-gradient(135deg,var(--accent),#d4891e);
-  border:none; border-radius:16px; color:#1a1a2e;
+  border:none; border-radius:16px; color:#0d0d1a;
   font-family:'Fredoka One',cursive; font-size:clamp(18px,5vw,24px);
   cursor:pointer; box-shadow:0 5px 0 #9a6010;
-  transition:transform .15s, box-shadow .15s;
-  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  transition:transform .15s,box-shadow .15s; touch-action:manipulation;
 }
-.start-btn:hover { transform:translateY(-3px); box-shadow:0 8px 0 #9a6010; }
 .start-btn:active { transform:translateY(2px); box-shadow:0 3px 0 #9a6010; }
 
-/* Avatar in player card */
-.player-avatar {
-  width:38px; height:38px; border-radius:50%; flex-shrink:0;
-  overflow:hidden; border:2px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.08);
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Fredoka One',cursive; font-size:16px;
-}
-.player-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
-.player-name-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
-
 .score-float {
-  position:fixed; font-family:'Fredoka One',cursive; font-size:26px;
-  pointer-events:none; z-index:250;
-  animation:floatUp 1.3s ease-out forwards;
+  position:fixed; font-family:'Fredoka One',cursive; font-size:28px;
+  pointer-events:none; z-index:250; animation:floatUp 1.3s ease-out forwards;
 }
 @keyframes floatUp {
   0%   { opacity:1; transform:translateY(0) scale(1); }
@@ -421,10 +274,9 @@ body {
 
 <!-- SETUP SCREEN -->
 <div id="setupScreen">
-  <h1>🎮 Minchus Mad Quest</h1>
+  <h1>🎮 Stream Quest</h1>
   <p class="subtitle">Set up your players before the game begins</p>
   <div class="setup-players">
-    <!-- P1 setup -->
     <div class="setup-card p1">
       <h2>Player 1</h2>
       <div class="avatar-upload-area" id="avatarArea0" onclick="document.getElementById('fileInput0').click()">
@@ -434,7 +286,6 @@ body {
       </div>
       <input class="name-input" id="nameInput0" type="text" placeholder="Player 1 name" value="Player 1" maxlength="16">
     </div>
-    <!-- P2 setup -->
     <div class="setup-card p2">
       <h2>Player 2</h2>
       <div class="avatar-upload-area" id="avatarArea1" onclick="document.getElementById('fileInput1').click()">
@@ -448,94 +299,54 @@ body {
   <button class="start-btn" onclick="startGame()">Let's Play! 🎲</button>
 </div>
 
-<!-- LEFT PANEL -->
+<!-- LEFT PANEL (bottom on mobile, side on landscape) -->
 <div class="left-panel">
-  <!-- Player cards -->
   <div class="players-row">
-    <!-- Player 1 -->
-    <div class="player-card p1 active" id="card-p1">
-    <div class="turn-badge">YOUR TURN</div>
-    <div class="player-name-row">
-      <div class="player-avatar" id="avatar-p1"><span>1</span></div>
-      <div class="player-name" id="pname-p1" style="margin-bottom:0">Player 1</div>
-      <div class="dot" style="margin-left:auto"></div>
-    </div>
-    <div class="score-big" id="score-p1">0</div>
-    <div class="stat">Tile <span id="tile-p1">1</span></div>
-    <div class="stat">Rolls <span id="rolls-p1">0</span></div>
-    <div class="goal-bar-wrap">
-      <div class="goal-bar-bg"><div class="goal-bar-fill" id="bar-p1" style="width:0%"></div></div>
-      <div class="goal-label" id="goal-label-p1">0 / 50</div>
-    </div>
-    <div class="override-badge" id="override-p1">🎨 Next tile overridden!</div>
-  </div>
-
-  <!-- Player 2 -->
-  <div class="player-card p2" id="card-p2">
-    <div class="turn-badge">YOUR TURN</div>
-    <div class="player-name-row">
-      <div class="player-avatar" id="avatar-p2"><span>2</span></div>
-      <div class="player-name" id="pname-p2" style="margin-bottom:0">Player 2</div>
-      <div class="dot" style="margin-left:auto"></div>
-    </div>
-    <div class="score-big" id="score-p2">0</div>
-    <div class="stat">Tile <span id="tile-p2">1</span></div>
-    <div class="stat">Rolls <span id="rolls-p2">0</span></div>
-    <div class="goal-bar-wrap">
-      <div class="goal-bar-bg"><div class="goal-bar-fill" id="bar-p2" style="width:0%"></div></div>
-      <div class="goal-label" id="goal-label-p2">0 / 50</div>
-    </div>
-    <div class="override-badge" id="override-p2">🎨 Next tile overridden!</div>
-  </div>
-  </div><!-- end players-row -->
-  <div class="dice-panel">
-    <h3>🎲 Dice</h3>
-    <div class="dice-row">
-      <!-- Main dice -->
-      <div class="dice" id="main-dice">
-        <div class="pip" id="mp0"></div><div class="pip" id="mp1"></div><div class="pip" id="mp2"></div>
-        <div class="pip" id="mp3"></div><div class="pip" id="mp4"></div><div class="pip" id="mp5"></div>
-        <div class="pip" id="mp6"></div><div class="pip" id="mp7"></div><div class="pip" id="mp8"></div>
+    <!-- P1 card -->
+    <div class="player-card p1" id="card-p1">
+      <div class="player-name-row">
+        <div class="player-avatar" id="avatar-p1"><span>1</span></div>
+        <div class="player-name" id="pname-p1">Player 1</div>
+        <div class="dot"></div>
       </div>
-      <!-- Event dice -->
-      <div class="dice event-dice" id="event-dice">
-        <div class="pip" id="ep0"></div><div class="pip" id="ep1"></div><div class="pip" id="ep2"></div>
-        <div class="pip" id="ep3"></div><div class="pip" id="ep4"></div><div class="pip" id="ep5"></div>
-        <div class="pip" id="ep6"></div><div class="pip" id="ep7"></div><div class="pip" id="ep8"></div>
+      <div class="score-big" id="score-p1">0</div>
+      <div class="override-badge" id="override-p1">🎨 Next tile overridden!</div>
+      <button class="pick-btn p1-btn" id="rollBtn0" onclick="handleRoll(0)">🎲 Roll!</button>
+    </div>
+    <!-- P2 card -->
+    <div class="player-card p2" id="card-p2">
+      <div class="player-name-row">
+        <div class="player-avatar" id="avatar-p2"><span>2</span></div>
+        <div class="player-name" id="pname-p2">Player 2</div>
+        <div class="dot"></div>
       </div>
+      <div class="score-big" id="score-p2">0</div>
+      <div class="override-badge" id="override-p2">🎨 Next tile overridden!</div>
+      <button class="pick-btn p2-btn" id="rollBtn1" onclick="handleRoll(1)">🎲 Roll!</button>
     </div>
-    <button class="roll-btn" id="rollBtn" onclick="handleRoll()">ROLL!</button>
-    <div class="roll-info" id="rollInfo">Player 1's turn!</div>
   </div>
 
-  <!-- Stage + Goal -->
-  <div class="stage-panel">
-    <div class="stage-block">
-      <div class="stage-label">Stage</div>
-      <div class="stage-num" id="stageNum">1</div>
+  <!-- Single dice + result -->
+  <div class="dice-row-solo">
+    <div class="dice" id="main-dice">
+      <div class="pip" id="mp0"></div><div class="pip" id="mp1"></div><div class="pip" id="mp2"></div>
+      <div class="pip" id="mp3"></div><div class="pip" id="mp4"></div><div class="pip" id="mp5"></div>
+      <div class="pip" id="mp6"></div><div class="pip" id="mp7"></div><div class="pip" id="mp8"></div>
     </div>
-    <div class="goal-info">Goal: <span id="goalDisplay">50</span> pts</div>
-  </div>
-
-  <!-- Log -->
-  <div class="event-log">
-    <h3>📋 Log</h3>
-    <div class="log-entries" id="logEntries"></div>
+    <div class="roll-info" id="rollInfo">Pick who rolls!</div>
   </div>
 </div>
 
 <!-- BOARD -->
 <div class="board-area">
-  <div class="game-title">🎮 Minchus Mad Quest</div>
-  <div class="board-wrapper">
-    <canvas id="board-canvas"></canvas>
-  </div>
+  <div class="game-title">🎮 Stream Quest</div>
+  <div class="board-wrapper"><canvas id="board-canvas"></canvas></div>
 </div>
 
-<!-- Overlay bg -->
+<!-- Overlay -->
 <div class="overlay-bg" id="overlayBg"></div>
 
-<!-- Generic event popup -->
+<!-- Event popup -->
 <div class="popup" id="eventPopup">
   <div class="pop-icon" id="popIcon">🌟</div>
   <div class="pop-title" id="popTitle">Event!</div>
@@ -543,7 +354,7 @@ body {
   <div class="dismiss-bar"><div class="dismiss-fill" id="dismissFill"></div></div>
 </div>
 
-<!-- Yellow spinner popup -->
+<!-- Yellow spinner -->
 <div class="popup" id="yellowPopup">
   <div class="pop-icon">⭐</div>
   <div class="pop-title">Special Event!</div>
@@ -554,7 +365,7 @@ body {
   </div>
 </div>
 
-<!-- Color spinner popup -->
+<!-- Color spinner -->
 <div class="popup" id="colorPopup">
   <div class="pop-icon">🎨</div>
   <div class="pop-title">Override Tile Color!</div>
@@ -565,11 +376,11 @@ body {
   </div>
 </div>
 
-<!-- Stage transition -->
-<div class="stage-transition" id="stageTrans">
+<!-- Bounce-back screen -->
+<div class="bounce-screen" id="bounceTrans">
   <div class="big-icon">🚀</div>
-  <h1 id="stageTransTitle">Stage 2!</h1>
-  <p id="stageTransDesc">Both players advance to the next stage.</p>
+  <h1 id="bounceTitle">Bounce Back!</h1>
+  <p id="bounceDesc">+5 pts, but back to start!</p>
 </div>
 
 <!-- Win screen -->
@@ -582,44 +393,29 @@ body {
 
 <script>
 // =====================================================
-//  SOCKET.IO — connect to server as control room
+//  SOCKET
 // =====================================================
 const socket = io({ query: { type: 'control' } });
-
-socket.on('connect', () => {
-  console.log('[socket] control room connected:', socket.id);
-});
-
-// Broadcast full state to OBS clients after every UI update
 function emitState() {
-  // Attach player names so OBS can label players correctly
-  const payload = {
-    ...state,
-    playerNames,
-    // Don't send photo data here — avatars sent separately via avatarUpdate
-  };
-  socket.emit('stateUpdate', payload);
+  socket.emit('stateUpdate', { ...state, playerNames });
 }
 
 // =====================================================
-//  PLAYER SETUP DATA
+//  PLAYER SETUP
 // =====================================================
-const playerPhotos = [null, null]; // HTMLImageElement or null
+const playerPhotos = [null, null];
 const playerNames  = ['Player 1', 'Player 2'];
 
 function handlePhoto(idx, input) {
-  const file = input.files[0];
-  if (!file) return;
+  const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
       playerPhotos[idx] = img;
       const preview = document.getElementById(`avatarPreview${idx}`);
-      preview.src = e.target.result;
-      preview.classList.add('loaded');
+      preview.src = e.target.result; preview.classList.add('loaded');
       document.getElementById(`avatarArea${idx}`).classList.add('has-photo');
-      // Send avatar to OBS clients
       socket.emit('avatarUpdate', { index: idx, dataUrl: e.target.result });
     };
     img.src = e.target.result;
@@ -628,73 +424,49 @@ function handlePhoto(idx, input) {
 }
 
 function startGame() {
-  // Read names
   playerNames[0] = document.getElementById('nameInput0').value.trim() || 'Player 1';
   playerNames[1] = document.getElementById('nameInput1').value.trim() || 'Player 2';
-
-  // Update player card names
   document.getElementById('pname-p1').textContent = playerNames[0];
   document.getElementById('pname-p2').textContent = playerNames[1];
-
-  // Update card avatars
+  document.getElementById('rollBtn0').textContent = '🎲 ' + playerNames[0];
+  document.getElementById('rollBtn1').textContent = '🎲 ' + playerNames[1];
   for (let i = 0; i < 2; i++) {
     const avatarEl = document.getElementById(`avatar-p${i+1}`);
-    if (playerPhotos[i]) {
-      avatarEl.innerHTML = `<img src="${document.getElementById(`avatarPreview${i}`).src}" alt="">`;
-    } else {
-      avatarEl.innerHTML = `<span>${playerNames[i][0].toUpperCase()}</span>`;
-    }
+    if (playerPhotos[i]) avatarEl.innerHTML = `<img src="${document.getElementById(`avatarPreview${i}`).src}" alt="">`;
+    else avatarEl.innerHTML = `<span>${playerNames[i][0].toUpperCase()}</span>`;
   }
-
-  // Hide setup, show game
   document.getElementById('setupScreen').style.display = 'none';
-
-  // Init game
   generateTiles();
   setupBoard();
   showDice('mp', 1);
-  addLog(`🎮 Game ready! ${playerNames[0]} goes first.`, 'sys');
-  updateTurnUI();
-  updateUI(); // also calls emitState()
-
-  // Send tile layout separately (tileTypes not in state object)
+  updateUI();
   socket.emit('tilesUpdate', { tileTypes, CFG });
+  document.getElementById('rollInfo').textContent = 'Pick who rolls!';
+  setBtnsEnabled(true);
 }
 
 // =====================================================
-//  CONFIG — tweak these freely
+//  CONFIG
 // =====================================================
 const CFG = {
-  TILES_PER_STAGE: 15,   // tiles per stage (excl. stage-up tile itself, so board = TILES_PER_STAGE+1 tiles)
-  POINT_GOAL:      50,   // points needed to win
-  STAGE_UP_BONUS:  5,    // bonus points for reaching stage-up tile
-  BOARD_COLS:      8,    // columns in the snake layout
-
-  // Tile color distribution (must sum ≤ 1; remainder = normal)
+  TILES_PER_BOARD: 29,  // total tiles minus start tile = 29 inner + stageup = 30 tiles total
+  POINT_GOAL:      50,
+  BOUNCE_BONUS:    5,
+  BOARD_COLS:      5,
   TILE_DIST: { green:0.20, purple:0.10, red:0.20, yellow:0.30 },
-
-  // Event dice values (1-6 mapped to these point/tile amounts)
-  EVENT_DICE_MAP: [0, 1, 2, 3, 4, 5, 6], // index 0 unused
 };
 
 // =====================================================
 //  STATE
 // =====================================================
-const PIP_PATTERNS = {
-  1:[4], 2:[0,8], 3:[0,4,8], 4:[0,2,6,8], 5:[0,2,4,6,8], 6:[0,2,3,5,6,8]
-};
-
-// Tile type per index, regenerated each stage
-let tileTypes = []; // 'start','normal','green','purple','red','yellow','stageup'
+const PIP_PATTERNS = { 1:[4], 2:[0,8], 3:[0,4,8], 4:[0,2,6,8], 5:[0,2,4,6,8], 6:[0,2,3,5,6,8] };
+let tileTypes = [];
 
 let state = {
-  stage: 1,
   currentPlayer: 0,
-  stageUpReached: [-1,-1],
-  pendingStageUp: false,
   players: [
-    { tile:0, score:0, rolls:0, overrideColor:null },
-    { tile:0, score:0, rolls:0, overrideColor:null },
+    { tile:0, score:0, overrideColor:null },
+    { tile:0, score:0, overrideColor:null },
   ],
   rolling: false,
   gameOver: false,
@@ -704,47 +476,28 @@ let state = {
 //  TILE GENERATION
 // =====================================================
 function generateTiles() {
-  const total = CFG.TILES_PER_STAGE + 1; // +1 for stage-up
-  tileTypes = [];
+  const total = CFG.TILES_PER_BOARD + 1; // last tile is stageup (bounce)
+  const inner = total - 2;
   const d = CFG.TILE_DIST;
-  const pool = [];
-  const inner = total - 2; // exclude index 0 (start) and last (stageup)
-  for (let i = 0; i < inner; i++) pool.push(i + 1);
-
-  // Shuffle pool
-  for (let i = pool.length-1; i>0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [pool[i],pool[j]]=[pool[j],pool[i]];
-  }
-
-  // Assign types
   const counts = {
     green:  Math.round(inner * d.green),
     purple: Math.round(inner * d.purple),
     red:    Math.round(inner * d.red),
     yellow: Math.round(inner * d.yellow),
   };
-
   const typeArr = [];
   for (const [t,c] of Object.entries(counts)) for (let i=0;i<c;i++) typeArr.push(t);
   while (typeArr.length < inner) typeArr.push('blue');
-
-  // Shuffle typeArr
   for (let i=typeArr.length-1;i>0;i--) {
     const j=Math.floor(Math.random()*(i+1));
     [typeArr[i],typeArr[j]]=[typeArr[j],typeArr[i]];
   }
-
-  tileTypes[0] = 'start';
-  for (let i=0;i<inner;i++) tileTypes[i+1] = typeArr[i];
-  tileTypes[total-1] = 'stageup';
+  tileTypes = ['start', ...typeArr, 'stageup'];
 }
 
 function shuffleTiles() {
-  // Reshuffle all non-start, non-stageup tiles
   const total = tileTypes.length;
-  const indices = [];
-  const types = [];
+  const indices=[]; const types=[];
   for (let i=1;i<total-1;i++) { indices.push(i); types.push(tileTypes[i]); }
   for (let i=types.length-1;i>0;i--) {
     const j=Math.floor(Math.random()*(i+1));
@@ -754,153 +507,291 @@ function shuffleTiles() {
 }
 
 // =====================================================
-//  CANVAS BOARD
+//  CANVAS BOARD — winding snake path, boardgame tiles
 // =====================================================
 const canvas = document.getElementById('board-canvas');
 const ctx = canvas.getContext('2d');
 let tilePositions = [];
 
+// 3-D boardgame tile colours: face-top, face-bot, ledge (shadow side), rim
+const TILE_C = {
+  blue:    {t:'#5b9bd5',b:'#2e6bad',l:'#1a3e6b',r:'#88c4ff'},
+  start:   {t:'#3ecf74',b:'#1e9e50',l:'#0d6130',r:'#7bffb2'},
+  stageup: {t:'#ff9f43',b:'#d4720a',l:'#8a4400',r:'#ffd08a'},
+  green:   {t:'#44d47a',b:'#1da851',l:'#0d6130',r:'#97ffbc'},
+  purple:  {t:'#b36bfa',b:'#7c32d0',l:'#4a1080',r:'#dbb4ff'},
+  red:     {t:'#ff5e5e',b:'#cc1c1c',l:'#7a0000',r:'#ffaaaa'},
+  yellow:  {t:'#ffd93d',b:'#c9a200',l:'#7a6000',r:'#fff0a0'},
+};
+// keep TILE_BG shim so color-spinner still works
 const TILE_BG = {
-  blue:    ['#1a2a5c','#1e3270'],
-  start:   ['#0a3a2a','#0f4a35'],
-  stageup: ['#4a3000','#6a4400'],
-  green:   ['#1a5c3a','#1f7045'],
-  purple:  ['#3a1a5c','#4a2275'],
-  red:     ['#5c1a1a','#7a2020'],
-  yellow:  ['#5c4a1a','#7a6020'],
+  blue:['#2e6bad','#2e6bad'], green:['#1da851','#1da851'], purple:['#7c32d0','#7c32d0'],
+  red:['#cc1c1c','#cc1c1c'], yellow:['#c9a200','#c9a200'], start:['#1e9e50','#1e9e50'], stageup:['#d4720a','#d4720a'],
 };
-const TILE_BORDER = {
-  blue:'rgba(100,140,255,.2)', start:'rgba(85,239,196,.5)',
-  stageup:'rgba(245,166,35,.6)', green:'rgba(85,239,196,.5)',
-  purple:'rgba(162,155,254,.5)', red:'rgba(233,69,96,.5)', yellow:'rgba(245,166,35,.5)'
-};
-// Icons per tile type (per spec: green=angel wings, purple=boots/move, blue=nothing, yellow=event star, red=devil)
-const TILE_ICON = {
-  green:   '😇',   // angel wings
-  purple:  '👟',   // boots/move
-  red:     '😈',   // devil/evil
-  yellow:  '⭐',   // special event
-  stageup: '🚀',
-  start:   '🏁',
-  blue:    null,   // plain, no icon
-};
+const TILE_ICON = { green:'😇', purple:'👟', red:'😈', yellow:'⭐', stageup:'🚀', start:'🏁', blue:null };
 
-function setupBoard() {
-  const wr = canvas.parentElement;
-  const rect = wr.getBoundingClientRect();
-  canvas.width  = Math.floor(rect.width);
-  canvas.height = Math.floor(rect.height);
-  const W=canvas.width, H=canvas.height;
-  const total = tileTypes.length;
-  const COLS = CFG.BOARD_COLS;
-  const ROWS = Math.ceil(total / COLS);
-  const margin=16;
-  const tw=(W-margin*2)/COLS, th=(H-margin*2)/ROWS, pad=4;
-  tilePositions=[];
-  for (let i=0;i<total;i++){
-    const row=Math.floor(i/COLS);
-    const ci=i%COLS;
-    const col=(row%2===0)?ci:(COLS-1-ci);
-    const x=margin+col*tw+pad, y=margin+row*th+pad;
-    const w=tw-pad*2, h=th-pad*2;
-    tilePositions.push({x,y,w,h,cx:x+w/2,cy:y+h/2});
+// ── Path layout ───────────────────────────────────────────────────────────────
+// Returns N evenly-spaced {x,y} centres along a winding snake path that fills W×H.
+// The path uses straight horizontal runs connected by smooth bezier U-turns.
+// Returns { centres: [{x,y}…], trackPts: [{x,y}…] }
+// Tiles are placed ONLY on the straight rows at fixed equal spacing.
+// The bezier curves are purely visual connectors — no tiles land on them.
+function computeSnakeLayout(W, H, N, tileSize) {
+  const half   = tileSize / 2 + 6;
+  const left   = half;
+  const right  = W - half;
+  const top    = half;
+  const bottom = H - half;
+  const usableW = right - left;
+
+  // Decide tiles-per-row so spacing is as even as possible
+  const tilesPerRow = Math.max(3, Math.min(8, Math.round(Math.sqrt(N * W / H))));
+  const numRows     = Math.ceil(N / tilesPerRow);
+
+  // Row y-positions: bottom → top
+  const ys = [];
+  for (let r = 0; r < numRows; r++) {
+    ys.push(numRows === 1 ? (top + bottom) / 2
+      : bottom - r * (bottom - top) / (numRows - 1));
   }
-  drawBoard();
-}
 
-function drawBoard() {
-  const W=canvas.width,H=canvas.height;
-  ctx.clearRect(0,0,W,H);
+  // Place tiles: each row gets its own count, spaced evenly across usableW
+  const centres = [];
+  for (let r = 0; r < numRows; r++) {
+    const remaining = N - centres.length;
+    const count     = Math.min(tilesPerRow, remaining);
+    const y         = ys[r];
+    const rtl       = (r % 2 === 1);
 
-  // Background
-  const bg=ctx.createLinearGradient(0,0,W,H);
-  bg.addColorStop(0,'#0f0f23'); bg.addColorStop(1,'#1a1a3e');
-  ctx.fillStyle=bg; rr(ctx,0,0,W,H,18); ctx.fill();
+    for (let c = 0; c < count; c++) {
+      // fraction along this row: 0 → 1
+      const frac = count === 1 ? 0.5 : c / (count - 1);
+      const x    = left + frac * usableW;
+      centres.push({ x: rtl ? (W - x) : x, y });
+    }
+  }
 
-  for (let i=0;i<tileTypes.length;i++){
-    const t=tilePositions[i];
-    if(!t) continue;
-    const type=tileTypes[i]||'normal';
-    const cols=TILE_BG[type]||TILE_BG.normal;
+  // Build dense track points for drawing: straight segments + bezier U-turns
+  const trackPts = [];
+  const STEPS    = 32;
 
-    ctx.shadowColor='rgba(0,0,0,.35)'; ctx.shadowBlur=7; ctx.shadowOffsetY=2;
-    const g=ctx.createLinearGradient(t.x,t.y,t.x,t.y+t.h);
-    g.addColorStop(0,cols[0]); g.addColorStop(1,cols[1]);
-    ctx.fillStyle=g; rr(ctx,t.x,t.y,t.w,t.h,9); ctx.fill();
-    ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+  for (let r = 0; r < numRows; r++) {
+    const y   = ys[r];
+    const rtl = (r % 2 === 1);
+    // Start/end x of this row's straight
+    const xA  = rtl ? right : left;
+    const xB  = rtl ? left  : right;
 
-    ctx.strokeStyle=TILE_BORDER[type]||TILE_BORDER.blue;
-    ctx.lineWidth=type==='blue'?1:2;
-    rr(ctx,t.x,t.y,t.w,t.h,9); ctx.stroke();
-
-    // Number
-    ctx.fillStyle='rgba(255,255,255,.25)';
-    ctx.font=`bold 10px Nunito,sans-serif`;
-    ctx.textAlign='center'; ctx.textBaseline='top';
-    ctx.fillText(i+1, t.cx, t.y+4);
-
-    // Icon
-    const icon = TILE_ICON[type];
-    if (icon) {
-      ctx.font=`${Math.min(t.w,t.h)*.36}px serif`;
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(icon, t.cx, t.cy+4);
+    // Add straight segment points
+    for (let s = 0; s <= STEPS; s++) {
+      trackPts.push({ x: xA + (xB - xA) * s / STEPS, y });
     }
 
-    // Connector
-    if (i<tileTypes.length-1 && tilePositions[i+1]) {
-      const b=tilePositions[i+1];
-      if (Math.abs(t.cy-b.cy)<5||Math.abs(t.cx-b.cx)<5){
-        ctx.beginPath(); ctx.moveTo(t.cx,t.cy); ctx.lineTo(b.cx,b.cy);
-        ctx.strokeStyle='rgba(255,255,255,.05)'; ctx.lineWidth=2;
-        ctx.setLineDash([4,6]); ctx.stroke(); ctx.setLineDash([]);
+    // Add bezier U-turn to next row
+    if (r < numRows - 1) {
+      const yNext = ys[r + 1];
+      // Bow INWARD (toward canvas centre)
+      const bow  = (rtl ? 1 : -1) * tileSize * 1.2;
+      const p0x=xB, p0y=y, p1x=xB+bow, p1y=y;
+      const p2x=xB+bow, p2y=yNext, p3x=xB, p3y=yNext;
+      for (let s = 1; s <= STEPS; s++) {
+        const t = s / STEPS, u = 1 - t;
+        trackPts.push({
+          x: u*u*u*p0x + 3*u*u*t*p1x + 3*u*t*t*p2x + t*t*t*p3x,
+          y: u*u*u*p0y + 3*u*u*t*p1y + 3*u*t*t*p2y + t*t*t*p3y,
+        });
       }
     }
   }
 
-  // Tokens
-  const sameTile = state.players[0].tile===state.players[1].tile;
-  drawToken(state.players[0].tile,'#e94560', 0, sameTile?-1:0);
-  drawToken(state.players[1].tile,'#4ecdc4', 1, sameTile? 1:0);
+  return { centres, trackPts };
 }
 
-function drawToken(tileIdx, color, playerIdx, offset){
-  const t=tilePositions[Math.min(tileIdx,tilePositions.length-1)];
-  if(!t) return;
-  const r=Math.min(t.w,t.h)*.22;
-  const ox=offset*r*1.1;
-  const cx=t.cx+ox, cy=t.cy+2;
+function setupBoard() {
+  const wr   = canvas.parentElement;
+  const rect = wr.getBoundingClientRect();
+  canvas.width  = Math.floor(rect.width);
+  canvas.height = Math.floor(rect.height);
+  const W = canvas.width, H = canvas.height;
+  const N = tileTypes.length;
+  if (!N) return;
 
+  const tileSize = Math.max(46, Math.min(70, Math.floor(Math.min(W, H) / 7.5)));
+  const { centres, trackPts } = computeSnakeLayout(W, H, N, tileSize);
+
+  const s = tileSize;
+  tilePositions = centres.map(({x, y}) => ({
+    cx: x, cy: y,
+    x: x - s/2, y: y - s/2,
+    w: s, h: s, s,
+    _trackPts: null,   // unused but kept for shape compat
+  }));
+  // Store track points for drawBoard
+  tilePositions._track = trackPts;
+  drawBoard();
+}
+
+// ── Tile drawing helper ───────────────────────────────────────────────────────
+function drawTile(t, type) {
+  const c = TILE_C[type] || TILE_C.blue;
+  const {x, y, w, h, cx} = t;
+  const rad   = Math.max(7, w * 0.20);   // corner radius
+  const ledge = Math.max(4, h * 0.13);   // 3-D bottom thickness
+
+  // ① Ledge / shadow side
+  ctx.fillStyle = c.l;
+  rr(ctx, x, y + ledge, w, h, rad);
+  ctx.fill();
+
+  // ② Face gradient (top → bottom of face only, not ledge)
+  const faceH = h - ledge;
+  const grad = ctx.createLinearGradient(x, y, x, y + faceH);
+  grad.addColorStop(0, c.t);
+  grad.addColorStop(1, c.b);
+  ctx.fillStyle = grad;
+  rr(ctx, x, y, w, faceH, rad);
+  ctx.fill();
+
+  // ③ Top-edge shine (white highlight across top ~30% of face)
+  const shine = ctx.createLinearGradient(x, y, x, y + faceH * 0.35);
+  shine.addColorStop(0, 'rgba(255,255,255,0.30)');
+  shine.addColorStop(1, 'rgba(255,255,255,0.00)');
+  ctx.fillStyle = shine;
+  rr(ctx, x + 2, y + 2, w - 4, faceH * 0.35, rad * 0.6);
+  ctx.fill();
+
+  // ④ Rim / border around the face
+  ctx.strokeStyle = c.r;
+  ctx.lineWidth   = 1.8;
+  rr(ctx, x, y, w, faceH, rad);
+  ctx.stroke();
+
+  // ⑤ Tile number — small, top-center of face
+  const numSz = Math.max(8, w * 0.18);
   ctx.save();
-  // Drop shadow
-  ctx.shadowColor='rgba(0,0,0,.55)'; ctx.shadowBlur=10; ctx.shadowOffsetY=3;
-  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.fillStyle=color; ctx.fill();
-  ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+  ctx.globalAlpha = 0.6;
+  ctx.fillStyle   = '#000';
+  ctx.font        = `bold ${numSz}px Nunito,sans-serif`;
+  ctx.textAlign   = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText(t.idx + 1, cx, y + 3);
+  ctx.restore();
 
-  // Photo fill (clipped circle)
-  const photo = playerPhotos[playerIdx];
-  if(photo){
-    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip();
-    ctx.drawImage(photo, cx-r, cy-r, r*2, r*2);
-  } else {
-    // Gloss
-    ctx.beginPath(); ctx.arc(cx-r*.2,cy-r*.3,r*.38,0,Math.PI*2);
-    ctx.fillStyle='rgba(255,255,255,.3)'; ctx.fill();
-    // Initial letter
-    ctx.fillStyle='#fff';
-    ctx.font=`bold ${r*1.0}px Fredoka One,cursive`;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(playerNames[playerIdx][0].toUpperCase(), cx, cy+1);
+  // ⑥ Icon — centered on face
+  const icon = TILE_ICON[type];
+  if (icon) {
+    const faceCY = y + faceH / 2 + 2;
+    ctx.font        = `${w * 0.38}px serif`;
+    ctx.textAlign   = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(icon, cx, faceCY);
   }
 
-  // Colored ring border
-  ctx.restore();
-  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.stroke();
+  // ⑦ Direction arrow on START tile
+  if (type === 'start' && tilePositions[1]) {
+    const nx  = tilePositions[1];
+    const ang = Math.atan2(nx.cy - t.cy, nx.cx - t.cx);
+    const asz = w * 0.19;
+    const ax  = t.cx + Math.cos(ang) * w * 0.20;
+    const ay  = (y + (h - ledge) / 2) + Math.sin(ang) * h * 0.10;
+    ctx.save();
+    ctx.translate(ax, ay); ctx.rotate(ang);
+    ctx.beginPath();
+    ctx.moveTo(asz, 0); ctx.lineTo(-asz*.6,-asz*.55); ctx.lineTo(-asz*.3, 0); ctx.lineTo(-asz*.6, asz*.55);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 3;
+    ctx.fill();
+    ctx.restore();
+  }
 }
 
-function rr(ctx,x,y,w,h,r){
+function drawBoard() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0a0a1e'); bg.addColorStop(1, '#12122e');
+  ctx.fillStyle = bg; rr(ctx, 0, 0, W, H, 16); ctx.fill();
+
+  if (!tilePositions.length) return;
+
+  const ts = tilePositions[0].s;
+  const track = tilePositions._track || tilePositions;
+
+  // ── Track strip drawn UNDER tiles ─────────────────────────────────────
+  ctx.save();
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  // outer dark stripe
+  ctx.strokeStyle = '#06060f';
+  ctx.lineWidth   = ts * 1.30;
+  ctx.beginPath();
+  ctx.moveTo(track[0].x, track[0].y);
+  for (let i = 1; i < track.length; i++)
+    ctx.lineTo(track[i].x, track[i].y);
+  ctx.stroke();
+  // inner slightly lighter groove
+  ctx.strokeStyle = '#14143a';
+  ctx.lineWidth   = ts * 1.10;
+  ctx.stroke();
+  // subtle dotted lane markings between tiles
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth   = ts * 0.90;
+  ctx.stroke();
+  ctx.restore();
+
+  // ── Tiles ─────────────────────────────────────────────────────────────
+  for (let i = 0; i < tileTypes.length; i++) {
+    const t = tilePositions[i]; if (!t) continue;
+    t.idx = i;
+    drawTile(t, tileTypes[i] || 'blue');
+  }
+
+  // ── Tokens ────────────────────────────────────────────────────────────
+  const sameTile = state.players[0].tile === state.players[1].tile;
+  drawToken(state.players[0].tile, '#ff4d6d', 0, sameTile ? -1 : 0);
+  drawToken(state.players[1].tile, '#00f5d4', 1, sameTile ?  1 : 0);
+}
+
+function drawToken(tileIdx, color, playerIdx, offset) {
+  const t = tilePositions[Math.min(tileIdx, tilePositions.length - 1)];
+  if (!t) return;
+  const ledge = t.s * 0.13;
+  const r  = t.s * 0.29;                   // token radius — fills tile nicely
+  const ox = offset * r * 1.25;
+  const cx = t.cx + ox;
+  const cy = t.cy - ledge / 2;             // sit on the tile face, not ledge
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 3;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.fillStyle = color; ctx.fill();
+  ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+  const photo = playerPhotos[playerIdx];
+  if (photo) {
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.92, 0, Math.PI*2); ctx.clip();
+    ctx.drawImage(photo, cx - r*0.92, cy - r*0.92, r*1.84, r*1.84);
+  } else {
+    ctx.beginPath(); ctx.arc(cx - r*.2, cy - r*.3, r*.35, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${r}px Fredoka One,cursive`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(playerNames[playerIdx][0].toUpperCase(), cx, cy + 1);
+  }
+  ctx.restore();
+  // coloured ring
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+}
+
+function rr(c_or_x, x_or_y, y_or_w, w_or_h, h_or_r, r_or_undef) {
+  // supports rr(ctx,x,y,w,h,r)  AND  rr(x,y,w,h,r)  for brevity
+  let x, y, w, h, r;
+  if (typeof c_or_x === 'object') { [x,y,w,h,r] = [x_or_y,y_or_w,w_or_h,h_or_r,r_or_undef]; }
+  else                             { [x,y,w,h,r] = [c_or_x,x_or_y,y_or_w,w_or_h,h_or_r]; }
   ctx.beginPath();
   ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
   ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
@@ -910,7 +801,7 @@ function rr(ctx,x,y,w,h,r){
 }
 
 // =====================================================
-//  DICE HELPERS
+//  DICE
 // =====================================================
 function showDice(prefix,n){
   const pat=PIP_PATTERNS[n]||[];
@@ -919,12 +810,11 @@ function showDice(prefix,n){
     if(el) el.classList.toggle('show',pat.includes(i));
   }
 }
-
-function rollAnim(diceEl, prefix, cb){
+function rollAnim(diceEl,prefix,cb){
   diceEl.classList.add('rolling');
   let c=0;
   const iv=setInterval(()=>{
-    showDice(prefix, Math.floor(Math.random()*6)+1);
+    showDice(prefix,Math.floor(Math.random()*6)+1);
     c++;
     if(c>=8){
       clearInterval(iv);
@@ -937,119 +827,120 @@ function rollAnim(diceEl, prefix, cb){
 }
 
 // =====================================================
-//  MAIN ROLL
+//  MAIN ROLL — player is chosen by button press
 // =====================================================
-function handleRoll(){
+function setBtnsEnabled(on){
+  document.getElementById('rollBtn0').disabled = !on;
+  document.getElementById('rollBtn1').disabled = !on;
+}
+
+function handleRoll(cp){
   if(state.rolling||state.gameOver) return;
   state.rolling=true;
-  document.getElementById('rollBtn').disabled=true;
+  setBtnsEnabled(false);
+  state.currentPlayer=cp;
+  updateTurnUI();
 
   const md=document.getElementById('main-dice');
-  // Tell OBS to start its own dice animation
-  socket.emit('animEvent', { type:'diceStart', player: state.currentPlayer });
+  socket.emit('animEvent',{type:'diceStart',player:cp});
 
-  rollAnim(md,'mp', result=>{
-    const cp=state.currentPlayer;
+  rollAnim(md,'mp',result=>{
     const p=state.players[cp];
     const pName=playerNames[cp];
-    const pClass=cp===0?'p1-log':'p2-log';
-
-    p.rolls++;
-    document.getElementById(`rolls-p${cp+1}`).textContent=p.rolls;
     document.getElementById('rollInfo').textContent=`${pName} rolled ${result}!`;
-    addLog(`${pName} rolled ${result}`, pClass);
-
-    // Tell OBS the final dice result
-    socket.emit('animEvent', { type:'diceResult', player: cp, result });
+    socket.emit('animEvent',{type:'diceResult',player:cp,result});
 
     const maxTile=tileTypes.length-1;
     const oldTile=p.tile;
-    p.tile=Math.min(p.tile+result, maxTile);
+    p.tile=Math.min(p.tile+result,maxTile);
 
-    animateMove(cp,oldTile,p.tile,()=>{
-      resolveTileLanding(cp, pClass);
-    });
+    animateMove(cp,oldTile,p.tile,()=>{ resolveTileLanding(cp); });
   });
 }
 
 // =====================================================
 //  TILE LANDING
 // =====================================================
-function resolveTileLanding(cp, pClass){
+function resolveTileLanding(cp){
   const p=state.players[cp];
   const pName=playerNames[cp];
   let effectiveType=tileTypes[p.tile];
 
-  // Override?
-  if(p.overrideColor && effectiveType!=='start' && effectiveType!=='stageup'){
-    addLog(`${pName}'s tile override activated! (→${p.overrideColor})`, pClass);
+  if(p.overrideColor&&effectiveType!=='start'&&effectiveType!=='stageup'){
     effectiveType=p.overrideColor;
     p.overrideColor=null;
     document.getElementById(`override-p${cp+1}`).classList.remove('show');
   }
 
   if(effectiveType==='stageup'){
-    handleStageUp(cp, pClass);
+    handleBounce(cp);
   } else if(effectiveType==='green'){
-    doEventDice(cp,'green',pClass);
+    doEventDice(cp,'green');
   } else if(effectiveType==='purple'){
-    doEventDice(cp,'purple',pClass);
+    doEventDice(cp,'purple');
   } else if(effectiveType==='red'){
-    doEventDice(cp,'red',pClass);
+    doEventDice(cp,'red');
   } else if(effectiveType==='yellow'){
-    doYellowEvent(cp,pClass);
+    doYellowEvent(cp);
   } else {
-    // blue / start — no event
-    nextTurn();
+    finishTurn();
   }
+}
+
+// =====================================================
+//  BOUNCE BACK (replaces stage up)
+// =====================================================
+function handleBounce(cp){
+  const pName=playerNames[cp];
+  state.players[cp].score+=CFG.BOUNCE_BONUS;
+  showScoreFloat(cp,CFG.BOUNCE_BONUS);
+  updateUI();
+
+  document.getElementById('bounceTitle').textContent=`${pName} bounces back!`;
+  document.getElementById('bounceDesc').textContent=`+${CFG.BOUNCE_BONUS} pts — back to Start!`;
+  const bs=document.getElementById('bounceTrans');
+  bs.classList.add('show');
+  socket.emit('animEvent',{type:'stageUp',stage:0}); // reuse stageUp anim on OBS
+
+  setTimeout(()=>{
+    bs.classList.remove('show');
+    state.players[cp].tile=0;
+    drawBoard(); emitState();
+    checkWin(cp)||finishTurn();
+  },2800);
 }
 
 // =====================================================
 //  EVENT DICE
 // =====================================================
-function doEventDice(cp,color,pClass){
-  const ed=document.getElementById('event-dice');
-  ed.classList.add('active');
+function doEventDice(cp,color){
+  const md=document.getElementById('main-dice');
   const pName=playerNames[cp];
+  socket.emit('animEvent',{type:'eventDiceStart',color,player:cp});
 
-  // Tell OBS to show event dice animation
-  socket.emit('animEvent', { type:'eventDiceStart', color, player:cp });
-
-  rollAnim(ed,'ep',result=>{
-    ed.classList.remove('active');
+  rollAnim(md,'mp',result=>{
     if(color==='green'){
       const pts=result;
       state.players[cp].score+=pts;
-      addLog(`${pName} 💚 gains ${pts} points!`,pClass);
       showScoreFloat(cp,+pts);
-      socket.emit('animEvent', { type:'tilePopup', icon:'💚', title:'Green Tile!', desc:`+${pts} points!`, duration:1800, scoreFloat:{ player:cp, value:+pts }, eventDiceResult: result });
-      showEventPopupAuto('💚','Green Tile!',`+${pts} points!`,1800,()=>{
-        updateUI(); checkWin(cp,pClass) || nextTurn();
-      });
+      socket.emit('animEvent',{type:'tilePopup',icon:'💚',title:'Green Tile!',desc:`+${pts} points!`,duration:1800,scoreFloat:{player:cp,value:+pts},eventDiceResult:result});
+      showEventPopupAuto('💚','Green Tile!',`+${pts} points!`,1800,()=>{ updateUI(); checkWin(cp)||finishTurn(); });
     } else if(color==='red'){
-      const pts=result;
       const before=state.players[cp].score;
-      state.players[cp].score=Math.max(0, before-pts);
-      const actualLost=before-state.players[cp].score;
-      addLog(`${pName} ❤️ loses ${actualLost} points!`,pClass);
-      showScoreFloat(cp,-actualLost);
-      socket.emit('animEvent', { type:'tilePopup', icon:'❤️', title:'Red Tile!', desc:`-${actualLost} points!`, duration:1800, scoreFloat:{ player:cp, value:-actualLost }, eventDiceResult: result });
-      showEventPopupAuto('❤️','Red Tile!',`-${actualLost} points!`,1800,()=>{
-        updateUI(); nextTurn();
-      });
+      state.players[cp].score=Math.max(0,before-result);
+      const lost=before-state.players[cp].score;
+      showScoreFloat(cp,-lost);
+      socket.emit('animEvent',{type:'tilePopup',icon:'❤️',title:'Red Tile!',desc:`-${lost} points!`,duration:1800,scoreFloat:{player:cp,value:-lost},eventDiceResult:result});
+      showEventPopupAuto('❤️','Red Tile!',`-${lost} points!`,1800,()=>{ updateUI(); finishTurn(); });
     } else if(color==='purple'){
       const dir=Math.random()<.5?1:-1;
-      const amt=result;
-      const pObj=state.players[cp];
-      const maxTile=tileTypes.length-1;
-      const oldTile=pObj.tile;
-      pObj.tile=Math.max(0,Math.min(maxTile,pObj.tile+dir*amt));
-      const label=dir>0?`+${amt} tiles`:`-${amt} tiles`;
-      addLog(`${pName} 💜 moves ${label}!`,pClass);
+      const oldTile=state.players[cp].tile;
+      state.players[cp].tile=Math.max(0,Math.min(tileTypes.length-1,oldTile+dir*result));
+      const label=dir>0?`+${result} tiles`:`-${result} tiles`;
       const icon=dir>0?'💜⬆️':'💜⬇️';
-      socket.emit('animEvent', { type:'tilePopup', icon, title:'Purple Tile!', desc:`${dir>0?'Forward':'Back'} ${amt} tiles!`, duration:1800, eventDiceResult: result });
-      showEventPopupAuto(icon,'Purple Tile!',`${dir>0?'Forward':'Back'} ${amt} tiles!`,1800,()=>{
-        animateMove(cp,oldTile,pObj.tile,()=>{ updateUI(); nextTurn(); });
+      socket.emit('animEvent',{type:'tilePopup',icon,title:'Purple Tile!',desc:`${dir>0?'Forward':'Back'} ${result} tiles!`,duration:1800,eventDiceResult:result});
+      showEventPopupAuto(icon,'Purple Tile!',`${dir>0?'Forward':'Back'} ${result} tiles!`,1800,()=>{
+        animateMove(cp,oldTile,state.players[cp].tile,()=>{ updateUI(); finishTurn(); });
       });
     }
   });
@@ -1058,189 +949,74 @@ function doEventDice(cp,color,pClass){
 // =====================================================
 //  YELLOW EVENT
 // =====================================================
-function doYellowEvent(cp,pClass){
+function doYellowEvent(cp){
   const pName=playerNames[cp];
   const other=1-cp;
   const otherName=playerNames[other];
-
   const events=[
-    {
-      label:`🔄 Swap places with ${otherName}`,
-      fn:()=>{
-        const tmp=state.players[cp].tile;
-        state.players[cp].tile=state.players[other].tile;
-        state.players[other].tile=tmp;
-        addLog(`${pName} swapped tiles with ${otherName}!`,cp===0?'p1-log':'p2-log');
-        drawBoard();
-        showEventPopupAuto('🔄','Swap!',`${pName} and ${otherName} swapped positions!`,2000,()=>{ updateUI(); nextTurn(); });
-      }
-    },
-    {
-      label:`💸 Steal points from ${otherName}`,
-      fn:()=>{
-        const steal=Math.floor(Math.random()*5)+1;
-        const actual=Math.min(steal,state.players[other].score);
-        state.players[other].score=Math.max(0,state.players[other].score-actual);
-        state.players[cp].score+=actual;
-        addLog(`${pName} stole ${actual} pts from ${otherName}!`,cp===0?'p1-log':'p2-log');
-        showScoreFloat(cp,+actual); showScoreFloat(other,-actual);
-        showEventPopupAuto('💸','Point Heist!',`${pName} stole ${actual} pts from ${otherName}!`,2200,()=>{ updateUI(); checkWin(cp,pClass)||nextTurn(); });
-      }
-    },
-    {
-      label:`🕺 Mini Dance Party!`,
-      fn:()=>{
-        addLog(`🕺 Mini Dance Party! Everyone dance!`,'sys');
-        showEventPopupAuto('🕺','MINI DANCE PARTY!','💃 Everybody move! 🕺',3000,()=>{ nextTurn(); });
-      }
-    },
-    {
-      label:`🎨 Override next tile color`,
-      fn:()=>{
-        hideYellowPopup();
-        showColorPicker(cp,pClass);
-      }
-    },
-    {
-      label:`🔀 Shuffle all tiles`,
-      fn:()=>{
-        shuffleTiles();
-        addLog(`${pName} shuffled all tiles! 🔀`,'sys');
-        setupBoard();
-        socket.emit('tilesUpdate', { tileTypes, CFG });
-        showEventPopupAuto('🔀','Board Shuffle!','All tiles have been reshuffled!',2200,()=>{ nextTurn(); });
-      }
-    },
+    { label:`🔄 Swap places with ${otherName}`, fn:()=>{ const tmp=state.players[cp].tile; state.players[cp].tile=state.players[other].tile; state.players[other].tile=tmp; drawBoard(); showEventPopupAuto('🔄','Swap!',`${pName} and ${otherName} swapped!`,2000,()=>{ updateUI(); finishTurn(); }); } },
+    { label:`💸 Steal pts from ${otherName}`,  fn:()=>{ const steal=Math.floor(Math.random()*5)+1; const actual=Math.min(steal,state.players[other].score); state.players[other].score=Math.max(0,state.players[other].score-actual); state.players[cp].score+=actual; showScoreFloat(cp,+actual); showScoreFloat(other,-actual); showEventPopupAuto('💸','Point Heist!',`${pName} stole ${actual} pts!`,2200,()=>{ updateUI(); checkWin(cp)||finishTurn(); }); } },
+    { label:`🕺 Mini Dance Party!`,             fn:()=>{ showEventPopupAuto('🕺','DANCE PARTY!','💃 Everybody move! 🕺',3000,()=>{ finishTurn(); }); } },
+    { label:`🎨 Override next tile color`,      fn:()=>{ hideYellowPopup(); showColorPicker(cp); } },
+    { label:`🔀 Shuffle all tiles`,             fn:()=>{ shuffleTiles(); setupBoard(); socket.emit('tilesUpdate',{tileTypes,CFG}); showEventPopupAuto('🔀','Board Shuffle!','All tiles reshuffled!',2200,()=>{ finishTurn(); }); } },
   ];
 
-  // Pick winner before animation
-  const winIdx = Math.floor(Math.random() * events.length);
-
-  // Build a long repeating list ending on winIdx for the track
-  // We'll show ~30 items scrolling, last visible one = winner
-  const ITEM_H = 52;       // must match CSS height
-  const VISIBLE_EXTRA = 20; // items before the winner
-  const totalItems = VISIBLE_EXTRA + 1;
-
-  const track = document.getElementById('yellowTrack');
-  track.innerHTML = '';
-  track.style.transition = 'none';
-  track.style.transform = 'translateY(0)';
-
-  // Fill track: random items then winner at the end
-  const allLabels = [];
-  for (let i = 0; i < VISIBLE_EXTRA; i++) {
-    allLabels.push(events[Math.floor(Math.random() * events.length)].label);
-  }
-  allLabels.push(events[winIdx].label); // winner is last
-
-  allLabels.forEach((label, i) => {
-    const div = document.createElement('div');
-    div.className = 'yellow-spin-item' + (i === totalItems - 1 ? ' selected' : '');
-    div.textContent = label;
-    track.appendChild(div);
-  });
-
-  document.getElementById('yellowSpinDesc').textContent = 'Landing on...';
+  const winIdx=Math.floor(Math.random()*events.length);
+  const ITEM_H=52, VISIBLE_EXTRA=20, totalItems=VISIBLE_EXTRA+1;
+  const track=document.getElementById('yellowTrack');
+  track.innerHTML=''; track.style.transition='none'; track.style.transform='translateY(0)';
+  const allLabels=[];
+  for(let i=0;i<VISIBLE_EXTRA;i++) allLabels.push(events[Math.floor(Math.random()*events.length)].label);
+  allLabels.push(events[winIdx].label);
+  allLabels.forEach((label,i)=>{ const div=document.createElement('div'); div.className='yellow-spin-item'+(i===totalItems-1?' selected':''); div.textContent=label; track.appendChild(div); });
+  document.getElementById('yellowSpinDesc').textContent='Landing on...';
   showYellowPopup();
-
-  // Tell OBS to play the same spin with same labels/winner
-  socket.emit('animEvent', { type:'yellowSpin', labels: allLabels, winIdx });
-
-  // Animate scroll
-  // viewport centre = 26px from top; winner at index (totalItems-1)
-  // translateY = -(winnerTop - 8px) so winner sits in the middle of the 52px box
-  const finalY = -((totalItems - 1) * ITEM_H) + 8;
-
-  // Start fast then ease to a stop
-  // Phase 1: fast scroll (CSS transition with ease-in)
-  // Phase 2: slow crawl to final position
-  // We do it in one transition with a custom cubic-bezier that decelerates
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      track.style.transition = `transform 2.4s cubic-bezier(0.25, 0.1, 0.1, 1)`;
-      track.style.transform  = `translateY(${finalY}px)`;
-    });
-  });
-
-  // After spin lands, pause briefly then execute event
-  setTimeout(() => {
-    document.getElementById('yellowSpinDesc').textContent = events[winIdx].label;
-    addLog(`⭐ Yellow: ${events[winIdx].label}`, pClass);
-    setTimeout(() => {
-      hideYellowPopup();
-      events[winIdx].fn();
-    }, 1000);
-  }, 2600);
+  socket.emit('animEvent',{type:'yellowSpin',labels:allLabels,winIdx});
+  const finalY=-((totalItems-1)*ITEM_H)+8;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ track.style.transition='transform 2.4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform=`translateY(${finalY}px)`; }));
+  setTimeout(()=>{ document.getElementById('yellowSpinDesc').textContent=events[winIdx].label; setTimeout(()=>{ hideYellowPopup(); events[winIdx].fn(); },1000); },2600);
 }
 
 // =====================================================
-//  STAGE UP
+//  COLOR SPIN
 // =====================================================
-function handleStageUp(cp,pClass){
-  const pName=playerNames[cp];
-  state.players[cp].score+=CFG.STAGE_UP_BONUS;
-  addLog(`${pName} reached Stage Up! +${CFG.STAGE_UP_BONUS} pts 🚀`,pClass);
-  showScoreFloat(cp,CFG.STAGE_UP_BONUS);
-  state.stageUpReached[cp]=state.stage;
-
-  const other=1-cp;
-  const otherReached=state.stageUpReached[other]===state.stage;
-
-  updateUI();
-
-  if(otherReached){
-    checkWin(cp,pClass) || setTimeout(()=>advanceStage(), 600);
-  } else {
-    checkWin(cp,pClass) || (() => {
-      addLog(`Waiting for ${playerNames[other]} to finish their turn...`,'sys');
-      state.pendingStageUp = true;
-      nextTurn();
-    })();
-  }
+const COLOR_OPTIONS=[
+  {type:'green', icon:'😇', label:'Green tile'},
+  {type:'purple',icon:'👟', label:'Purple tile'},
+  {type:'red',   icon:'😈', label:'Red tile'},
+  {type:'blue',  icon:'⬜', label:'Blue tile (plain)'},
+];
+function showColorPicker(cp){
+  const winIdx=Math.floor(Math.random()*COLOR_OPTIONS.length);
+  const winner=COLOR_OPTIONS[winIdx];
+  const ITEM_H=52, VISIBLE_EXTRA=20, totalItems=VISIBLE_EXTRA+1;
+  const track=document.getElementById('colorTrack');
+  track.innerHTML=''; track.style.transition='none'; track.style.transform='translateY(0)';
+  const allLabels=[];
+  for(let i=0;i<VISIBLE_EXTRA;i++){ const r=COLOR_OPTIONS[Math.floor(Math.random()*COLOR_OPTIONS.length)]; allLabels.push({label:r.label,icon:r.icon,bg:TILE_BG[r.type][0]}); }
+  allLabels.push({label:winner.label,icon:winner.icon,bg:TILE_BG[winner.type][0]});
+  allLabels.forEach((item,i)=>{ const div=document.createElement('div'); div.className='yellow-spin-item'+(i===totalItems-1?' selected':''); div.style.background=item.bg; div.innerHTML=`<span style="font-size:22px;margin-right:8px">${item.icon}</span>${item.label}`; track.appendChild(div); });
+  document.getElementById('colorSpinDesc').textContent='Spinning...';
+  document.getElementById('colorPopup').classList.add('show');
+  document.getElementById('overlayBg').classList.add('show');
+  socket.emit('animEvent',{type:'colorSpin',labels:allLabels.map(x=>x.icon+' '+x.label),winIdx});
+  const finalY=-((totalItems-1)*ITEM_H)+8;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ track.style.transition='transform 2.4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform=`translateY(${finalY}px)`; }));
+  setTimeout(()=>{ document.getElementById('colorSpinDesc').textContent=`${winner.icon} ${winner.label}!`; setTimeout(()=>{ hideColorPopup(); state.players[cp].overrideColor=winner.type; document.getElementById(`override-p${cp+1}`).classList.add('show'); emitState(); finishTurn(); },1000); },2600);
 }
-
-function advanceStage(){
-  state.stage++;
-  generateTiles();
-  state.players[0].tile=0;
-  state.players[1].tile=0;
-  state.stageUpReached=[-1,-1];
-
-  const st=document.getElementById('stageTrans');
-  document.getElementById('stageTransTitle').textContent=`Stage ${state.stage}!`;
-  document.getElementById('stageTransDesc').textContent=`Both players advance. New board generated!`;
-  document.getElementById('stageNum').textContent=state.stage;
-  st.classList.add('show');
-  socket.emit('animEvent', { type:'stageUp', stage: state.stage });
-
-  setTimeout(()=>{
-    st.classList.remove('show');
-    setupBoard();
-    updateUI();
-    state.currentPlayer=0;
-    state.rolling=false;
-    document.getElementById('rollBtn').disabled=false;
-    document.getElementById('rollInfo').textContent=`Stage ${state.stage}! ${playerNames[0]}'s turn.`;
-    addLog(`🚀 Stage ${state.stage} begins!`,'sys');
-    socket.emit('tilesUpdate', { tileTypes, CFG });
-  }, 3000);
-}
+function hideColorPopup(){ document.getElementById('colorPopup').classList.remove('show'); document.getElementById('overlayBg').classList.remove('show'); }
 
 // =====================================================
 //  WIN CHECK
 // =====================================================
-function checkWin(cp,pClass){
+function checkWin(cp){
   if(state.players[cp].score>=CFG.POINT_GOAL){
     state.gameOver=true;
     const pName=playerNames[cp];
-    addLog(`🏆 ${pName} wins with ${state.players[cp].score} pts!`,'sys');
-    const ws=document.getElementById('winScreen');
     document.getElementById('winTitle').textContent=`${pName} Wins!`;
-    document.getElementById('winSub').textContent=
-      `${playerNames[0]}: ${state.players[0].score} pts | ${playerNames[1]}: ${state.players[1].score} pts`;
-    setTimeout(()=>ws.classList.add('show'),800);
+    document.getElementById('winSub').textContent=`${playerNames[0]}: ${state.players[0].score} pts | ${playerNames[1]}: ${state.players[1].score} pts`;
+    setTimeout(()=>document.getElementById('winScreen').classList.add('show'),800);
+    emitState();
     return true;
   }
   return false;
@@ -1249,25 +1025,13 @@ function checkWin(cp,pClass){
 // =====================================================
 //  TURN MANAGEMENT
 // =====================================================
-function nextTurn(){
-  // If a stage-up is pending, the current player just finished their turn — advance stage
-  if(state.pendingStageUp){
-    state.pendingStageUp=false;
-    state.rolling=false;
-    updateUI();
-    setTimeout(()=>advanceStage(), 600);
-    return;
-  }
-
-  state.currentPlayer=1-state.currentPlayer;
+function finishTurn(){
   state.rolling=false;
   updateUI();
+  document.getElementById('rollInfo').textContent='Pick who rolls!';
+  setBtnsEnabled(true);
+  state.currentPlayer=-1; // no active player between turns
   updateTurnUI();
-
-  const cp=state.currentPlayer;
-  const pName=playerNames[cp];
-  document.getElementById('rollInfo').textContent=`${pName}'s turn — press ROLL!`;
-  document.getElementById('rollBtn').disabled=false;
 }
 
 // =====================================================
@@ -1279,8 +1043,7 @@ function animateMove(playerIdx,from,to,cb){
   const step=()=>{
     cur=Math.min(cur+1,to);
     state.players[playerIdx].tile=cur;
-    drawBoard();
-    emitState(); // 📡 OBS token walks in sync
+    drawBoard(); emitState();
     if(cur<to) setTimeout(step,160);
     else setTimeout(cb,180);
   };
@@ -1288,7 +1051,7 @@ function animateMove(playerIdx,from,to,cb){
 }
 
 // =====================================================
-//  POPUP HELPERS
+//  POPUPS
 // =====================================================
 function showEventPopupAuto(icon,title,desc,duration,cb){
   document.getElementById('popIcon').textContent=icon;
@@ -1298,119 +1061,25 @@ function showEventPopupAuto(icon,title,desc,duration,cb){
   fill.style.transition='none'; fill.style.width='100%';
   document.getElementById('eventPopup').classList.add('show');
   document.getElementById('overlayBg').classList.add('show');
-  setTimeout(()=>{
-    fill.style.transition=`width ${duration}ms linear`;
-    fill.style.width='0%';
-  },50);
-  setTimeout(()=>{
-    document.getElementById('eventPopup').classList.remove('show');
-    document.getElementById('overlayBg').classList.remove('show');
-    cb();
-  },duration+100);
+  setTimeout(()=>{ fill.style.transition=`width ${duration}ms linear`; fill.style.width='0%'; },50);
+  setTimeout(()=>{ document.getElementById('eventPopup').classList.remove('show'); document.getElementById('overlayBg').classList.remove('show'); cb(); },duration+100);
 }
-
 function showYellowPopup(){ document.getElementById('yellowPopup').classList.add('show'); document.getElementById('overlayBg').classList.add('show'); }
 function hideYellowPopup(){ document.getElementById('yellowPopup').classList.remove('show'); document.getElementById('overlayBg').classList.remove('show'); }
 
-const COLOR_OPTIONS=[
-  {type:'green', icon:'😇', label:'Green tile'},
-  {type:'purple',icon:'👟', label:'Purple tile'},
-  {type:'red',   icon:'😈', label:'Red tile'},
-  {type:'blue',  icon:'⬜', label:'Blue tile (plain)'},
-];
-
-function showColorPicker(cp,pClass){
-  const pName=playerNames[cp];
-  const winIdx = Math.floor(Math.random() * COLOR_OPTIONS.length);
-  const winner = COLOR_OPTIONS[winIdx];
-
-  // Build long spin list ending on winner (same mechanism as yellow)
-  const ITEM_H = 52;
-  const VISIBLE_EXTRA = 20;
-  const totalItems = VISIBLE_EXTRA + 1;
-  const track = document.getElementById('colorTrack');
-  track.innerHTML = '';
-  track.style.transition = 'none';
-  track.style.transform = 'translateY(0)';
-
-  const allLabels = [];
-  for (let i = 0; i < VISIBLE_EXTRA; i++) {
-    const r = COLOR_OPTIONS[Math.floor(Math.random() * COLOR_OPTIONS.length)];
-    allLabels.push({ label: r.label, icon: r.icon, bg: TILE_BG[r.type][0] });
-  }
-  allLabels.push({ label: winner.label, icon: winner.icon, bg: TILE_BG[winner.type][0] });
-
-  allLabels.forEach((item, i) => {
-    const div = document.createElement('div');
-    div.className = 'yellow-spin-item color-spin-item' + (i === totalItems - 1 ? ' selected' : '');
-    div.style.background = item.bg;
-    div.innerHTML = `<span style="font-size:22px;margin-right:8px">${item.icon}</span>${item.label}`;
-    track.appendChild(div);
-  });
-
-  document.getElementById('colorSpinDesc').textContent = 'Spinning...';
-  document.getElementById('colorPopup').classList.add('show');
-  document.getElementById('overlayBg').classList.add('show');
-
-  // Emit to OBS
-  socket.emit('animEvent', {
-    type: 'colorSpin',
-    labels: allLabels.map(x => x.icon + ' ' + x.label),
-    winIdx
-  });
-
-  const finalY = -((totalItems - 1) * ITEM_H) + 8;
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    track.style.transition = `transform 2.4s cubic-bezier(0.25, 0.1, 0.1, 1)`;
-    track.style.transform  = `translateY(${finalY}px)`;
-  }));
-
-  setTimeout(() => {
-    document.getElementById('colorSpinDesc').textContent = `${winner.icon} ${winner.label}!`;
-    setTimeout(() => {
-      hideColorPopup();
-      state.players[cp].overrideColor = winner.type;
-      addLog(`${pName} gets ${winner.label} override! ${winner.icon}`, 'sys');
-      document.getElementById(`override-p${cp+1}`).classList.add('show');
-      emitState();
-      nextTurn();
-    }, 1000);
-  }, 2600);
-}
-function hideColorPopup(){ document.getElementById('colorPopup').classList.remove('show'); document.getElementById('overlayBg').classList.remove('show'); }
-
 // =====================================================
-//  UI UPDATES
+//  UI
 // =====================================================
 function updateUI(){
   for(let i=0;i<2;i++){
-    const p=state.players[i];
-    document.getElementById(`score-p${i+1}`).textContent=p.score;
-    document.getElementById(`tile-p${i+1}`).textContent=p.tile+1;
-    document.getElementById(`rolls-p${i+1}`).textContent=p.rolls;
-    const pct=Math.min(100, (p.score/CFG.POINT_GOAL)*100);
-    document.getElementById(`bar-p${i+1}`).style.width=pct+'%';
-    document.getElementById(`goal-label-p${i+1}`).textContent=`${p.score} / ${CFG.POINT_GOAL}`;
+    document.getElementById(`score-p${i+1}`).textContent=state.players[i].score;
   }
-  document.getElementById('goalDisplay').textContent=CFG.POINT_GOAL;
-  drawBoard();
-  emitState(); // 📡 broadcast to OBS clients
+  drawBoard(); emitState();
 }
-
 function updateTurnUI(){
   document.getElementById('card-p1').classList.toggle('active',state.currentPlayer===0);
   document.getElementById('card-p2').classList.toggle('active',state.currentPlayer===1);
 }
-
-function addLog(text,cls=''){
-  const el=document.getElementById('logEntries');
-  const e=document.createElement('div');
-  e.className=`log-entry ${cls}`;
-  e.textContent=text;
-  el.insertBefore(e,el.firstChild);
-  while(el.children.length>7) el.removeChild(el.lastChild);
-}
-
 function showScoreFloat(playerIdx,value){
   const p=state.players[playerIdx];
   const t=tilePositions[Math.min(p.tile,tilePositions.length-1)];
@@ -1418,44 +1087,28 @@ function showScoreFloat(playerIdx,value){
   const rect=canvas.getBoundingClientRect();
   const el=document.createElement('div');
   el.className='score-float';
-  el.style.left=(rect.left+t.cx)+'px';
-  el.style.top=(rect.top+t.cy)+'px';
-  el.style.color=value>=0?'#55efc4':'#e94560';
+  el.style.left=(rect.left+t.cx)+'px'; el.style.top=(rect.top+t.cy)+'px';
+  el.style.color=value>=0?'#00f5d4':'#ff4d6d';
   el.textContent=(value>=0?'+':'')+value;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),1400);
+  document.body.appendChild(el); setTimeout(()=>el.remove(),1400);
 }
 
 // =====================================================
 //  RESTART
 // =====================================================
 function restartGame(){
-  state={
-    stage:1, currentPlayer:0,
-    stageUpReached:[-1,-1], pendingStageUp:false,
-    players:[
-      {tile:0,score:0,rolls:0,overrideColor:null},
-      {tile:0,score:0,rolls:0,overrideColor:null},
-    ],
-    rolling:false, gameOver:false,
-  };
+  state={ currentPlayer:-1, players:[{tile:0,score:0,overrideColor:null},{tile:0,score:0,overrideColor:null}], rolling:false, gameOver:false };
   document.getElementById('winScreen').classList.remove('show');
-  document.getElementById('logEntries').innerHTML='';
   document.getElementById('override-p1').classList.remove('show');
   document.getElementById('override-p2').classList.remove('show');
-  document.getElementById('stageNum').textContent='1';
   showDice('mp',1); showDice('ep',1);
-  // Go back to setup screen
   document.getElementById('setupScreen').style.display='flex';
 }
 
 // =====================================================
 //  INIT
 // =====================================================
-window.addEventListener('load',()=>{
-  showDice('mp',1);
-  // Game starts via the setup screen's "Let's Play" button
-});
+window.addEventListener('load',()=>{ showDice('mp',1); });
 window.addEventListener('resize',()=>{ if(tilePositions.length) setupBoard(); });
 </script>
 </body>

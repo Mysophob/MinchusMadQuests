@@ -1,22 +1,22 @@
-const express = require('express');
-const http = require('http');
+const express    = require('express');
+const http       = require('http');
 const { Server } = require('socket.io');
-const path = require('path');
+const path       = require('path');
 
-const app = express();
+const app    = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io     = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
 // ─── Static files ─────────────────────────────────────────────────────────────
 app.use('/control', express.static(path.join(__dirname, 'public/control')));
-app.use('/obs', express.static(path.join(__dirname, 'public/obs')));
+app.use('/obs',     express.static(path.join(__dirname, 'public/obs')));
 app.get('/', (req, res) => res.redirect('/control'));
 
 // ─── Server-side cache (lets late-joining OBS clients catch up instantly) ─────
-let latestState = null;
-let latestTiles = null;
+let latestState  = null;
+let latestTiles  = null;
 const avatarCache = [null, null];
 
 // ─── Socket connections ────────────────────────────────────────────────────────
@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
 
   // Catch-up: send everything cached to any new joiner
   if (latestState) socket.emit('stateUpdate', latestState);
-  if (latestTiles) socket.emit('tilesUpdate', latestTiles);
+  if (latestTiles) socket.emit('tilesUpdate',  latestTiles);
   avatarCache.forEach(av => { if (av) socket.emit('avatarUpdate', av); });
 
   // Control room sends full game state after every action
@@ -51,8 +51,8 @@ io.on('connection', (socket) => {
   socket.on('animEvent', (data) => {
     socket.broadcast.emit('animEvent', data);
   });
-  console.log(`[-] ${clientType} disconnected (id: ${socket.id})`);
-});
+    console.log(`[-] ${clientType} disconnected (id: ${socket.id})`);
+  });
 
 server.listen(PORT, () => {
   console.log(`\n🎮 Stream Quest running!`);
