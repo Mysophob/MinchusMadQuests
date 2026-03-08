@@ -8,73 +8,82 @@
 <script src="/socket.io/socket.io.js"></script>
 <style>
 :root {
-  --bg: #0d0d1a;
-  --panel: #141428;
-  --p1c: #ff4d6d;
-  --p2c: #00f5d4;
-  --accent: #ffbe0b;
-  --text: #f0f0f0;
+  --bg: #1a0530;
+  --panel: #2d1050;
+  --p1c: #ff3db4;
+  --p2c: #bf7fff;
+  --accent: #ff80d5;
+  --text: #f8e8ff;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body {
   width:100%; height:100%; overflow:hidden;
   background:var(--bg); font-family:'Nunito',sans-serif; color:var(--text);
   background-image:
-    radial-gradient(ellipse at 15% 15%, rgba(255,77,109,.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 85%, rgba(0,245,212,.08) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 10%, rgba(255,80,200,.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(140,60,255,.30) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, rgba(200,80,255,.12) 0%, transparent 70%);
 }
-body { display:flex; flex-direction:column; }
+body { display:flex; align-items:stretch; justify-content:center; }
+
+/* ── PLAY AREA ─────────────────── */
+.play-area { display:flex; flex-direction:row; align-items:flex-start; width:100%; max-width:1300px; height:100%; }
+
+/* ── LEFT PANEL (sidebar) ─────── */
+.left-panel {
+  flex-shrink:0; width:clamp(220px, 22%, 280px); height:100%;
+  display:flex; flex-direction:column; gap:8px;
+  padding:10px 10px 10px 10px;
+  background:rgba(30,5,60,.5); border-right:1px solid rgba(255,80,200,.2);
+  overflow-y:auto;
+}
 
 /* ── BOARD ─────────────────── */
-.board-area { flex:1; min-height:0; display:flex; flex-direction:column; padding:8px 10px 0; gap:4px; }
+.board-area {
+  flex:1; min-width:0; height:100%;
+  display:flex; flex-direction:column; padding:8px 10px; gap:4px;
+}
 .game-title {
-  text-align:center; font-family:'Fredoka One',cursive; font-size:20px; flex-shrink:0;
+  text-align:center; font-family:'Fredoka One',cursive; font-size:clamp(16px,2.5vw,24px); flex-shrink:0;
   background:linear-gradient(90deg,var(--p1c),var(--accent),var(--p2c));
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
 .board-wrapper { flex:1; position:relative; min-height:0; }
-#board-canvas { border-radius:14px; display:block; }
+#board-canvas { border-radius:14px; display:block; width:100%; height:100%; }
 
-/* ── BOTTOM PANEL ──────────── */
-.left-panel {
-  flex-shrink:0; display:flex; flex-direction:column; gap:8px;
-  padding:8px 10px 10px;
-  background:rgba(0,0,0,.25); border-top:1px solid rgba(255,255,255,.06);
-}
-
-/* Player cards */
-.players-row { display:flex; gap:8px; }
-.players-row .player-card { flex:1; min-width:0; }
+/* Player cards stacked vertically in sidebar */
+.players-row { display:flex; flex-direction:column; gap:8px; }
 
 .player-card {
   background:var(--panel); border-radius:14px; padding:12px;
   border:2px solid transparent; transition:border-color .3s,box-shadow .3s;
   position:relative; overflow:hidden;
+  box-shadow:0 2px 16px rgba(180,60,255,.25);
 }
 .player-card::before {
   content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0;
 }
 .player-card.p1::before { background:var(--p1c); }
 .player-card.p2::before { background:var(--p2c); }
-.player-card.active { border-color:var(--accent); box-shadow:0 0 18px rgba(255,190,11,.35); }
+.player-card.active { border-color:var(--accent); box-shadow:0 0 22px rgba(255,80,200,.6); }
 .player-name-row { display:flex; align-items:center; gap:7px; margin-bottom:4px; }
 .player-avatar {
   width:34px; height:34px; border-radius:50%; flex-shrink:0;
-  overflow:hidden; border:2px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.08); display:flex; align-items:center;
+  overflow:hidden; border:2px solid rgba(255,80,200,.35);
+  background:rgba(180,60,255,.15); display:flex; align-items:center;
   justify-content:center; font-family:'Fredoka One',cursive; font-size:14px;
 }
 .player-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
-.player-name { font-family:'Fredoka One',cursive; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.player-name { font-family:'Fredoka One',cursive; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text); }
 .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; margin-left:auto; }
 .p1 .dot { background:var(--p1c); box-shadow:0 0 6px var(--p1c); }
 .p2 .dot { background:var(--p2c); box-shadow:0 0 6px var(--p2c); }
 .score-big { font-family:'Fredoka One',cursive; font-size:48px; line-height:1; }
-.p1 .score-big { color:var(--p1c); text-shadow:0 0 20px rgba(255,77,109,.4); }
-.p2 .score-big { color:var(--p2c); text-shadow:0 0 20px rgba(0,245,212,.4); }
+.p1 .score-big { color:var(--p1c); text-shadow:0 0 25px rgba(255,61,180,.5); }
+.p2 .score-big { color:var(--p2c); text-shadow:0 0 25px rgba(191,127,255,.5); }
 .override-badge {
   display:none; margin-top:4px; padding:2px 7px; border-radius:7px;
-  font-size:9px; font-weight:800; text-align:center; background:rgba(255,255,255,.1);
+  font-size:9px; font-weight:800; text-align:center; background:rgba(255,80,200,.2); color:var(--p1c);
 }
 .override-badge.show { display:block; }
 
@@ -82,12 +91,14 @@ body { display:flex; flex-direction:column; }
 .dice-row-solo {
   display:flex; justify-content:center; align-items:center; gap:10px;
   padding:10px; background:var(--panel); border-radius:14px;
+  box-shadow:0 2px 16px rgba(180,60,255,.2);
 }
 .dice {
   width:60px; height:60px; background:white; border-radius:12px; flex-shrink:0;
   display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr);
   padding:8px; gap:3px;
-  box-shadow:0 4px 14px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.6);
+  box-shadow:0 4px 18px rgba(180,60,255,.35), inset 0 1px 0 rgba(255,200,255,.5);
+  border:2px solid rgba(255,80,200,.3);
 }
 .dice.rolling { animation:diceRoll .5s ease-out; }
 @keyframes diceRoll {
@@ -97,9 +108,9 @@ body { display:flex; flex-direction:column; }
   80% { transform:rotate(-8deg) scale(1.04); }
   100%{ transform:rotate(0) scale(1); }
 }
-.pip { width:100%; height:100%; border-radius:50%; background:#0d0d1a; display:none; }
+.pip { width:100%; height:100%; border-radius:50%; background:linear-gradient(135deg,#ff3db4,#bf7fff); display:none; }
 .pip.show { display:block; }
-.roll-info { font-family:'Fredoka One',cursive; font-size:11px; color:#888; text-align:center; }
+.roll-info { font-family:'Fredoka One',cursive; font-size:11px; color:#e0a0ff; text-align:center; }
 
 /* Player pick buttons — shown instead of single ROLL */
 .pick-btns { display:flex; gap:6px; }
@@ -110,66 +121,55 @@ body { display:flex; flex-direction:column; }
   cursor:pointer; transition:transform .12s, box-shadow .12s;
   -webkit-tap-highlight-color:transparent; touch-action:manipulation;
 }
-.pick-btn.p1-btn { background:linear-gradient(135deg,var(--p1c),#c0392b); box-shadow:0 4px 0 #8b1a2c; }
-.pick-btn.p2-btn { background:linear-gradient(135deg,var(--p2c),#00b894); box-shadow:0 4px 0 #007a60; color:#0d0d1a; }
-.pick-btn:active:not(:disabled) { transform:translateY(3px); box-shadow:0 1px 0 #444 !important; }
+.pick-btn.p1-btn { background:linear-gradient(135deg,#ff3db4,#c0006e); box-shadow:0 4px 0 #800047; }
+.pick-btn.p2-btn { background:linear-gradient(135deg,#bf7fff,#8c00ff); box-shadow:0 4px 0 #5c0099; color:#fff; }
+.pick-btn:active:not(:disabled) { transform:translateY(3px); box-shadow:0 1px 0 #aaa !important; }
 .pick-btn:disabled { opacity:.4; cursor:not-allowed; }
 
-/* Landscape */
-@media (orientation:landscape) and (min-width:600px) {
-  body { flex-direction:row; }
-  .left-panel {
-    width:230px; flex-shrink:0; flex-direction:column;
-    max-height:none; border-top:none; border-right:1px solid rgba(255,255,255,.06); padding:10px;
-  }
-  .players-row { flex-direction:column; }
-  .board-area { padding:10px 10px 10px 0; }
-}
-
 /* ── POPUPS ──────────────────── */
-.overlay-bg { position:fixed; inset:0; background:rgba(0,0,0,.55); opacity:0; pointer-events:none; transition:opacity .3s; z-index:50; }
+.overlay-bg { position:fixed; inset:0; background:rgba(15,0,40,.65); opacity:0; pointer-events:none; transition:opacity .3s; z-index:50; }
 .overlay-bg.show { opacity:1; pointer-events:all; }
 .popup {
   position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
   background:var(--panel); border:2px solid var(--accent); border-radius:22px;
   padding:24px 28px; text-align:center; z-index:100;
-  box-shadow:0 20px 60px rgba(0,0,0,.7);
+  box-shadow:0 20px 60px rgba(140,0,255,.4);
   transition:transform .35s cubic-bezier(.34,1.56,.64,1); min-width:300px;
 }
 .popup.show { transform:translate(-50%,-50%) scale(1); }
 .popup .pop-icon { font-size:52px; margin-bottom:8px; }
 .popup .pop-title { font-family:'Fredoka One',cursive; font-size:24px; color:var(--accent); margin-bottom:6px; }
-.popup .pop-desc { font-size:13px; color:#ccc; line-height:1.5; margin-bottom:14px; }
-.dismiss-bar { height:4px; background:rgba(255,255,255,.1); border-radius:4px; margin-top:10px; overflow:hidden; }
+.popup .pop-desc { font-size:13px; color:#d8a0ff; line-height:1.5; margin-bottom:14px; }
+.dismiss-bar { height:4px; background:rgba(255,80,200,.2); border-radius:4px; margin-top:10px; overflow:hidden; }
 .dismiss-fill { height:100%; background:var(--accent); border-radius:4px; width:100%; transition:width linear; }
 
 /* Spinner */
 .yellow-spinner-wrap {
   position:relative; width:100%; height:52px; overflow:hidden;
-  border-radius:12px; border:2px solid var(--accent); background:rgba(0,0,0,.3); margin-top:6px;
+  border-radius:12px; border:2px solid var(--accent); background:rgba(100,20,160,.3); margin-top:6px;
 }
 .yellow-spinner-wrap::before,.yellow-spinner-wrap::after {
   content:''; position:absolute; left:0; right:0; height:16px; z-index:2; pointer-events:none;
 }
-.yellow-spinner-wrap::before { top:0; background:linear-gradient(to bottom,rgba(20,20,40,1),transparent); }
-.yellow-spinner-wrap::after  { bottom:0; background:linear-gradient(to top,rgba(20,20,40,1),transparent); }
+.yellow-spinner-wrap::before { top:0; background:linear-gradient(to bottom,rgba(20,5,50,1),transparent); }
+.yellow-spinner-wrap::after  { bottom:0; background:linear-gradient(to top,rgba(20,5,50,1),transparent); }
 .yellow-spinner-highlight {
   position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
-  height:36px; background:rgba(255,190,11,.15); border-top:1px solid rgba(255,190,11,.4);
-  border-bottom:1px solid rgba(255,190,11,.4); z-index:1; pointer-events:none;
+  height:36px; background:rgba(255,80,200,.2); border-top:1px solid rgba(255,128,213,.5);
+  border-bottom:1px solid rgba(255,128,213,.5); z-index:1; pointer-events:none;
 }
 .yellow-spinner-track { display:flex; flex-direction:column; transition:transform 0s; position:relative; z-index:0; }
 .yellow-spin-item {
   height:52px; display:flex; align-items:center; padding:0 14px;
   font-family:'Nunito',sans-serif; font-weight:800; font-size:13px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:0;
-  color:rgba(255,255,255,.7);
+  color:rgba(248,232,255,.4);
 }
-.yellow-spin-item.selected { color:#fff; }
+.yellow-spin-item.selected { color:var(--text); }
 
 /* Bounce-back screen */
 .bounce-screen {
-  position:fixed; inset:0; background:#0a0a1a;
+  position:fixed; inset:0; background:linear-gradient(135deg,#2d0a4e,#1a0530,#3d006e);
   display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
   z-index:200; opacity:0; pointer-events:none; transition:opacity .5s;
 }
@@ -177,35 +177,36 @@ body { display:flex; flex-direction:column; }
 .bounce-screen .big-icon { font-size:80px; animation:pulse 1s ease infinite alternate; }
 @keyframes pulse { from{transform:scale(1);} to{transform:scale(1.1);} }
 .bounce-screen h1 { font-family:'Fredoka One',cursive; font-size:clamp(28px,6vw,48px); color:var(--accent); }
-.bounce-screen p { font-size:clamp(12px,2.5vw,16px); color:#aaa; text-align:center; padding:0 20px; }
+.bounce-screen p { font-size:clamp(12px,2.5vw,16px); color:#d8a0ff; text-align:center; padding:0 20px; }
 
 /* Win screen */
 .win-screen {
-  position:fixed; inset:0; background:rgba(10,10,20,.9);
+  position:fixed; inset:0; background:rgba(20,0,50,.92);
   display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
   z-index:300; opacity:0; pointer-events:none; transition:opacity .5s;
 }
 .win-screen.show { opacity:1; pointer-events:all; }
 .win-screen .trophy { font-size:80px; animation:bounce .8s ease infinite alternate; }
 @keyframes bounce { from{transform:translateY(0);} to{transform:translateY(-12px);} }
-.win-screen h1 { font-family:'Fredoka One',cursive; font-size:clamp(28px,6vw,52px); background:linear-gradient(90deg,var(--p1c),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.win-screen p { font-size:17px; color:#aaa; }
+.win-screen h1 { font-family:'Fredoka One',cursive; font-size:clamp(28px,6vw,52px); background:linear-gradient(90deg,var(--p1c),var(--accent),var(--p2c)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.win-screen p { font-size:17px; color:#d8a0ff; }
 .restart-btn {
   margin-top:8px; padding:12px 30px;
-  background:linear-gradient(135deg,var(--p2c),#00b894);
-  border:none; border-radius:13px; color:#0d0d1a;
+  background:linear-gradient(135deg,#ff3db4,#9000ff);
+  border:none; border-radius:13px; color:#fff;
   font-family:'Fredoka One',cursive; font-size:19px; cursor:pointer;
-  box-shadow:0 4px 0 #00756a; transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 0 #5c0099; transition:transform .15s,box-shadow .15s;
   touch-action:manipulation;
 }
-.restart-btn:active { transform:translateY(2px); box-shadow:0 2px 0 #00756a; }
+.restart-btn:active { transform:translateY(2px); box-shadow:0 2px 0 #5c0099; }
 
 /* ── SETUP ───────────────────── */
 #setupScreen {
   position:fixed; inset:0; z-index:500; background:var(--bg);
   background-image:
-    radial-gradient(ellipse at 20% 30%,rgba(255,77,109,.12) 0%,transparent 50%),
-    radial-gradient(ellipse at 80% 70%,rgba(0,245,212,.12) 0%,transparent 50%);
+    radial-gradient(ellipse at 20% 20%,rgba(255,80,200,.4) 0%,transparent 55%),
+    radial-gradient(ellipse at 80% 80%,rgba(140,0,255,.35) 0%,transparent 55%),
+    radial-gradient(ellipse at 50% 50%,rgba(180,60,255,.15) 0%,transparent 70%);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:20px; padding:20px; overflow-y:auto;
 }
@@ -214,50 +215,51 @@ body { display:flex; flex-direction:column; }
   background:linear-gradient(90deg,var(--p1c),var(--accent),var(--p2c));
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
-#setupScreen p.subtitle { font-size:clamp(11px,3vw,15px); color:#666; margin-top:-10px; text-align:center; }
+#setupScreen p.subtitle { font-size:clamp(11px,3vw,15px); color:#d8a0ff; margin-top:-10px; text-align:center; }
 .setup-players { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
 .setup-card {
   background:var(--panel); border-radius:20px; padding:20px;
   display:flex; flex-direction:column; align-items:center; gap:12px;
-  border:2px solid rgba(255,255,255,.07); width:clamp(150px,40vw,240px);
+  border:2px solid rgba(255,80,200,.25); width:clamp(150px,40vw,240px);
+  box-shadow:0 4px 24px rgba(140,0,255,.25);
 }
-.setup-card.p1 { border-color:rgba(255,77,109,.3); }
-.setup-card.p2 { border-color:rgba(0,245,212,.3); }
+.setup-card.p1 { border-color:rgba(255,61,180,.5); }
+.setup-card.p2 { border-color:rgba(191,127,255,.5); }
 .setup-card h2 { font-family:'Fredoka One',cursive; font-size:clamp(16px,5vw,22px); }
 .setup-card.p1 h2 { color:var(--p1c); }
 .setup-card.p2 h2 { color:var(--p2c); }
 .avatar-upload-area {
   width:clamp(80px,22vw,110px); height:clamp(80px,22vw,110px); border-radius:50%;
-  border:3px dashed rgba(255,255,255,.2);
+  border:3px dashed rgba(255,80,200,.4);
   display:flex; align-items:center; justify-content:center; flex-direction:column;
   cursor:pointer; transition:border-color .2s,transform .15s;
-  overflow:hidden; position:relative; background:rgba(255,255,255,.05);
+  overflow:hidden; position:relative; background:rgba(180,60,255,.1);
   -webkit-tap-highlight-color:transparent;
 }
-.avatar-upload-area:hover { border-color:rgba(255,255,255,.5); transform:scale(1.03); }
+.avatar-upload-area:hover { border-color:rgba(255,80,200,.9); transform:scale(1.03); }
 .avatar-upload-area img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; display:none; }
 .avatar-upload-area img.loaded { display:block; }
 .avatar-upload-area .upload-hint { display:flex; flex-direction:column; align-items:center; gap:3px; pointer-events:none; }
 .avatar-upload-area .upload-hint span { font-size:26px; }
-.avatar-upload-area .upload-hint p { font-size:9px; color:#666; text-align:center; }
+.avatar-upload-area .upload-hint p { font-size:9px; color:#e0a0ff; text-align:center; }
 .avatar-upload-area input[type=file] { display:none; }
 .avatar-upload-area.has-photo .upload-hint { display:none; }
 .name-input {
   width:100%; padding:8px 12px;
-  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+  background:rgba(180,60,255,.1); border:1px solid rgba(255,80,200,.3);
   border-radius:10px; color:var(--text); font-family:'Nunito',sans-serif;
   font-size:14px; font-weight:700; text-align:center; outline:none; transition:border-color .2s;
 }
-.name-input:focus { border-color:rgba(255,255,255,.35); }
+.name-input:focus { border-color:rgba(255,80,200,.7); }
 .start-btn {
   padding:clamp(10px,3vh,14px) clamp(28px,8vw,52px);
-  background:linear-gradient(135deg,var(--accent),#d4891e);
-  border:none; border-radius:16px; color:#0d0d1a;
+  background:linear-gradient(135deg,#ff3db4,#9000ff);
+  border:none; border-radius:16px; color:#fff;
   font-family:'Fredoka One',cursive; font-size:clamp(18px,5vw,24px);
-  cursor:pointer; box-shadow:0 5px 0 #9a6010;
+  cursor:pointer; box-shadow:0 5px 0 #5c0099;
   transition:transform .15s,box-shadow .15s; touch-action:manipulation;
 }
-.start-btn:active { transform:translateY(2px); box-shadow:0 3px 0 #9a6010; }
+.start-btn:active { transform:translateY(2px); box-shadow:0 3px 0 #5c0099; }
 
 .score-float {
   position:fixed; font-family:'Fredoka One',cursive; font-size:28px;
@@ -299,7 +301,10 @@ body { display:flex; flex-direction:column; }
   <button class="start-btn" onclick="startGame()">Let's Play! 🎲</button>
 </div>
 
-<!-- LEFT PANEL (bottom on mobile, side on landscape) -->
+<!-- PLAY AREA -->
+<div class="play-area">
+
+<!-- LEFT PANEL -->
 <div class="left-panel">
   <div class="players-row">
     <!-- P1 card -->
@@ -342,6 +347,8 @@ body { display:flex; flex-direction:column; }
   <div class="game-title">🎮 Minchus Mad Quest</div>
   <div class="board-wrapper"><canvas id="board-canvas"></canvas></div>
 </div>
+
+</div><!-- end .play-area -->
 
 <!-- Overlay -->
 <div class="overlay-bg" id="overlayBg"></div>
@@ -535,76 +542,105 @@ const TILE_ICON = { green:'😇', purple:'👟', red:'😈', yellow:'⭐', stage
 // The path uses straight horizontal runs connected by smooth bezier U-turns.
 // Returns { centres: [{x,y}…], trackPts: [{x,y}…] }
 // Tiles are placed ONLY on the straight rows at fixed equal spacing.
-// The bezier curves are purely visual connectors — no tiles land on them.
-function computeSnakeLayout(W, H, N, tileSize) {
-  const half   = tileSize / 2 + 6;
-  const left   = half;
-  const right  = W - half;
-  const top    = half;
-  const bottom = H - half;
-  const usableW = right - left;
+// ── Winding path layout ──────────────────────────────────────────────────────
+// Builds one continuous path: straight rows connected by smooth S-curves.
+// Tiles are placed at evenly-spaced arc-length intervals along the whole path.
+// Each tile gets a position + tangent angle so it sits naturally on the curve.
+function computeWindingPath(W, H, N) {
+  const DENSITY = 800;
+  const px = W * 0.14, py = H * 0.1;
+  const iW = W - px * 2, iH = H - py * 2;
 
-  // Decide tiles-per-row so spacing is as even as possible
-  const tilesPerRow = Math.max(3, Math.min(8, Math.round(Math.sqrt(N * W / H))));
-  const numRows     = Math.ceil(N / tilesPerRow);
+  // Instead of zigzag anchors, define a series of smooth waypoints
+  // that trace a sine-wave snake. The key insight: place waypoints at
+  // the MIDDLE of each horizontal transition, not at the hard edges.
+  // Then use Catmull-Rom → cubic bezier conversion for perfectly smooth flow.
+  const ROWS = 6;
+  const rowH = iH / (ROWS - 1);
+  // Push waypoints slightly outside the inner area so the bezier arc swings wide
+  const left = px - iW * 0.06, right = px + iW + iW * 0.06;
 
-  // Row y-positions: bottom → top
-  const ys = [];
-  for (let r = 0; r < numRows; r++) {
-    ys.push(numRows === 1 ? (top + bottom) / 2
-      : bottom - r * (bottom - top) / (numRows - 1));
+  const wp = [];
+  for (let r = 0; r < ROWS; r++) {
+    const y = py + r * rowH;
+    const x = (r % 2 === 0) ? left : right;
+    wp.push({ x, y });
   }
 
-  // Place tiles: each row gets its own count, spaced evenly across usableW
-  const centres = [];
-  for (let r = 0; r < numRows; r++) {
-    const remaining = N - centres.length;
-    const count     = Math.min(tilesPerRow, remaining);
-    const y         = ys[r];
-    const rtl       = (r % 2 === 1);
-
-    for (let c = 0; c < count; c++) {
-      // fraction along this row: 0 → 1
-      const frac = count === 1 ? 0.5 : c / (count - 1);
-      const x    = left + frac * usableW;
-      centres.push({ x: rtl ? (W - x) : x, y });
-    }
+  // Catmull-Rom → cubic bezier with boosted tangent scale for lazy, wide S-bends
+  const tangentScale = 1.8;
+  const segments = [];
+  for (let i = 0; i < wp.length - 1; i++) {
+    const p0 = wp[Math.max(0, i - 1)];
+    const p1 = wp[i];
+    const p2 = wp[i + 1];
+    const p3 = wp[Math.min(wp.length - 1, i + 2)];
+    const cp1x = p1.x + (p2.x - p0.x) * tangentScale / 2;
+    const cp1y = p1.y + (p2.y - p0.y) * tangentScale / 2;
+    const cp2x = p2.x - (p3.x - p1.x) * tangentScale / 2;
+    const cp2y = p2.y - (p3.y - p1.y) * tangentScale / 2;
+    segments.push({ type:'bez', x0:p1.x, y0:p1.y, cx1:cp1x, cy1:cp1y, cx2:cp2x, cy2:cp2y, x1:p2.x, y1:p2.y });
   }
 
-  // Build dense track points for drawing: straight segments + bezier U-turns
-  const trackPts = [];
-  const STEPS    = 32;
-
-  for (let r = 0; r < numRows; r++) {
-    const y   = ys[r];
-    const rtl = (r % 2 === 1);
-    // Start/end x of this row's straight
-    const xA  = rtl ? right : left;
-    const xB  = rtl ? left  : right;
-
-    // Add straight segment points
-    for (let s = 0; s <= STEPS; s++) {
-      trackPts.push({ x: xA + (xB - xA) * s / STEPS, y });
-    }
-
-    // Add bezier U-turn to next row
-    if (r < numRows - 1) {
-      const yNext = ys[r + 1];
-      // Bow INWARD (toward canvas centre)
-      const bow  = (rtl ? 1 : -1) * tileSize * 1.2;
-      const p0x=xB, p0y=y, p1x=xB+bow, p1y=y;
-      const p2x=xB+bow, p2y=yNext, p3x=xB, p3y=yNext;
-      for (let s = 1; s <= STEPS; s++) {
-        const t = s / STEPS, u = 1 - t;
-        trackPts.push({
-          x: u*u*u*p0x + 3*u*u*t*p1x + 3*u*t*t*p2x + t*t*t*p3x,
-          y: u*u*u*p0y + 3*u*u*t*p1y + 3*u*t*t*p2y + t*t*t*p3y,
+  // Sample each segment densely to get arc-length parameterisation
+  function sampleSegment(seg, steps) {
+    const pts = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      if (seg.type === 'line') {
+        pts.push({ x: seg.x0 + t*(seg.x1-seg.x0), y: seg.y0 + t*(seg.y1-seg.y0) });
+      } else {
+        const u = 1-t;
+        pts.push({
+          x: u*u*u*seg.x0 + 3*u*u*t*seg.cx1 + 3*u*t*t*seg.cx2 + t*t*t*seg.x1,
+          y: u*u*u*seg.y0 + 3*u*u*t*seg.cy1 + 3*u*t*t*seg.cy2 + t*t*t*seg.y1,
         });
       }
     }
+    return pts;
   }
 
-  return { centres, trackPts };
+  // Concatenate all segment samples into one dense polyline
+  let allPts = [];
+  for (let i = 0; i < segments.length; i++) {
+    const pts = sampleSegment(segments[i], DENSITY);
+    // skip first point of each subsequent segment (duplicate of last)
+    allPts = allPts.concat(i === 0 ? pts : pts.slice(1));
+  }
+
+  // Compute cumulative arc lengths
+  const arcLen = [0];
+  for (let i = 1; i < allPts.length; i++) {
+    const dx = allPts[i].x - allPts[i-1].x;
+    const dy = allPts[i].y - allPts[i-1].y;
+    arcLen.push(arcLen[i-1] + Math.sqrt(dx*dx + dy*dy));
+  }
+  const totalLen = arcLen[arcLen.length - 1];
+
+  // Place N tiles evenly by arc length
+  const centres = [];
+  const arrowPts = [];
+  function arcSample(target) {
+    let lo = 0, hi = arcLen.length - 1;
+    while (hi - lo > 1) { const mid = (lo + hi) >> 1; arcLen[mid] <= target ? lo = mid : hi = mid; }
+    const frac = arcLen[lo] === arcLen[hi] ? 0 : (target - arcLen[lo]) / (arcLen[hi] - arcLen[lo]);
+    const x = allPts[lo].x + frac * (allPts[hi].x - allPts[lo].x);
+    const y = allPts[lo].y + frac * (allPts[hi].y - allPts[lo].y);
+    const loPrev = Math.max(0, lo - 4), hiNext = Math.min(allPts.length - 1, hi + 4);
+    const angle = Math.atan2(allPts[hiNext].y - allPts[loPrev].y, allPts[hiNext].x - allPts[loPrev].x);
+    return { x, y, angle };
+  }
+  const tileTargets = [];
+  for (let n = 0; n < N; n++) {
+    const target = (n / (N - 1)) * totalLen;
+    tileTargets.push(target);
+    centres.push(arcSample(target));
+  }
+  for (let n = 0; n < N - 1; n++) {
+    arrowPts.push(arcSample((tileTargets[n] + tileTargets[n + 1]) / 2));
+  }
+
+  return { centres, trackPts: allPts, arrowPts };
 }
 
 function setupBoard() {
@@ -616,94 +652,75 @@ function setupBoard() {
   const N = tileTypes.length;
   if (!N) return;
 
-  const tileSize = Math.max(46, Math.min(70, Math.floor(Math.min(W, H) / 7.5)));
-  const { centres, trackPts } = computeSnakeLayout(W, H, N, tileSize);
+  // Tile size: fit N tiles along the path with some breathing room
+  const tileSize = Math.max(28, Math.min(Math.floor(W / 8), Math.floor(H / 8), 100));
 
+  const { centres, trackPts, arrowPts } = computeWindingPath(W, H, N);
   const s = tileSize;
-  tilePositions = centres.map(({x, y}) => ({
+
+  tilePositions = centres.map(({ x, y, angle }) => ({
     cx: x, cy: y,
     x: x - s/2, y: y - s/2,
     w: s, h: s, s,
-    _trackPts: null,   // unused but kept for shape compat
+    angle,
   }));
-  // Store track points for drawBoard
   tilePositions._track = trackPts;
+  tilePositions._arrows = arrowPts;
   drawBoard();
 }
 
 // ── Tile drawing helper ───────────────────────────────────────────────────────
 function drawTile(t, type) {
   const c = TILE_C[type] || TILE_C.blue;
-  const {x, y, w, h, cx} = t;
-  const rad   = Math.max(7, w * 0.20);   // corner radius
-  const ledge = Math.max(4, h * 0.13);   // 3-D bottom thickness
+  const { cx, cy, w, h, angle } = t;
+  const rad = Math.max(7, w * 0.20);
+  const hw = w / 2, hh = h / 2;
 
-  // ① Ledge / shadow side
-  ctx.fillStyle = c.l;
-  rr(ctx, x, y + ledge, w, h, rad);
-  ctx.fill();
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(angle || 0);
 
-  // ② Face gradient (top → bottom of face only, not ledge)
-  const faceH = h - ledge;
-  const grad = ctx.createLinearGradient(x, y, x, y + faceH);
-  grad.addColorStop(0, c.t);
-  grad.addColorStop(1, c.b);
+  const tx = -hw, ty = -hh;
+
+  // ① Face gradient (full height, no ledge)
+  const grad = ctx.createLinearGradient(tx, ty, tx, ty + h);
+  grad.addColorStop(0, c.t); grad.addColorStop(1, c.b);
   ctx.fillStyle = grad;
-  rr(ctx, x, y, w, faceH, rad);
-  ctx.fill();
+  rr(ctx, tx, ty, w, h, rad); ctx.fill();
 
-  // ③ Top-edge shine (white highlight across top ~30% of face)
-  const shine = ctx.createLinearGradient(x, y, x, y + faceH * 0.35);
+  // ② Shine
+  const shine = ctx.createLinearGradient(tx, ty, tx, ty + h * 0.35);
   shine.addColorStop(0, 'rgba(255,255,255,0.30)');
   shine.addColorStop(1, 'rgba(255,255,255,0.00)');
   ctx.fillStyle = shine;
-  rr(ctx, x + 2, y + 2, w - 4, faceH * 0.35, rad * 0.6);
-  ctx.fill();
+  rr(ctx, tx + 2, ty + 2, w - 4, h * 0.35, rad * 0.6); ctx.fill();
 
-  // ④ Rim / border around the face
-  ctx.strokeStyle = c.r;
-  ctx.lineWidth   = 1.8;
-  rr(ctx, x, y, w, faceH, rad);
-  ctx.stroke();
+  // ③ Rim
+  ctx.strokeStyle = c.r; ctx.lineWidth = 1.8;
+  rr(ctx, tx, ty, w, h, rad); ctx.stroke();
 
-  // ⑤ Tile number — small, top-center of face
+  // ④ Tile number
   const numSz = Math.max(8, w * 0.18);
   ctx.save();
-  ctx.globalAlpha = 0.6;
-  ctx.fillStyle   = '#000';
-  ctx.font        = `bold ${numSz}px Nunito,sans-serif`;
-  ctx.textAlign   = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillText(t.idx + 1, cx, y + 3);
+  ctx.rotate(-(angle || 0));
+  ctx.globalAlpha = 0.7; ctx.fillStyle = '#000';
+  ctx.font = `bold ${numSz}px Nunito,sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(t.idx + 1, 0, ty + 3);
   ctx.restore();
 
-  // ⑥ Icon — centered on face
+  // ⑤ Icon
   const icon = TILE_ICON[type];
   if (icon) {
-    const faceCY = y + faceH / 2 + 2;
-    ctx.font        = `${w * 0.38}px serif`;
-    ctx.textAlign   = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(icon, cx, faceCY);
-  }
-
-  // ⑦ Direction arrow on START tile
-  if (type === 'start' && tilePositions[1]) {
-    const nx  = tilePositions[1];
-    const ang = Math.atan2(nx.cy - t.cy, nx.cx - t.cx);
-    const asz = w * 0.19;
-    const ax  = t.cx + Math.cos(ang) * w * 0.20;
-    const ay  = (y + (h - ledge) / 2) + Math.sin(ang) * h * 0.10;
     ctx.save();
-    ctx.translate(ax, ay); ctx.rotate(ang);
-    ctx.beginPath();
-    ctx.moveTo(asz, 0); ctx.lineTo(-asz*.6,-asz*.55); ctx.lineTo(-asz*.3, 0); ctx.lineTo(-asz*.6, asz*.55);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 3;
-    ctx.fill();
+    ctx.rotate(-(angle || 0));
+    ctx.font = `${w * 0.38}px serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(icon, 0, 0);
     ctx.restore();
   }
+
+  ctx.restore();
 }
 
 function drawBoard() {
@@ -712,7 +729,7 @@ function drawBoard() {
 
   // Background
   const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#0a0a1e'); bg.addColorStop(1, '#12122e');
+  bg.addColorStop(0, '#2a0545'); bg.addColorStop(1, '#1a0535');
   ctx.fillStyle = bg; rr(ctx, 0, 0, W, H, 16); ctx.fill();
 
   if (!tilePositions.length) return;
@@ -724,22 +741,34 @@ function drawBoard() {
   ctx.save();
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   // outer dark stripe
-  ctx.strokeStyle = '#06060f';
-  ctx.lineWidth   = ts * 1.30;
+  ctx.strokeStyle = '#6a1090';
+  ctx.lineWidth   = ts * 1.0;
   ctx.beginPath();
   ctx.moveTo(track[0].x, track[0].y);
   for (let i = 1; i < track.length; i++)
     ctx.lineTo(track[i].x, track[i].y);
   ctx.stroke();
   // inner slightly lighter groove
-  ctx.strokeStyle = '#14143a';
-  ctx.lineWidth   = ts * 1.10;
+  ctx.strokeStyle = '#9030c0';
+  ctx.lineWidth   = ts * 0.68;
   ctx.stroke();
   // subtle dotted lane markings between tiles
   ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.lineWidth   = ts * 0.90;
+  ctx.lineWidth   = ts * 0.52;
   ctx.stroke();
   ctx.restore();
+
+  // direction arrows — one chevron per gap, exactly between consecutive tiles
+  const arrows = tilePositions._arrows || [];
+  for (let i = 0; i < arrows.length; i++) {
+    const { x: bx, y: by, angle: ang } = arrows[i];
+    const sz = ts*0.15;
+    ctx.save(); ctx.translate(bx, by); ctx.rotate(ang);
+    ctx.globalAlpha = 0.22; ctx.strokeStyle = '#fff'; ctx.lineWidth = ts * 0.13;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(-sz * 0.5, sz * 0.5); ctx.lineTo(sz * 0.5, 0); ctx.lineTo(-sz * 0.5, -sz * 0.5);
+    ctx.stroke(); ctx.restore();
+  }
 
   // ── Tiles ─────────────────────────────────────────────────────────────
   for (let i = 0; i < tileTypes.length; i++) {

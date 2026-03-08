@@ -7,87 +7,91 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <script src="/socket.io/socket.io.js"></script>
 <style>
-:root{--bg:#0d0d1a;--panel:#141428;--p1c:#ff4d6d;--p2c:#00f5d4;--accent:#ffbe0b;--text:#f0f0f0;}
+:root{--bg:#1a0530;--panel:#2d1050;--p1c:#ff3db4;--p2c:#bf7fff;--accent:#ff80d5;--text:#f8e8ff;}
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text);container-type:size;container-name:root;}
-body{display:flex;flex-direction:row;align-items:stretch;background-image:radial-gradient(ellipse at 15% 15%,rgba(255,77,109,.08) 0%,transparent 50%),radial-gradient(ellipse at 85% 85%,rgba(0,245,212,.08) 0%,transparent 50%);}
+/* ── outer layout: full viewport ── */
+body{display:flex;align-items:stretch;justify-content:center;padding:0;background-image:radial-gradient(ellipse at 20% 10%,rgba(255,80,200,.35) 0%,transparent 55%),radial-gradient(ellipse at 80% 90%,rgba(140,60,255,.30) 0%,transparent 55%),radial-gradient(ellipse at 50% 50%,rgba(200,80,255,.12) 0%,transparent 70%);}
 
-/* ── sidebar: exactly 25% of widget width ── */
-.sidebar{width:25cqw;flex-shrink:0;display:flex;flex-direction:column;gap:1cqh;padding:1.2cqh 0 1.2cqh 1.5cqw;}
+/* ── play-area: sidebar + board side by side, max capped ── */
+.play-area{display:flex;flex-direction:row;align-items:flex-start;width:100%;max-width:1300px;height:100%;}
 
-/* ── player cards ── */
-.player-card{background:var(--panel);border-radius:1.2cqw;padding:1.2cqw;border:2px solid transparent;transition:border-color .4s,box-shadow .4s;position:relative;overflow:hidden;}
-.player-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:1.2cqw 1.2cqw 0 0;}
-.player-card.p1::before{background:var(--p1c);}
-.player-card.p2::before{background:var(--p2c);}
-.player-card.active{border-color:var(--accent);box-shadow:0 0 14px rgba(245,166,35,.3);}
-.player-card.active .turn-badge{opacity:1;transform:scale(1);}
-.turn-badge{position:absolute;top:1cqw;right:1cqw;background:var(--accent);color:#1a1a2e;font-family:'Fredoka One',cursive;font-size:1.6cqw;padding:.3cqw .8cqw;border-radius:20px;opacity:0;transform:scale(.7);transition:all .4s;}
-.player-name-row{display:flex;align-items:center;gap:.8cqw;margin-bottom:.5cqw;}
-.player-avatar{width:5.5cqw;height:5.5cqw;border-radius:50%;flex-shrink:0;overflow:hidden;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:2.2cqw;}
-.player-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
-.player-name{font-family:'Fredoka One',cursive;font-size:2.8cqw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.dot{width:1.4cqw;height:1.4cqw;border-radius:50%;flex-shrink:0;margin-left:auto;}
-.p1 .dot{background:var(--p1c);box-shadow:0 0 5px var(--p1c);}
-.p2 .dot{background:var(--p2c);box-shadow:0 0 5px var(--p2c);}
-.score-big{font-family:'Fredoka One',cursive;font-size:9cqw;line-height:1;margin:.4cqw 0;}
-.p1 .score-big{color:var(--p1c);text-shadow:0 0 20px rgba(255,77,109,.4);}
-.p2 .score-big{color:var(--p2c);text-shadow:0 0 20px rgba(0,245,212,.4);}
-.goal-label{font-size:1.6cqw;color:#666;text-align:right;margin-top:.3cqw;}
-
-/* ── dice panel ── */
-.dice-panel{background:var(--panel);border-radius:1.2cqw;padding:1.2cqw;display:flex;flex-direction:column;align-items:center;gap:.8cqw;}
-.dice-panel h3{font-family:'Fredoka One',cursive;font-size:1.8cqw;color:#aaa;text-transform:uppercase;letter-spacing:1px;}
-.dice-row{display:flex;gap:1cqw;align-items:center;}
-.dice{width:7cqw;height:7cqw;background:white;border-radius:1cqw;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:.8cqw;gap:.3cqw;box-shadow:0 4px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.5);}
-.dice.rolling{animation:diceRoll .5s ease-out;}
-@keyframes diceRoll{0%{transform:rotate(0) scale(1);}20%{transform:rotate(-15deg) scale(1.1);}50%{transform:rotate(18deg) scale(.95);}80%{transform:rotate(-8deg) scale(1.04);}100%{transform:rotate(0) scale(1);}}
-.pip{width:100%;height:100%;border-radius:50%;background:#0d0d1a;display:none;}
-.pip.show{display:block;}
-.roll-info{font-family:'Fredoka One',cursive;font-size:1.9cqw;color:#666;text-align:center;}
+/* ── sidebar ── */
+.sidebar{flex-shrink:0;width:clamp(250px,22%,300px);height:100%;display:flex;flex-direction:column;gap:2cqi;padding:2cqi 2cqi 2cqi 0;container-type:inline-size;container-name:sidebar;}
 
 /* ── board ── */
-.board-area{flex:1;min-width:0;display:flex;flex-direction:column;gap:1cqh;padding:1.2cqh 1.5cqw 1.2cqh 1cqw;}
-.game-title{text-align:center;font-family:'Fredoka One',cursive;font-size:4cqw;background:linear-gradient(90deg,var(--p1c),var(--accent),var(--p2c));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0;}
-.board-wrapper{flex:1;position:relative;min-height:0;}
-#board-canvas{border-radius:1.2cqw;display:block;}
+.board-area{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;gap:8px;align-items:stretch;padding:8px 8px 8px 0;}
+.player-card{background:var(--panel);border-radius:4cqi;padding:4cqi;border:2px solid transparent;transition:border-color .4s,box-shadow .4s;position:relative;overflow:hidden;box-shadow:0 2px 16px rgba(180,60,255,.3);}
+.player-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:4cqi 4cqi 0 0;}
+.player-card.p1::before{background:var(--p1c);}
+.player-card.p2::before{background:var(--p2c);}
+.player-card.active{border-color:var(--accent);box-shadow:0 0 20px rgba(255,80,200,.6);}
+.player-card.active .turn-badge{opacity:1;transform:scale(1);}
+.turn-badge{position:absolute;top:3cqi;right:3cqi;background:linear-gradient(135deg,#ff3db4,#9000ff);color:#fff;font-family:'Fredoka One',cursive;font-size:5.5cqi;padding:1cqi 2.5cqi;border-radius:20px;opacity:0;transform:scale(.7);transition:all .4s;}
+.player-name-row{display:flex;align-items:center;gap:2.5cqi;margin-bottom:1.5cqi;}
+.player-avatar{width:18cqi;height:18cqi;border-radius:50%;flex-shrink:0;overflow:hidden;border:2px solid rgba(255,80,200,.4);background:rgba(180,60,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:7cqi;}
+.player-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+.player-name{font-family:'Fredoka One',cursive;font-size:9cqi;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+.dot{width:4.5cqi;height:4.5cqi;border-radius:50%;flex-shrink:0;margin-left:auto;}
+.p1 .dot{background:var(--p1c);box-shadow:0 0 5px var(--p1c);}
+.p2 .dot{background:var(--p2c);box-shadow:0 0 5px var(--p2c);}
+.score-big{font-family:'Fredoka One',cursive;font-size:30cqi;line-height:1;margin:1cqi 0;}
+.p1 .score-big{color:var(--p1c);text-shadow:0 0 25px rgba(255,61,180,.5);}
+.p2 .score-big{color:var(--p2c);text-shadow:0 0 25px rgba(191,127,255,.5);}
+.goal-label{font-size:5cqi;color:#e0a0ff;text-align:right;margin-top:1cqi;}
+
+/* ── dice panel ── */
+.dice-panel{background:var(--panel);border-radius:4cqi;padding:4cqi;display:flex;flex-direction:column;align-items:center;gap:2.5cqi;box-shadow:0 2px 16px rgba(180,60,255,.2);}
+.dice-panel h3{font-family:'Fredoka One',cursive;font-size:6cqi;color:#e0a0ff;text-transform:uppercase;letter-spacing:1px;}
+.dice-row{display:flex;gap:3cqi;align-items:center;}
+.dice{width:23cqi;height:23cqi;background:white;border-radius:3.5cqi;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:2.5cqi;gap:1cqi;box-shadow:0 4px 18px rgba(180,60,255,.4),inset 0 1px 0 rgba(255,200,255,.5);border:2px solid rgba(255,80,200,.35);}
+.dice.rolling{animation:diceRoll .5s ease-out;}
+@keyframes diceRoll{0%{transform:rotate(0) scale(1);}20%{transform:rotate(-15deg) scale(1.1);}50%{transform:rotate(18deg) scale(.95);}80%{transform:rotate(-8deg) scale(1.04);}100%{transform:rotate(0) scale(1);}}
+.pip{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,#ff3db4,#bf7fff);display:none;}
+.pip.show{display:block;}
+.roll-info{font-family:'Fredoka One',cursive;font-size:6cqi;color:#e0a0ff;text-align:center;}
+
+/* ── board ── */
+.game-title{text-align:center;font-family:'Fredoka One',cursive;font-size:clamp(18px,3cqw,36px);background:linear-gradient(90deg,var(--p1c),var(--accent),var(--p2c));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0;width:100%;margin-bottom:4px;}
+.board-wrapper{position:relative;width:100%;flex:1;min-height:0;}
+#board-canvas{border-radius:1.2cqw;display:block;width:100%;height:100%;}
 
 /* ── overlays ── */
-.overlay-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .3s;z-index:50;}
+.overlay-bg{position:fixed;inset:0;background:rgba(15,0,40,.7);opacity:0;pointer-events:none;transition:opacity .3s;z-index:50;}
 .overlay-bg.show{opacity:1;}
 
-/* popup: sized relative to widget */
-.popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:var(--panel);border:2px solid var(--accent);border-radius:3cqw;padding:3cqh 4cqw;text-align:center;z-index:100;box-shadow:0 20px 60px rgba(0,0,0,.6);transition:transform .35s cubic-bezier(.34,1.56,.64,1);width:70cqw;max-width:70cqw;}
+/* popup */
+.popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:var(--panel);border:2px solid var(--accent);border-radius:3cqw;padding:3cqh 4cqw;text-align:center;z-index:100;box-shadow:0 20px 60px rgba(140,0,255,.5);transition:transform .35s cubic-bezier(.34,1.56,.64,1);width:70cqw;max-width:70cqw;}
 .popup.show{transform:translate(-50%,-50%) scale(1);}
 .popup .pop-icon{font-size:10cqw;margin-bottom:1cqh;}
 .popup .pop-title{font-family:'Fredoka One',cursive;font-size:5cqw;color:var(--accent);margin-bottom:.6cqh;}
-.popup .pop-desc{font-size:2.8cqw;color:#ccc;line-height:1.5;margin-bottom:1.2cqh;}
-.dismiss-bar{height:4px;background:rgba(255,255,255,.1);border-radius:4px;margin-top:1cqh;overflow:hidden;}
+.popup .pop-desc{font-size:2.8cqw;color:#d8a0ff;line-height:1.5;margin-bottom:1.2cqh;}
+.dismiss-bar{height:4px;background:rgba(255,80,200,.2);border-radius:4px;margin-top:1cqh;overflow:hidden;}
 .dismiss-fill{height:100%;background:var(--accent);border-radius:4px;width:100%;transition:width linear;}
 
 /* spinner popup */
-.yellow-spinner-wrap{position:relative;width:100%;height:8cqh;overflow:hidden;border-radius:1.5cqw;border:2px solid var(--accent);background:rgba(0,0,0,.3);margin-top:1cqh;}
+.yellow-spinner-wrap{position:relative;width:100%;height:8cqh;overflow:hidden;border-radius:1.5cqw;border:2px solid var(--accent);background:rgba(80,0,140,.4);margin-top:1cqh;}
 .yellow-spinner-wrap::before,.yellow-spinner-wrap::after{content:'';position:absolute;left:0;right:0;height:2cqh;z-index:2;pointer-events:none;}
-.yellow-spinner-wrap::before{top:0;background:linear-gradient(to bottom,rgba(22,33,62,1),transparent);}
-.yellow-spinner-wrap::after{bottom:0;background:linear-gradient(to top,rgba(22,33,62,1),transparent);}
-.yellow-spinner-highlight{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:5cqh;background:rgba(245,166,35,.15);border-top:1px solid rgba(245,166,35,.4);border-bottom:1px solid rgba(245,166,35,.4);z-index:1;pointer-events:none;}
+.yellow-spinner-wrap::before{top:0;background:linear-gradient(to bottom,rgba(26,5,48,1),transparent);}
+.yellow-spinner-wrap::after{bottom:0;background:linear-gradient(to top,rgba(26,5,48,1),transparent);}
+.yellow-spinner-highlight{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:5cqh;background:rgba(255,80,200,.2);border-top:1px solid rgba(255,128,213,.5);border-bottom:1px solid rgba(255,128,213,.5);z-index:1;pointer-events:none;}
 .yellow-spinner-track{display:flex;flex-direction:column;transition:transform 0s;position:relative;z-index:0;}
-.yellow-spin-item{height:100%;display:flex;align-items:center;padding:0 2cqw;font-family:'Nunito',sans-serif;font-weight:800;font-size:3cqw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;color:rgba(255,255,255,.7);}
-.yellow-spin-item.selected{color:#fff;}
+.yellow-spin-item{height:100%;display:flex;align-items:center;padding:0 2cqw;font-family:'Nunito',sans-serif;font-weight:800;font-size:3cqw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;color:rgba(248,232,255,.35);}
+.yellow-spin-item.selected{color:var(--text);}
 
 /* fullscreen stage/win */
-.stage-transition{position:fixed;inset:0;background:#0a0a1a;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2cqh;z-index:200;opacity:0;pointer-events:none;transition:opacity .5s;}
+.stage-transition{position:fixed;inset:0;background:linear-gradient(135deg,#2d0a4e,#1a0530,#3d006e);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2cqh;z-index:200;opacity:0;pointer-events:none;transition:opacity .5s;}
 .stage-transition.show{opacity:1;pointer-events:all;}
 .stage-transition .big-icon{font-size:16cqw;animation:pulse 1s ease infinite alternate;}
 @keyframes pulse{from{transform:scale(1);}to{transform:scale(1.1);}}
 .stage-transition h1{font-family:'Fredoka One',cursive;font-size:10cqw;color:var(--accent);}
-.stage-transition p{font-size:4cqw;color:#aaa;text-align:center;padding:0 4cqw;}
-.win-screen{position:fixed;inset:0;background:rgba(10,10,20,.92);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2cqh;z-index:300;opacity:0;pointer-events:none;transition:opacity .5s;}
+.stage-transition p{font-size:4cqw;color:#d8a0ff;text-align:center;padding:0 4cqw;}
+.win-screen{position:fixed;inset:0;background:rgba(15,0,40,.94);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2cqh;z-index:300;opacity:0;pointer-events:none;transition:opacity .5s;}
 .win-screen.show{opacity:1;}
 .win-screen .trophy{font-size:16cqw;animation:bounce .8s ease infinite alternate;}
 @keyframes bounce{from{transform:translateY(0);}to{transform:translateY(-1cqh);}}
-.win-screen h1{font-family:'Fredoka One',cursive;font-size:9cqw;background:linear-gradient(90deg,var(--p1c),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;}
-.win-screen p{font-size:3.5cqw;color:#aaa;text-align:center;padding:0 4cqw;}
+.win-screen h1{font-family:'Fredoka One',cursive;font-size:9cqw;background:linear-gradient(90deg,var(--p1c),var(--accent),var(--p2c));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;}
+.win-screen p{font-size:3.5cqw;color:#d8a0ff;text-align:center;padding:0 4cqw;}
 
 /* score float */
 .score-float{position:fixed;font-family:'Fredoka One',cursive;font-size:5cqw;pointer-events:none;z-index:250;animation:floatUp 1.3s ease-out forwards;}
@@ -96,13 +100,14 @@ body{display:flex;flex-direction:row;align-items:stretch;background-image:radial
 /* waiting screen */
 .waiting{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2cqh;z-index:400;}
 .waiting h1{font-family:'Fredoka One',cursive;font-size:8cqw;color:var(--accent);}
-.waiting p{font-size:3cqw;color:#666;}
-.spinner{width:7cqw;height:7cqw;border:0.6cqw solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
+.waiting p{font-size:3cqw;color:#d8a0ff;}
+.spinner{width:7cqw;height:7cqw;border:0.6cqw solid rgba(180,60,255,.25);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
 <div class="waiting" id="waiting"><div class="spinner"></div><h1>Minchus Mad Quest</h1><p>Waiting for the game to start...</p></div>
+<div class="play-area">
 <div class="sidebar">
   <div class="player-card p1" id="card-p1">
     <div class="turn-badge">TURN</div>
@@ -125,6 +130,7 @@ body{display:flex;flex-direction:row;align-items:stretch;background-image:radial
 <div class="board-area">
   <div class="game-title" id="gameTitle">Minchus Mad Quest</div>
   <div class="board-wrapper"><canvas id="board-canvas"></canvas></div>
+</div>
 </div>
 <div class="overlay-bg" id="overlayBg"></div>
 <div class="popup" id="eventPopup"><div class="pop-icon" id="popIcon">-</div><div class="pop-title" id="popTitle">Event!</div><div class="pop-desc" id="popDesc">Something happened</div><div class="dismiss-bar"><div class="dismiss-fill" id="dismissFill"></div></div></div>
@@ -200,84 +206,143 @@ const TILE_C={
 };
 const TICON={green:String.fromCodePoint(0x1F607),purple:String.fromCodePoint(0x1F45F),red:String.fromCodePoint(0x1F608),yellow:String.fromCodePoint(0x2B50),stageup:String.fromCodePoint(0x1F680),start:String.fromCodePoint(0x1F3C1),blue:null};
 
-function computeSnakeLayout(W,H,N,ts){
-  const half=ts/2+6,left=half,right=W-half,top=half,bottom=H-half,usableW=right-left;
-  const tpr=Math.max(3,Math.min(8,Math.round(Math.sqrt(N*W/H))));
-  const nr=Math.ceil(N/tpr);
-  const ys=[];
-  for(let r=0;r<nr;r++) ys.push(nr===1?(top+bottom)/2:bottom-r*(bottom-top)/(nr-1));
-  const centres=[];
-  for(let r=0;r<nr;r++){
-    const remaining=N-centres.length,count=Math.min(tpr,remaining),y=ys[r],rtl=(r%2===1);
-    for(let c=0;c<count;c++){const frac=count===1?0.5:c/(count-1),x=left+frac*usableW;centres.push({x:rtl?(W-x):x,y});}
+function computeWindingPath(W,H,N){
+  const DENSITY=800;
+  const px=W*0.14, py=H*0.1;
+  const iW=W-px*2, iH=H-py*2;
+
+  // Instead of zigzag anchors, define a series of smooth waypoints
+  // that trace a sine-wave snake. The key insight: place waypoints at
+  // the MIDDLE of each horizontal transition, not at the hard edges.
+  // Then use Catmull-Rom → cubic bezier conversion for perfectly smooth flow.
+  const ROWS=6;
+  const rowH=iH/(ROWS-1);
+  // Push waypoints slightly outside the inner area so the bezier arc swings wide
+  const left=px-iW*0.06, right=px+iW+iW*0.06;
+
+  const wp=[];
+  for(let r=0;r<ROWS;r++){
+    const y=py+r*rowH;
+    const x=(r%2===0)?left:right;
+    wp.push({x,y});
   }
-  const trackPts=[],S=32;
-  for(let r=0;r<nr;r++){
-    const y=ys[r],rtl=(r%2===1),xA=rtl?right:left,xB=rtl?left:right;
-    for(let s=0;s<=S;s++) trackPts.push({x:xA+(xB-xA)*s/S,y});
-    if(r<nr-1){
-      const yN=ys[r+1],bow=(rtl?1:-1)*ts*1.2;
-      const p0x=xB,p0y=y,p1x=xB+bow,p1y=y,p2x=xB+bow,p2y=yN,p3x=xB,p3y=yN;
-      for(let s=1;s<=S;s++){const t=s/S,u=1-t;trackPts.push({x:u*u*u*p0x+3*u*u*t*p1x+3*u*t*t*p2x+t*t*t*p3x,y:u*u*u*p0y+3*u*u*t*p1y+3*u*t*t*p2y+t*t*t*p3y});}
+
+  // Catmull-Rom → cubic bezier with a boosted tangent scale for lazy, wide S-bends
+  const tangentScale=1.8;
+  const segments=[];
+  for(let i=0;i<wp.length-1;i++){
+    const p0=wp[Math.max(0,i-1)];
+    const p1=wp[i];
+    const p2=wp[i+1];
+    const p3=wp[Math.min(wp.length-1,i+2)];
+    const cp1x=p1.x+(p2.x-p0.x)*tangentScale/2;
+    const cp1y=p1.y+(p2.y-p0.y)*tangentScale/2;
+    const cp2x=p2.x-(p3.x-p1.x)*tangentScale/2;
+    const cp2y=p2.y-(p3.y-p1.y)*tangentScale/2;
+    segments.push({type:'bez',x0:p1.x,y0:p1.y,cx1:cp1x,cy1:cp1y,cx2:cp2x,cy2:cp2y,x1:p2.x,y1:p2.y});
+  }
+  function sampleSeg(seg,steps){
+    const pts=[];
+    for(let i=0;i<=steps;i++){
+      const t=i/steps;
+      if(seg.type==='line'){pts.push({x:seg.x0+t*(seg.x1-seg.x0),y:seg.y0+t*(seg.y1-seg.y0)});}
+      else{const u=1-t;pts.push({x:u*u*u*seg.x0+3*u*u*t*seg.cx1+3*u*t*t*seg.cx2+t*t*t*seg.x1,y:u*u*u*seg.y0+3*u*u*t*seg.cy1+3*u*t*t*seg.cy2+t*t*t*seg.y1});}
     }
+    return pts;
   }
-  return{centres,trackPts};
+  let allPts=[];
+  for(let i=0;i<segments.length;i++){const pts=sampleSeg(segments[i],DENSITY);allPts=allPts.concat(i===0?pts:pts.slice(1));}
+  const arcLen=[0];
+  for(let i=1;i<allPts.length;i++){const dx=allPts[i].x-allPts[i-1].x,dy=allPts[i].y-allPts[i-1].y;arcLen.push(arcLen[i-1]+Math.sqrt(dx*dx+dy*dy));}
+  const totalLen=arcLen[arcLen.length-1];
+  const centres=[];
+  const arrowPts=[];
+  // helper: look up a position+angle on the arc at a given arc-length target
+  function arcSample(target){
+    let lo=0,hi=arcLen.length-1;
+    while(hi-lo>1){const mid=(lo+hi)>>1;arcLen[mid]<=target?lo=mid:hi=mid;}
+    const frac=arcLen[lo]===arcLen[hi]?0:(target-arcLen[lo])/(arcLen[hi]-arcLen[lo]);
+    const x=allPts[lo].x+frac*(allPts[hi].x-allPts[lo].x);
+    const y=allPts[lo].y+frac*(allPts[hi].y-allPts[lo].y);
+    const lp=Math.max(0,lo-4),hn=Math.min(allPts.length-1,hi+4);
+    const angle=Math.atan2(allPts[hn].y-allPts[lp].y,allPts[hn].x-allPts[lp].x);
+    return{x,y,angle};
+  }
+  const tileTargets=[];
+  for(let n=0;n<N;n++){
+    const target=(n/(N-1))*totalLen;
+    tileTargets.push(target);
+    centres.push(arcSample(target));
+  }
+  // midpoint between each consecutive pair of tiles
+  for(let n=0;n<N-1;n++){
+    arrowPts.push(arcSample((tileTargets[n]+tileTargets[n+1])/2));
+  }
+  return{centres,trackPts:allPts,arrowPts};
 }
 
 function setupBoard(){
   const wr=canvas.parentElement,rect=wr.getBoundingClientRect();
   canvas.width=Math.floor(rect.width);canvas.height=Math.floor(rect.height);
   const W=canvas.width,H=canvas.height,N=tileTypes.length;if(!N)return;
-  const ts=Math.max(42,Math.min(68,Math.floor(Math.min(W,H)/7.5)));
-  const{centres,trackPts}=computeSnakeLayout(W,H,N,ts);
-  tilePos=centres.map(({x,y})=>({cx:x,cy:y,x:x-ts/2,y:y-ts/2,w:ts,h:ts,s:ts}));
+  const ts=Math.max(28,Math.min(Math.floor(W/8),Math.floor(H/8),100));
+  const{centres,trackPts,arrowPts}=computeWindingPath(W,H,N);
+  tilePos=centres.map(({x,y,angle})=>({cx:x,cy:y,x:x-ts/2,y:y-ts/2,w:ts,h:ts,s:ts,angle}));
   tilePos._track=trackPts;
+  tilePos._arrows=arrowPts;
   if(currentState)drawBoard(currentState);
 }
 
 function drawTileObs(t,type,idx){
   const c=TILE_C[type]||TILE_C.blue;
-  const{x,y,w,h,cx}=t,rad=Math.max(6,w*.20),ld=Math.max(4,h*.13),fH=h-ld;
-  // ledge
-  ctx.fillStyle=c.l;rr(x,y+ld,w,h,rad);ctx.fill();
+  const{cx,cy,w,h,angle}=t,rad=Math.max(6,w*.20);
+  const hw=w/2,hh=h/2,tx=-hw,ty=-hh;
+  ctx.save();
+  ctx.translate(cx,cy);ctx.rotate(angle||0);
   // face
-  const g=ctx.createLinearGradient(x,y,x,y+fH);g.addColorStop(0,c.t);g.addColorStop(1,c.b);
-  ctx.fillStyle=g;rr(x,y,w,fH,rad);ctx.fill();
+  const g=ctx.createLinearGradient(tx,ty,tx,ty+h);g.addColorStop(0,c.t);g.addColorStop(1,c.b);
+  ctx.fillStyle=g;rr(tx,ty,w,h,rad);ctx.fill();
   // shine
-  const sh=ctx.createLinearGradient(x,y,x,y+fH*.35);sh.addColorStop(0,'rgba(255,255,255,.30)');sh.addColorStop(1,'rgba(255,255,255,0)');
-  ctx.fillStyle=sh;rr(x+2,y+2,w-4,fH*.35,rad*.6);ctx.fill();
+  const sh=ctx.createLinearGradient(tx,ty,tx,ty+h*.35);sh.addColorStop(0,'rgba(255,255,255,.30)');sh.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=sh;rr(tx+2,ty+2,w-4,h*.35,rad*.6);ctx.fill();
   // border
-  ctx.strokeStyle=c.r;ctx.lineWidth=1.8;rr(x,y,w,fH,rad);ctx.stroke();
-  // number
-  const ns=Math.max(8,w*.18);ctx.save();ctx.globalAlpha=.6;ctx.fillStyle='#000';ctx.font='bold '+ns+'px Nunito,sans-serif';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(idx+1,cx,y+3);ctx.restore();
-  // icon
+  ctx.strokeStyle=c.r;ctx.lineWidth=1.8;rr(tx,ty,w,h,rad);ctx.stroke();
+  // number — upright
+  const ns=Math.max(8,w*.18);
+  ctx.save();ctx.rotate(-(angle||0));ctx.globalAlpha=.7;ctx.fillStyle='#000';
+  ctx.font='bold '+ns+'px Nunito,sans-serif';ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillText(idx+1,0,ty+3);ctx.restore();
+  // icon — upright
   const ic=TICON[type];
-  if(ic){ctx.font=(w*.38)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(ic,cx,y+fH/2+2);}
-  // start arrow
-  if(type==='start'&&tilePos[1]){
-    const nx=tilePos[1],ang=Math.atan2(nx.cy-t.cy,nx.cx-t.cx),asz=w*.19;
-    const ax=t.cx+Math.cos(ang)*w*.20,ay=(y+fH/2)+Math.sin(ang)*h*.10;
-    ctx.save();ctx.translate(ax,ay);ctx.rotate(ang);
-    ctx.beginPath();ctx.moveTo(asz,0);ctx.lineTo(-asz*.6,-asz*.55);ctx.lineTo(-asz*.3,0);ctx.lineTo(-asz*.6,asz*.55);ctx.closePath();
-    ctx.fillStyle='rgba(255,255,255,.9)';ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=3;ctx.fill();ctx.restore();
-  }
+  if(ic){ctx.save();ctx.rotate(-(angle||0));ctx.font=(w*.38)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(ic,0,0);ctx.restore();}
+  ctx.restore();
 }
 
 function drawBoard(s){
   if(!tilePos.length)return;
   const W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
-  const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#0a0a1e');bg.addColorStop(1,'#12122e');
+  const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#2a0545');bg.addColorStop(1,'#1a0535');
   ctx.fillStyle=bg;rr(0,0,W,H,14);ctx.fill();
   // track
   const ts=tilePos[0].s,track=tilePos._track||tilePos;
   ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-  ctx.strokeStyle='#06060f';ctx.lineWidth=ts*1.30;
+  ctx.strokeStyle='#6a1090';ctx.lineWidth=ts*1.0;
   ctx.beginPath();ctx.moveTo(track[0].x,track[0].y);
   for(let i=1;i<track.length;i++)ctx.lineTo(track[i].x,track[i].y);
   ctx.stroke();
-  ctx.strokeStyle='#14143a';ctx.lineWidth=ts*1.10;ctx.stroke();
+  ctx.strokeStyle='#9030c0';ctx.lineWidth=ts*0.68;ctx.stroke();
   ctx.restore();
-  // tiles
+  // direction arrows — one chevron per gap between tiles, exactly centred
+  const arrows=tilePos._arrows||[];
+  for(let i=0;i<arrows.length;i++){
+    const{x:bx,y:by,angle:ang}=arrows[i];
+    const sz=ts*0.15;
+    ctx.save();ctx.translate(bx,by);ctx.rotate(ang);
+    ctx.globalAlpha=0.22;ctx.strokeStyle='#fff';ctx.lineWidth=ts*0.13;
+    ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();ctx.moveTo(-sz*0.5,sz*0.5);ctx.lineTo(sz*0.5,0);ctx.lineTo(-sz*0.5,-sz*0.5);
+    ctx.stroke();ctx.restore();
+  }
   for(let i=0;i<tileTypes.length;i++){const t=tilePos[i];if(!t)continue;drawTileObs(t,tileTypes[i]||'blue',i);}
   if(!s||!s.players)return;
   const same=s.players[0].tile===s.players[1].tile;
