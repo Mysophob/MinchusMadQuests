@@ -27,21 +27,22 @@ html, body {
 body { display:flex; align-items:stretch; justify-content:center; }
 
 /* ── PLAY AREA ─────────────────── */
-.play-area { display:flex; flex-direction:row; align-items:flex-start; width:100%; max-width:1300px; height:100%; }
+.play-area { display:flex; flex-direction:column; align-items:stretch; width:100%; max-width:1300px; height:100%; }
 
-/* ── LEFT PANEL (sidebar) ─────── */
-.left-panel {
-  flex-shrink:0; width:clamp(220px, 22%, 280px); height:100%;
-  display:flex; flex-direction:column; gap:8px;
-  padding:10px 10px 10px 10px;
-  background:rgba(30,5,60,.5); border-right:1px solid rgba(255,80,200,.2);
-  overflow-y:auto;
+/* ── BOARD (top, fills space) ─────────────────── */
+.board-area {
+  flex:1; min-height:0;
+  display:flex; flex-direction:column; padding:6px 10px 4px; gap:4px;
 }
 
-/* ── BOARD ─────────────────── */
-.board-area {
-  flex:1; min-width:0; height:100%;
-  display:flex; flex-direction:column; padding:8px 10px; gap:4px;
+/* ── BOTTOM PANEL (player controls, pinned to bottom) ─────── */
+.left-panel {
+  flex-shrink:0;
+  display:flex; flex-direction:row; gap:8px;
+  padding:8px 10px 10px;
+  background:rgba(30,5,60,.6); border-top:1px solid rgba(255,80,200,.2);
+  overflow-x:auto; overflow-y:hidden;
+  align-items:flex-start;
 }
 .game-title {
   text-align:center; font-family:'Fredoka One',cursive; font-size:clamp(16px,2.5vw,24px); flex-shrink:0;
@@ -51,14 +52,15 @@ body { display:flex; align-items:stretch; justify-content:center; }
 .board-wrapper { flex:1; position:relative; min-height:0; }
 #board-canvas { border-radius:14px; display:block; width:100%; height:100%; }
 
-/* Player cards stacked vertically in sidebar */
-.players-row { display:flex; flex-direction:column; gap:8px; }
+/* Player cards side by side in bottom bar */
+.players-row { display:flex; flex-direction:row; gap:8px; flex:1; }
 
 .player-card {
-  background:var(--panel); border-radius:14px; padding:12px;
+  background:var(--panel); border-radius:14px; padding:10px 12px;
   border:2px solid transparent; transition:border-color .3s,box-shadow .3s;
   position:relative; overflow:hidden;
   box-shadow:0 2px 16px rgba(180,60,255,.25);
+  flex:1; min-width:160px;
 }
 .player-card::before {
   content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0;
@@ -78,7 +80,7 @@ body { display:flex; align-items:stretch; justify-content:center; }
 .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; margin-left:auto; }
 .p1 .dot { background:var(--p1c); box-shadow:0 0 6px var(--p1c); }
 .p2 .dot { background:var(--p2c); box-shadow:0 0 6px var(--p2c); }
-.score-big { font-family:'Fredoka One',cursive; font-size:48px; line-height:1; }
+.score-big { font-family:'Fredoka One',cursive; font-size:32px; line-height:1; }
 .p1 .score-big { color:var(--p1c); text-shadow:0 0 25px rgba(255,61,180,.5); }
 .p2 .score-big { color:var(--p2c); text-shadow:0 0 25px rgba(191,127,255,.5); }
 .override-badge {
@@ -131,22 +133,79 @@ body { display:flex; align-items:stretch; justify-content:center; }
 .overlay-bg.show { opacity:1; pointer-events:all; }
 .popup {
   position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
-  background:var(--panel); border:2px solid var(--accent); border-radius:22px;
-  padding:24px 28px; text-align:center; z-index:100;
+  background:var(--panel); border:2px solid var(--accent); border-radius:3cqw;
+  padding:3cqh 5cqw; text-align:center; z-index:100;
   box-shadow:0 20px 60px rgba(140,0,255,.4);
-  transition:transform .35s cubic-bezier(.34,1.56,.64,1); min-width:300px;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1); width:75cqw; max-width:75cqw;
 }
 .popup.show { transform:translate(-50%,-50%) scale(1); }
-.popup .pop-icon { font-size:52px; margin-bottom:8px; }
-.popup .pop-title { font-family:'Fredoka One',cursive; font-size:24px; color:var(--accent); margin-bottom:6px; }
-.popup .pop-desc { font-size:13px; color:#d8a0ff; line-height:1.5; margin-bottom:14px; }
+.popup .pop-icon { font-size:12cqw; margin-bottom:1cqh; }
+/* ── Pop-up icon animations ── */
+@keyframes iconPulseStar{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+@keyframes iconPulseStrong{0%,100%{transform:scale(1);}40%{transform:scale(1.35);}60%{transform:scale(1.28);}}
+@keyframes iconPulseWeak{0%,100%{transform:scale(1);}50%{transform:scale(0.82);}}
+@keyframes iconWobble{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+@keyframes iconWalk{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.pop-icon.anim-star{animation:iconPulseStar 1.8s ease-in-out infinite;}
+.pop-icon.anim-strong-heart{animation:iconPulseStrong 0.7s ease-in-out infinite;}
+.pop-icon.anim-weak-heart{animation:iconPulseWeak 1.4s ease-in-out infinite;}
+.pop-icon.anim-wobble{animation:iconWobble 1.2s ease-in-out infinite;}
+.pop-icon.anim-walk{animation:iconWalk 0.5s ease-in-out infinite;}
+.pop-icon.anim-purple{display:flex;align-items:center;justify-content:center;gap:0.3cqw;}
+.pop-icon.anim-purple .pi-heart{display:inline-block;animation:iconPulseStrong 0.8s ease-in-out infinite;}
+.pop-icon.anim-purple .pi-arrow-up{display:inline-block;animation:iconArrowUp 0.7s ease-in-out infinite;}
+.pop-icon.anim-purple .pi-arrow-down{display:inline-block;animation:iconArrowDown 0.7s ease-in-out infinite;}
+@keyframes iconArrowUp{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes iconArrowDown{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+.popup .pop-title { font-family:'Fredoka One',cursive; font-size:6cqw; color:var(--accent); margin-bottom:0.6cqh; }
+.popup .pop-desc { font-size:3cqw; color:#d8a0ff; line-height:1.5; margin-bottom:1.2cqh; }
 .dismiss-bar { height:4px; background:rgba(255,80,200,.2); border-radius:4px; margin-top:10px; overflow:hidden; }
 .dismiss-fill { height:100%; background:var(--accent); border-radius:4px; width:100%; transition:width linear; }
 
+/* Dice popup — same as OBS */
+.dice-popup {
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
+  background:var(--panel); border:3px solid var(--accent); border-radius:3cqw;
+  padding:3cqh 6cqw 4cqh; text-align:center; z-index:110;
+  box-shadow:0 0 80px rgba(255,80,200,.4), 0 20px 60px rgba(140,0,255,.6);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1); min-width:40cqw;
+}
+.dice-popup.show { transform:translate(-50%,-50%) scale(1); }
+.dice-popup .roll-player { font-family:'Fredoka One',cursive; font-size:3cqw; color:#e0a0ff; margin-bottom:1.5cqh; }
+.dice-popup .dice-row { display:flex; justify-content:center; margin-bottom:1.5cqh; }
+.dice {
+  width:9cqw; height:9cqw;
+  background:linear-gradient(145deg,#fff,#f0e0ff); border-radius:1.5cqw;
+  display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr);
+  padding:0.8cqw; gap:0.3cqw;
+  box-shadow:0 4px 18px rgba(180,60,255,.4),inset 0 1px 0 rgba(255,200,255,.5);
+  border:2px solid rgba(255,80,200,.35);
+}
+.dice.rolling { animation:diceRoll .12s linear infinite; }
+@keyframes diceRoll { 0%{transform:rotate(-10deg) scale(1.05);} 50%{transform:rotate(10deg) scale(0.95);} 100%{transform:rotate(-10deg) scale(1.05);} }
+.pip { width:100%; height:100%; border-radius:50%; background:linear-gradient(135deg,#ff3db4,#9000ff); display:none; }
+.pip.show { display:block; }
+.dice-popup .roll-result {
+  font-family:'Fredoka One',cursive; font-size:14cqw; color:var(--accent); line-height:1;
+  text-shadow:0 0 60px rgba(255,128,213,.9),0 0 20px rgba(255,128,213,.5);
+  transition:opacity .4s, transform .4s cubic-bezier(.34,1.56,.64,1);
+  transform:scale(0.5);
+}
+.dice-popup .roll-result.hidden { opacity:0; transform:scale(0.5); }
+.dice-popup .roll-result.show { opacity:1; transform:scale(1); }
+
 /* Spinner */
 .yellow-spinner-wrap {
-  position:relative; width:100%; height:52px; overflow:hidden;
+  position:relative; width:100%; height:52px;
   border-radius:12px; border:2px solid var(--accent); background:rgba(100,20,160,.3); margin-top:6px;
+  transition:box-shadow 0.4s, border-color 0.4s;
+}
+.spinner-clip {
+  position:absolute; inset:0; border-radius:10px; overflow:hidden;
+}
+.yellow-spinner-wrap.landed {
+  border-color:#ff80d5;
+  box-shadow:0 0 0 3px rgba(255,80,200,.6), 0 0 30px 8px rgba(255,80,200,.5), 0 0 60px 16px rgba(180,60,255,.35);
 }
 .yellow-spinner-wrap::before,.yellow-spinner-wrap::after {
   content:''; position:absolute; left:0; right:0; height:16px; z-index:2; pointer-events:none;
@@ -160,12 +219,15 @@ body { display:flex; align-items:stretch; justify-content:center; }
 }
 .yellow-spinner-track { display:flex; flex-direction:column; transition:transform 0s; position:relative; z-index:0; }
 .yellow-spin-item {
-  height:52px; display:flex; align-items:center; padding:0 14px;
+  height:52px; display:flex; align-items:center; justify-content:center; padding:0 14px;
   font-family:'Nunito',sans-serif; font-weight:800; font-size:13px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:0;
-  color:rgba(248,232,255,.4);
+  color:rgba(248,232,255,.4); text-align:center; border-radius:8px; transition:box-shadow 0.3s;
 }
 .yellow-spin-item.selected { color:var(--text); }
+.yellow-spin-item.selected.glow {
+  box-shadow:0 0 0 2px var(--accent), 0 0 18px 4px rgba(255,80,200,.8), 0 0 40px 8px rgba(180,60,255,.5);
+}
 
 /* Bounce-back screen */
 .bounce-screen {
@@ -304,7 +366,12 @@ body { display:flex; align-items:stretch; justify-content:center; }
 <!-- PLAY AREA -->
 <div class="play-area">
 
-<!-- LEFT PANEL -->
+<!-- BOARD -->
+<div class="board-area">
+  <div class="board-wrapper"><canvas id="board-canvas"></canvas></div>
+</div>
+
+<!-- BOTTOM PANEL -->
 <div class="left-panel">
   <div class="players-row">
     <!-- P1 card -->
@@ -331,27 +398,26 @@ body { display:flex; align-items:stretch; justify-content:center; }
     </div>
   </div>
 
-  <!-- Single dice + result -->
-  <div class="dice-row-solo">
-    <div class="dice" id="main-dice">
-      <div class="pip" id="mp0"></div><div class="pip" id="mp1"></div><div class="pip" id="mp2"></div>
-      <div class="pip" id="mp3"></div><div class="pip" id="mp4"></div><div class="pip" id="mp5"></div>
-      <div class="pip" id="mp6"></div><div class="pip" id="mp7"></div><div class="pip" id="mp8"></div>
-    </div>
-    <div class="roll-info" id="rollInfo">Pick who rolls!</div>
-  </div>
-</div>
-
-<!-- BOARD -->
-<div class="board-area">
-  <div class="game-title">🎮 Minchus Mad Quest</div>
-  <div class="board-wrapper"><canvas id="board-canvas"></canvas></div>
+  <!-- (dice shown in popup on roll) -->
 </div>
 
 </div><!-- end .play-area -->
 
 <!-- Overlay -->
 <div class="overlay-bg" id="overlayBg"></div>
+
+<!-- Dice popup -->
+<div class="dice-popup" id="dicePopup">
+  <div class="roll-player" id="dicePopupPlayer">Rolling...</div>
+  <div class="dice-row">
+    <div class="dice" id="main-dice">
+      <div class="pip" id="mp0"></div><div class="pip" id="mp1"></div><div class="pip" id="mp2"></div>
+      <div class="pip" id="mp3"></div><div class="pip" id="mp4"></div><div class="pip" id="mp5"></div>
+      <div class="pip" id="mp6"></div><div class="pip" id="mp7"></div><div class="pip" id="mp8"></div>
+    </div>
+  </div>
+  <div class="roll-result hidden" id="diceResult">1</div>
+</div>
 
 <!-- Event popup -->
 <div class="popup" id="eventPopup">
@@ -367,8 +433,10 @@ body { display:flex; align-items:stretch; justify-content:center; }
   <div class="pop-title">Special Event!</div>
   <div class="pop-desc" id="yellowSpinDesc">Spinning...</div>
   <div class="yellow-spinner-wrap">
-    <div class="yellow-spinner-highlight"></div>
-    <div class="yellow-spinner-track" id="yellowTrack"></div>
+    <div class="spinner-clip">
+      <div class="yellow-spinner-highlight"></div>
+      <div class="yellow-spinner-track" id="yellowTrack"></div>
+    </div>
   </div>
 </div>
 
@@ -378,8 +446,10 @@ body { display:flex; align-items:stretch; justify-content:center; }
   <div class="pop-title">Override Tile Color!</div>
   <div class="pop-desc" id="colorSpinDesc">Spinning...</div>
   <div class="yellow-spinner-wrap">
-    <div class="yellow-spinner-highlight"></div>
-    <div class="yellow-spinner-track" id="colorTrack"></div>
+    <div class="spinner-clip">
+      <div class="yellow-spinner-highlight"></div>
+      <div class="yellow-spinner-track" id="colorTrack"></div>
+    </div>
   </div>
 </div>
 
@@ -448,7 +518,6 @@ function startGame() {
   showDice('mp', 1);
   updateUI();
   socket.emit('tilesUpdate', { tileTypes, CFG });
-  document.getElementById('rollInfo').textContent = 'Pick who rolls!';
   setBtnsEnabled(true);
 }
 
@@ -546,101 +615,46 @@ const TILE_ICON = { green:'😇', purple:'👟', red:'😈', yellow:'⭐', stage
 // Builds one continuous path: straight rows connected by smooth S-curves.
 // Tiles are placed at evenly-spaced arc-length intervals along the whole path.
 // Each tile gets a position + tangent angle so it sits naturally on the curve.
-function computeWindingPath(W, H, N) {
-  const DENSITY = 800;
-  const px = W * 0.14, py = H * 0.1;
-  const iW = W - px * 2, iH = H - py * 2;
+function computeWindingPath(W, H, N, ts) {
+  // ts = tile size; pad by at least ts/2+4 to prevent edge clipping
+  const half = ts/2 + 48;
+  const pad = Math.max(W*0.07, half), padT = Math.max(H*0.07, half), padB = Math.max(H*0.07, half);
+  const aW = W-pad*2, aH = H-padT-padB;
+  let COLS = Math.round(Math.sqrt(N*(aW/aH)));
+  COLS = Math.max(4, Math.min(COLS, 12));
+  const ROWS = Math.ceil(N/COLS);
+  const cellW = aW/(COLS-1), cellH = aH/(ROWS-1);
 
-  // Instead of zigzag anchors, define a series of smooth waypoints
-  // that trace a sine-wave snake. The key insight: place waypoints at
-  // the MIDDLE of each horizontal transition, not at the hard edges.
-  // Then use Catmull-Rom → cubic bezier conversion for perfectly smooth flow.
-  const ROWS = 6;
-  const rowH = iH / (ROWS - 1);
-  // Push waypoints slightly outside the inner area so the bezier arc swings wide
-  const left = px - iW * 0.06, right = px + iW + iW * 0.06;
-
-  const wp = [];
-  for (let r = 0; r < ROWS; r++) {
-    const y = py + r * rowH;
-    const x = (r % 2 === 0) ? left : right;
-    wp.push({ x, y });
+  const pts = [];
+  for (let i = 0; i < N; i++) {
+    const row = Math.floor(i/COLS), col = i%COLS;
+    const gridRow = (ROWS-1)-row;
+    const gridCol = (row%2===0) ? col : (COLS-1-col);
+    pts.push({x: pad+gridCol*cellW, y: padT+gridRow*cellH});
   }
 
-  // Catmull-Rom → cubic bezier with boosted tangent scale for lazy, wide S-bends
-  const tangentScale = 1.8;
-  const segments = [];
-  for (let i = 0; i < wp.length - 1; i++) {
-    const p0 = wp[Math.max(0, i - 1)];
-    const p1 = wp[i];
-    const p2 = wp[i + 1];
-    const p3 = wp[Math.min(wp.length - 1, i + 2)];
-    const cp1x = p1.x + (p2.x - p0.x) * tangentScale / 2;
-    const cp1y = p1.y + (p2.y - p0.y) * tangentScale / 2;
-    const cp2x = p2.x - (p3.x - p1.x) * tangentScale / 2;
-    const cp2y = p2.y - (p3.y - p1.y) * tangentScale / 2;
-    segments.push({ type:'bez', x0:p1.x, y0:p1.y, cx1:cp1x, cy1:cp1y, cx2:cp2x, cy2:cp2y, x1:p2.x, y1:p2.y });
-  }
+  const centres = pts.map((p,i) => {
+    const prev = pts[Math.max(0,i-1)], next = pts[Math.min(pts.length-1,i+1)];
+    return {x:p.x, y:p.y, angle:Math.atan2(next.y-prev.y, next.x-prev.x)};
+  });
 
-  // Sample each segment densely to get arc-length parameterisation
-  function sampleSegment(seg, steps) {
-    const pts = [];
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      if (seg.type === 'line') {
-        pts.push({ x: seg.x0 + t*(seg.x1-seg.x0), y: seg.y0 + t*(seg.y1-seg.y0) });
-      } else {
-        const u = 1-t;
-        pts.push({
-          x: u*u*u*seg.x0 + 3*u*u*t*seg.cx1 + 3*u*t*t*seg.cx2 + t*t*t*seg.x1,
-          y: u*u*u*seg.y0 + 3*u*u*t*seg.cy1 + 3*u*t*t*seg.cy2 + t*t*t*seg.y1,
-        });
-      }
+  const trackPts = [];
+  for (let i = 0; i < pts.length; i++) {
+    if (i===0) { trackPts.push(pts[0]); continue; }
+    for (let s = 1; s <= 12; s++) {
+      const t = s/12;
+      trackPts.push({x: pts[i-1].x+(pts[i].x-pts[i-1].x)*t, y: pts[i-1].y+(pts[i].y-pts[i-1].y)*t});
     }
-    return pts;
   }
 
-  // Concatenate all segment samples into one dense polyline
-  let allPts = [];
-  for (let i = 0; i < segments.length; i++) {
-    const pts = sampleSegment(segments[i], DENSITY);
-    // skip first point of each subsequent segment (duplicate of last)
-    allPts = allPts.concat(i === 0 ? pts : pts.slice(1));
-  }
-
-  // Compute cumulative arc lengths
-  const arcLen = [0];
-  for (let i = 1; i < allPts.length; i++) {
-    const dx = allPts[i].x - allPts[i-1].x;
-    const dy = allPts[i].y - allPts[i-1].y;
-    arcLen.push(arcLen[i-1] + Math.sqrt(dx*dx + dy*dy));
-  }
-  const totalLen = arcLen[arcLen.length - 1];
-
-  // Place N tiles evenly by arc length
-  const centres = [];
   const arrowPts = [];
-  function arcSample(target) {
-    let lo = 0, hi = arcLen.length - 1;
-    while (hi - lo > 1) { const mid = (lo + hi) >> 1; arcLen[mid] <= target ? lo = mid : hi = mid; }
-    const frac = arcLen[lo] === arcLen[hi] ? 0 : (target - arcLen[lo]) / (arcLen[hi] - arcLen[lo]);
-    const x = allPts[lo].x + frac * (allPts[hi].x - allPts[lo].x);
-    const y = allPts[lo].y + frac * (allPts[hi].y - allPts[lo].y);
-    const loPrev = Math.max(0, lo - 4), hiNext = Math.min(allPts.length - 1, hi + 4);
-    const angle = Math.atan2(allPts[hiNext].y - allPts[loPrev].y, allPts[hiNext].x - allPts[loPrev].x);
-    return { x, y, angle };
+  for (let i = 0; i < pts.length-1; i++) {
+    arrowPts.push({
+      x: (pts[i].x+pts[i+1].x)/2, y: (pts[i].y+pts[i+1].y)/2,
+      angle: Math.atan2(pts[i+1].y-pts[i].y, pts[i+1].x-pts[i].x)
+    });
   }
-  const tileTargets = [];
-  for (let n = 0; n < N; n++) {
-    const target = (n / (N - 1)) * totalLen;
-    tileTargets.push(target);
-    centres.push(arcSample(target));
-  }
-  for (let n = 0; n < N - 1; n++) {
-    arrowPts.push(arcSample((tileTargets[n] + tileTargets[n + 1]) / 2));
-  }
-
-  return { centres, trackPts: allPts, arrowPts };
+  return { centres, trackPts, arrowPts };
 }
 
 function setupBoard() {
@@ -652,17 +666,21 @@ function setupBoard() {
   const N = tileTypes.length;
   if (!N) return;
 
-  // Tile size: fit N tiles along the path with some breathing room
-  const tileSize = Math.max(28, Math.min(Math.floor(W / 8), Math.floor(H / 8), 100));
+  // Estimate cell size first, then derive tile size, then recompute path with correct padding
+  const aW = W*0.88, aH = H*0.86;
+  let COLS = Math.round(Math.sqrt(N*(aW/aH)));
+  COLS = Math.max(4, Math.min(COLS, 12));
+  const ROWS = Math.ceil(N/COLS);
+  const estCell = Math.min(aW/(COLS-1), aH/(ROWS-1));
+  const s = Math.max(24, Math.min(Math.floor(estCell*0.80), 90));
 
-  const { centres, trackPts, arrowPts } = computeWindingPath(W, H, N);
-  const s = tileSize;
+  const { centres, trackPts, arrowPts } = computeWindingPath(W, H, N, s);
 
-  tilePositions = centres.map(({ x, y, angle }) => ({
+  tilePositions = centres.map(({ x, y }) => ({
     cx: x, cy: y,
     x: x - s/2, y: y - s/2,
     w: s, h: s, s,
-    angle,
+    angle: 0,
   }));
   tilePositions._track = trackPts;
   tilePositions._arrows = arrowPts;
@@ -786,34 +804,54 @@ function drawBoard() {
 function drawToken(tileIdx, color, playerIdx, offset) {
   const t = tilePositions[Math.min(tileIdx, tilePositions.length - 1)];
   if (!t) return;
-  const ledge = t.s * 0.13;
-  const r  = t.s * 0.29;                   // token radius — fills tile nicely
-  const ox = offset * r * 1.25;
-  const cx = t.cx + ox;
-  const cy = t.cy - ledge / 2;             // sit on the tile face, not ledge
+  const r = Math.max(t.s * 0.42, 14);
+  const ox = offset * r * 1.3;
+  const cx = t.cx + ox, cy = t.cy;
 
   ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 3;
+
+  // Dark backdrop
+  ctx.beginPath(); ctx.arc(cx, cy, r + 3, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fill();
+
+  // Tight intense glow — halved spread, doubled intensity via extra passes
+  ctx.shadowColor = color; ctx.shadowBlur = r * 1.75;
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
   ctx.fillStyle = color; ctx.fill();
-  ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+  ctx.shadowBlur = r * 1.75;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = r * 2.5;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.strokeStyle = color; ctx.lineWidth = 8; ctx.stroke();
+  ctx.shadowBlur = r * 2.5;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+  ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
 
+  // Photo or initial
   const photo = playerPhotos[playerIdx];
   if (photo) {
-    ctx.beginPath(); ctx.arc(cx, cy, r * 0.92, 0, Math.PI*2); ctx.clip();
-    ctx.drawImage(photo, cx - r*0.92, cy - r*0.92, r*1.84, r*1.84);
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.9, 0, Math.PI*2); ctx.clip();
+    ctx.drawImage(photo, cx - r*0.9, cy - r*0.9, r*1.8, r*1.8);
+    ctx.restore();
   } else {
-    ctx.beginPath(); ctx.arc(cx - r*.2, cy - r*.3, r*.35, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.fillStyle = color; ctx.fill();
     ctx.fillStyle = '#fff';
-    ctx.font = `bold ${r}px Fredoka One,cursive`;
+    ctx.font = `bold ${Math.max(r * 0.9, 11)}px Fredoka One,cursive`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(playerNames[playerIdx][0].toUpperCase(), cx, cy + 1);
   }
-  ctx.restore();
-  // coloured ring
+
+  // Thick white inner ring
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 3; ctx.stroke();
+
+  // Coloured outer ring
+  ctx.beginPath(); ctx.arc(cx, cy, r + 3, 0, Math.PI*2);
   ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+
+  ctx.restore();
 }
 
 function rr(c_or_x, x_or_y, y_or_w, w_or_h, h_or_r, r_or_undef) {
@@ -858,6 +896,31 @@ function rollAnim(diceEl,prefix,cb){
 // =====================================================
 //  MAIN ROLL — player is chosen by button press
 // =====================================================
+let dicePopupTimer = null;
+function showDicePopup(playerName) {
+  if (dicePopupTimer) { clearTimeout(dicePopupTimer); dicePopupTimer = null; }
+  document.getElementById('dicePopupPlayer').textContent = playerName + ' is rolling...';
+  const res = document.getElementById('diceResult');
+  res.classList.remove('show'); res.classList.add('hidden');
+  document.getElementById('dicePopup').classList.add('show');
+  document.getElementById('overlayBg').classList.add('show');
+}
+function resolveDicePopup(playerName, result, cb) {
+  showDice('mp', result);
+  document.getElementById('main-dice').classList.remove('rolling');
+  document.getElementById('dicePopupPlayer').textContent = playerName + ' rolled...';
+  const res = document.getElementById('diceResult');
+  res.textContent = result;
+  requestAnimationFrame(() => { res.classList.remove('hidden'); res.classList.add('show'); });
+  dicePopupTimer = setTimeout(() => {
+    document.getElementById('dicePopup').classList.remove('show');
+    document.getElementById('overlayBg').classList.remove('show');
+    res.classList.remove('show'); res.classList.add('hidden');
+    dicePopupTimer = null;
+    if (cb) cb();
+  }, 3500);
+}
+
 function setBtnsEnabled(on){
   document.getElementById('rollBtn0').disabled = !on;
   document.getElementById('rollBtn1').disabled = !on;
@@ -870,27 +933,40 @@ function handleRoll(cp){
   state.currentPlayer=cp;
   updateTurnUI();
 
-  const md=document.getElementById('main-dice');
+  const pName = playerNames[cp];
   socket.emit('animEvent',{type:'diceStart',player:cp});
+  showDicePopup(pName);
 
-  rollAnim(md,'mp',result=>{
-    const p=state.players[cp];
-    const pName=playerNames[cp];
-    document.getElementById('rollInfo').textContent=`${pName} rolled ${result}!`;
-    socket.emit('animEvent',{type:'diceResult',player:cp,result});
+  // Animate dice in popup
+  const md = document.getElementById('main-dice');
+  md.classList.add('rolling');
+  let c = 0;
+  const iv = setInterval(() => {
+    showDice('mp', Math.floor(Math.random()*6)+1);
+    c++;
+    if (c >= 10) {
+      clearInterval(iv);
+      const result = Math.floor(Math.random()*6)+1;
+      socket.emit('animEvent',{type:'diceResult',player:cp,result});
 
-    const maxTile=tileTypes.length-1;
-    const oldTile=p.tile;
-    p.tile=Math.min(p.tile+result,maxTile);
+      const p = state.players[cp];
+      const maxTile = tileTypes.length-1;
+      const oldTile = p.tile;
+      const rawTarget = p.tile + result;
+      const overflow = Math.max(0, rawTarget - maxTile);
+      p.tile = Math.min(rawTarget, maxTile);
 
-    animateMove(cp,oldTile,p.tile,()=>{ resolveTileLanding(cp); });
-  });
+      resolveDicePopup(pName, result, () => {
+        animateMove(cp, oldTile, p.tile, () => { resolveTileLanding(cp, overflow); });
+      });
+    }
+  }, 70);
 }
 
 // =====================================================
 //  TILE LANDING
 // =====================================================
-function resolveTileLanding(cp){
+function resolveTileLanding(cp, overflow=0){
   const p=state.players[cp];
   const pName=playerNames[cp];
   let effectiveType=tileTypes[p.tile];
@@ -902,7 +978,7 @@ function resolveTileLanding(cp){
   }
 
   if(effectiveType==='stageup'){
-    handleBounce(cp);
+    handleBounce(cp, overflow);
   } else if(effectiveType==='green'){
     doEventDice(cp,'green');
   } else if(effectiveType==='purple'){
@@ -911,6 +987,9 @@ function resolveTileLanding(cp){
     doEventDice(cp,'red');
   } else if(effectiveType==='yellow'){
     doYellowEvent(cp);
+  } else if(effectiveType==='blue'||effectiveType==='start'){
+    socket.emit('animEvent',{type:'tilePopup',icon:'💤',title:'Nothing Happens',desc:'Move along!',duration:1800});
+    showEventPopupAuto('💤','Nothing Happens','Move along!',1800,()=>{ finishTurn(); });
   } else {
     finishTurn();
   }
@@ -919,7 +998,7 @@ function resolveTileLanding(cp){
 // =====================================================
 //  BOUNCE BACK (replaces stage up)
 // =====================================================
-function handleBounce(cp){
+function handleBounce(cp, overflow=0){
   const pName=playerNames[cp];
   state.players[cp].score+=CFG.BOUNCE_BONUS;
   showScoreFloat(cp,CFG.BOUNCE_BONUS);
@@ -929,13 +1008,23 @@ function handleBounce(cp){
   document.getElementById('bounceDesc').textContent=`+${CFG.BOUNCE_BONUS} pts — back to Start!`;
   const bs=document.getElementById('bounceTrans');
   bs.classList.add('show');
-  socket.emit('animEvent',{type:'stageUp',stage:0}); // reuse stageUp anim on OBS
+  socket.emit('animEvent',{type:'stageUp',stage:0});
 
   setTimeout(()=>{
     bs.classList.remove('show');
-    state.players[cp].tile=0;
-    drawBoard(); emitState();
-    checkWin(cp)||finishTurn();
+    // Wait for the 0.5s fade-out transition to complete before moving
+    setTimeout(()=>{
+      state.players[cp].tile=0;
+      drawBoard(); emitState();
+
+      if(overflow>0){
+        const newTarget=Math.min(overflow, tileTypes.length-1);
+        state.players[cp].tile=newTarget;
+        animateMove(cp, 0, newTarget, ()=>{ updateUI(); emitState(); resolveTileLanding(cp); });
+      } else {
+        checkWin(cp)||finishTurn();
+      }
+    }, 550);
   },2800);
 }
 
@@ -969,7 +1058,9 @@ function doEventDice(cp,color){
       const icon=dir>0?'💜⬆️':'💜⬇️';
       socket.emit('animEvent',{type:'tilePopup',icon,title:'Purple Tile!',desc:`${dir>0?'Forward':'Back'} ${result} tiles!`,duration:1800,eventDiceResult:result});
       showEventPopupAuto(icon,'Purple Tile!',`${dir>0?'Forward':'Back'} ${result} tiles!`,1800,()=>{
-        animateMove(cp,oldTile,state.players[cp].tile,()=>{ updateUI(); finishTurn(); });
+        setTimeout(()=>{
+          animateMove(cp,oldTile,state.players[cp].tile,()=>{ updateUI(); resolveTileLanding(cp); });
+        }, 550);
       });
     }
   });
@@ -983,11 +1074,11 @@ function doYellowEvent(cp){
   const other=1-cp;
   const otherName=playerNames[other];
   const events=[
-    { label:`🔄 Swap places with ${otherName}`, fn:()=>{ const tmp=state.players[cp].tile; state.players[cp].tile=state.players[other].tile; state.players[other].tile=tmp; drawBoard(); showEventPopupAuto('🔄','Swap!',`${pName} and ${otherName} swapped!`,2000,()=>{ updateUI(); finishTurn(); }); } },
-    { label:`💸 Steal pts from ${otherName}`,  fn:()=>{ const steal=Math.floor(Math.random()*5)+1; const actual=Math.min(steal,state.players[other].score); state.players[other].score=Math.max(0,state.players[other].score-actual); state.players[cp].score+=actual; showScoreFloat(cp,+actual); showScoreFloat(other,-actual); showEventPopupAuto('💸','Point Heist!',`${pName} stole ${actual} pts!`,2200,()=>{ updateUI(); checkWin(cp)||finishTurn(); }); } },
-    { label:`🕺 Mini Dance Party!`,             fn:()=>{ showEventPopupAuto('🕺','DANCE PARTY!','💃 Everybody move! 🕺',3000,()=>{ finishTurn(); }); } },
-    { label:`🎨 Override next tile color`,      fn:()=>{ hideYellowPopup(); showColorPicker(cp); } },
-    { label:`🔀 Shuffle all tiles`,             fn:()=>{ shuffleTiles(); setupBoard(); socket.emit('tilesUpdate',{tileTypes,CFG}); showEventPopupAuto('🔀','Board Shuffle!','All tiles reshuffled!',2200,()=>{ finishTurn(); }); } },
+    { icon:'🔄', title:'Swap!',         label:`🔄 Swap places with ${otherName}`, fn:()=>{ const tmp=state.players[cp].tile; state.players[cp].tile=state.players[other].tile; state.players[other].tile=tmp; drawBoard(); socket.emit('animEvent',{type:'tilePopup',icon:'🔄',title:'Swap!',desc:`${pName} and ${otherName} swapped!`,duration:2000}); showEventPopupAuto('🔄','Swap!',`${pName} and ${otherName} swapped!`,2000,()=>{ updateUI(); finishTurn(); }); } },
+    { icon:'💸', title:'Point Heist!',  label:`💸 Steal pts from ${otherName}`,  fn:()=>{ const steal=Math.floor(Math.random()*5)+1; const actual=Math.min(steal,state.players[other].score); state.players[other].score=Math.max(0,state.players[other].score-actual); state.players[cp].score+=actual; showScoreFloat(cp,+actual); showScoreFloat(other,-actual); socket.emit('animEvent',{type:'tilePopup',icon:'💸',title:'Point Heist!',desc:`${pName} stole ${actual} pts!`,duration:2200,scoreFloat:{player:cp,value:+actual}}); showEventPopupAuto('💸','Point Heist!',`${pName} stole ${actual} pts!`,2200,()=>{ updateUI(); checkWin(cp)||finishTurn(); }); } },
+    { icon:'🕺', title:'DANCE PARTY!',  label:`🕺 Mini Dance Party!`,             fn:()=>{ socket.emit('animEvent',{type:'tilePopup',icon:'🕺',title:'DANCE PARTY!',desc:'💃 Everybody move! 🕺',duration:3000}); showEventPopupAuto('🕺','DANCE PARTY!','💃 Everybody move! 🕺',3000,()=>{ finishTurn(); }); } },
+    { icon:'🎨', title:'Override Color!',label:`🎨 Override next tile color`,      fn:()=>{ hideYellowPopup(); showColorPicker(cp); } },
+    { icon:'🔀', title:'Board Shuffle!', label:`🔀 Shuffle all tiles`,             fn:()=>{ shuffleTiles(); setupBoard(); socket.emit('tilesUpdate',{tileTypes,CFG}); socket.emit('animEvent',{type:'tilePopup',icon:'🔀',title:'Board Shuffle!',desc:'All tiles reshuffled!',duration:2200}); showEventPopupAuto('🔀','Board Shuffle!','All tiles reshuffled!',2200,()=>{ finishTurn(); }); } },
   ];
 
   const winIdx=Math.floor(Math.random()*events.length);
@@ -1000,10 +1091,15 @@ function doYellowEvent(cp){
   allLabels.forEach((label,i)=>{ const div=document.createElement('div'); div.className='yellow-spin-item'+(i===totalItems-1?' selected':''); div.textContent=label; track.appendChild(div); });
   document.getElementById('yellowSpinDesc').textContent='Landing on...';
   showYellowPopup();
-  socket.emit('animEvent',{type:'yellowSpin',labels:allLabels,winIdx});
+  socket.emit('animEvent',{type:'yellowSpin',labels:allLabels,winIdx,winIcon:events[winIdx].icon||'⭐',winTitle:events[winIdx].title||events[winIdx].label});
   const finalY=-((totalItems-1)*ITEM_H)+8;
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{ track.style.transition='transform 2.4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform=`translateY(${finalY}px)`; }));
-  setTimeout(()=>{ document.getElementById('yellowSpinDesc').textContent=events[winIdx].label; setTimeout(()=>{ hideYellowPopup(); events[winIdx].fn(); },1000); },2600);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ track.style.transition='transform 4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform=`translateY(${finalY}px)`; }));
+  setTimeout(()=>{
+    // Glow the spinner border
+    track.closest('.yellow-spinner-wrap').classList.add('landed');
+    // Dwell on the result for 2.5s then fire event
+    setTimeout(()=>{ hideYellowPopup(); track.closest('.yellow-spinner-wrap').classList.remove('landed'); events[winIdx].fn(); }, 2500);
+  }, 4200);
 }
 
 // =====================================================
@@ -1028,10 +1124,14 @@ function showColorPicker(cp){
   document.getElementById('colorSpinDesc').textContent='Spinning...';
   document.getElementById('colorPopup').classList.add('show');
   document.getElementById('overlayBg').classList.add('show');
-  socket.emit('animEvent',{type:'colorSpin',labels:allLabels.map(x=>x.icon+' '+x.label),winIdx});
+  socket.emit('animEvent',{type:'colorSpin',labels:allLabels.map(x=>({label:x.label,icon:x.icon,bg:x.bg})),winIdx});
   const finalY=-((totalItems-1)*ITEM_H)+8;
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{ track.style.transition='transform 2.4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform=`translateY(${finalY}px)`; }));
-  setTimeout(()=>{ document.getElementById('colorSpinDesc').textContent=`${winner.icon} ${winner.label}!`; setTimeout(()=>{ hideColorPopup(); state.players[cp].overrideColor=winner.type; document.getElementById(`override-p${cp+1}`).classList.add('show'); emitState(); finishTurn(); },1000); },2600);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ track.style.transition='transform 4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform=`translateY(${finalY}px)`; }));
+  setTimeout(()=>{
+    track.closest('.yellow-spinner-wrap').classList.add('landed');
+    document.getElementById('colorSpinDesc').textContent=`${winner.icon} ${winner.label}!`;
+    setTimeout(()=>{ track.closest('.yellow-spinner-wrap').classList.remove('landed'); hideColorPopup(); state.players[cp].overrideColor=winner.type; document.getElementById(`override-p${cp+1}`).classList.add('show'); emitState(); finishTurn(); }, 2500);
+  }, 4200);
 }
 function hideColorPopup(){ document.getElementById('colorPopup').classList.remove('show'); document.getElementById('overlayBg').classList.remove('show'); }
 
@@ -1057,9 +1157,8 @@ function checkWin(cp){
 function finishTurn(){
   state.rolling=false;
   updateUI();
-  document.getElementById('rollInfo').textContent='Pick who rolls!';
   setBtnsEnabled(true);
-  state.currentPlayer=-1; // no active player between turns
+  state.currentPlayer=-1;
   updateTurnUI();
 }
 
@@ -1083,15 +1182,31 @@ function animateMove(playerIdx,from,to,cb){
 //  POPUPS
 // =====================================================
 function showEventPopupAuto(icon,title,desc,duration,cb){
-  document.getElementById('popIcon').textContent=icon;
+  // close dice popup if still open
+  if (dicePopupTimer) { clearTimeout(dicePopupTimer); dicePopupTimer = null; }
+  document.getElementById('dicePopup').classList.remove('show');
+  const res = document.getElementById('diceResult');
+  res.classList.remove('show'); res.classList.add('hidden');
+
+  const d = Math.max(duration * 2, 6000); // minimum 6s
+  const el=document.getElementById('popIcon');
+  el.className='pop-icon';
+  if(icon==='⭐'||icon==='🌟')          { el.textContent=icon; el.classList.add('anim-star'); }
+  else if(icon==='💚')                   { el.textContent=icon; el.classList.add('anim-strong-heart'); }
+  else if(icon==='❤️')                  { el.textContent=icon; el.classList.add('anim-weak-heart'); }
+  else if(icon==='💤')                   { el.textContent=icon; el.classList.add('anim-wobble'); }
+  else if(icon==='👟')                   { el.textContent=icon; el.classList.add('anim-walk'); }
+  else if(icon==='💜⬆️')               { el.classList.add('anim-purple'); el.innerHTML='<span class="pi-heart">💜</span><span class="pi-arrow-up">⬆️</span>'; }
+  else if(icon==='💜⬇️')               { el.classList.add('anim-purple'); el.innerHTML='<span class="pi-heart">💜</span><span class="pi-arrow-down">⬇️</span>'; }
+  else                                   { el.textContent=icon; }
   document.getElementById('popTitle').textContent=title;
   document.getElementById('popDesc').textContent=desc;
   const fill=document.getElementById('dismissFill');
   fill.style.transition='none'; fill.style.width='100%';
   document.getElementById('eventPopup').classList.add('show');
   document.getElementById('overlayBg').classList.add('show');
-  setTimeout(()=>{ fill.style.transition=`width ${duration}ms linear`; fill.style.width='0%'; },50);
-  setTimeout(()=>{ document.getElementById('eventPopup').classList.remove('show'); document.getElementById('overlayBg').classList.remove('show'); cb(); },duration+100);
+  setTimeout(()=>{ fill.style.transition=`width ${d}ms linear`; fill.style.width='0%'; },50);
+  setTimeout(()=>{ document.getElementById('eventPopup').classList.remove('show'); document.getElementById('overlayBg').classList.remove('show'); cb(); },d+100);
 }
 function showYellowPopup(){ document.getElementById('yellowPopup').classList.add('show'); document.getElementById('overlayBg').classList.add('show'); }
 function hideYellowPopup(){ document.getElementById('yellowPopup').classList.remove('show'); document.getElementById('overlayBg').classList.remove('show'); }
@@ -1130,7 +1245,7 @@ function restartGame(){
   document.getElementById('winScreen').classList.remove('show');
   document.getElementById('override-p1').classList.remove('show');
   document.getElementById('override-p2').classList.remove('show');
-  showDice('mp',1); showDice('ep',1);
+  showDice('mp',1);
   document.getElementById('setupScreen').style.display='flex';
 }
 

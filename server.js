@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
   });
 
 server.listen(PORT, () => {
-  console.log(`\n🎮 Minchus Mad Quest running!`);
+  console.log(`\n🎮 Stream Quest running!`);
   console.log(`   Control room → http://localhost:${PORT}/control`);
   console.log(`   OBS widget   → http://localhost:${PORT}/obs\n`);
 });

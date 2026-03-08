@@ -1,7 +1,7 @@
 {
   "name": "streamquest",
   "version": "1.0.0",
-  "description": "Minchus Mad Quest board game server",
+  "description": "Stream Quest board game server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
