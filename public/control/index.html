@@ -144,13 +144,15 @@ body { display:flex; align-items:stretch; justify-content:center; }
 @keyframes iconPulseStar{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
 @keyframes iconPulseStrong{0%,100%{transform:scale(1);}40%{transform:scale(1.35);}60%{transform:scale(1.28);}}
 @keyframes iconPulseWeak{0%,100%{transform:scale(1);}50%{transform:scale(0.82);}}
-@keyframes iconWobble{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+@keyframes iconWobble{0%{transform:translateX(0);}16%{transform:translateX(-6px);}33%{transform:translateX(6px);}50%{transform:translateX(-5px);}66%{transform:translateX(5px);}83%{transform:translateX(-2px);}100%{transform:translateX(0);}}
 @keyframes iconWalk{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+@keyframes iconFlap{0%,100%{transform:translateY(0) rotate(-5deg);}30%{transform:translateY(-10px) rotate(8deg);}60%{transform:translateY(-4px) rotate(-3deg);}}
 .pop-icon.anim-star{animation:iconPulseStar 1.8s ease-in-out infinite;}
 .pop-icon.anim-strong-heart{animation:iconPulseStrong 0.7s ease-in-out infinite;}
 .pop-icon.anim-weak-heart{animation:iconPulseWeak 1.4s ease-in-out infinite;}
-.pop-icon.anim-wobble{animation:iconWobble 1.2s ease-in-out infinite;}
+.pop-icon.anim-wobble{animation:iconWobble 1.4s linear infinite;}
 .pop-icon.anim-walk{animation:iconWalk 0.5s ease-in-out infinite;}
+.pop-icon.anim-flap{animation:iconFlap 0.7s ease-in-out infinite;}
 .pop-icon.anim-purple{display:flex;align-items:center;justify-content:center;gap:0.3cqw;}
 .pop-icon.anim-purple .pi-heart{display:inline-block;animation:iconPulseStrong 0.8s ease-in-out infinite;}
 .pop-icon.anim-purple .pi-arrow-up{display:inline-block;animation:iconArrowUp 0.7s ease-in-out infinite;}
@@ -672,7 +674,7 @@ function setupBoard() {
   COLS = Math.max(4, Math.min(COLS, 12));
   const ROWS = Math.ceil(N/COLS);
   const estCell = Math.min(aW/(COLS-1), aH/(ROWS-1));
-  const s = Math.max(24, Math.min(Math.floor(estCell*0.80), 90));
+  const s = Math.max(14, Math.min(Math.floor(estCell*0.80), 90));
 
   const { centres, trackPts, arrowPts } = computeWindingPath(W, H, N, s);
 
@@ -1196,8 +1198,9 @@ function showEventPopupAuto(icon,title,desc,duration,cb){
   else if(icon==='❤️')                  { el.textContent=icon; el.classList.add('anim-weak-heart'); }
   else if(icon==='💤')                   { el.textContent=icon; el.classList.add('anim-wobble'); }
   else if(icon==='👟')                   { el.textContent=icon; el.classList.add('anim-walk'); }
-  else if(icon==='💜⬆️')               { el.classList.add('anim-purple'); el.innerHTML='<span class="pi-heart">💜</span><span class="pi-arrow-up">⬆️</span>'; }
-  else if(icon==='💜⬇️')               { el.classList.add('anim-purple'); el.innerHTML='<span class="pi-heart">💜</span><span class="pi-arrow-down">⬇️</span>'; }
+  else if(icon==='💸')                   { el.textContent=icon; el.classList.add('anim-flap'); }
+  else if(icon.startsWith('💜⬆'))      { el.classList.add('anim-purple'); el.innerHTML='<span class="pi-heart">💜</span><span class="pi-arrow-up">⬆️</span>'; }
+  else if(icon.startsWith('💜⬇'))      { el.classList.add('anim-purple'); el.innerHTML='<span class="pi-heart">💜</span><span class="pi-arrow-down">⬇️</span>'; }
   else                                   { el.textContent=icon; }
   document.getElementById('popTitle').textContent=title;
   document.getElementById('popDesc').textContent=desc;

@@ -59,13 +59,15 @@ body.transparent-bg html{background:transparent!important;}
 @keyframes iconPulseStar{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
 @keyframes iconPulseStrong{0%,100%{transform:scale(1);}40%{transform:scale(1.35);}60%{transform:scale(1.28);}}
 @keyframes iconPulseWeak{0%,100%{transform:scale(1);}50%{transform:scale(0.82);}}
-@keyframes iconWobble{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+@keyframes iconWobble{0%{transform:translateX(0);}16%{transform:translateX(-6px);}33%{transform:translateX(6px);}50%{transform:translateX(-5px);}66%{transform:translateX(5px);}83%{transform:translateX(-2px);}100%{transform:translateX(0);}}
 @keyframes iconWalk{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+@keyframes iconFlap{0%,100%{transform:translateY(0) rotate(-5deg);}30%{transform:translateY(-10px) rotate(8deg);}60%{transform:translateY(-4px) rotate(-3deg);}}
 .pop-icon.anim-star{animation:iconPulseStar 1.8s ease-in-out infinite;}
 .pop-icon.anim-strong-heart{animation:iconPulseStrong 0.7s ease-in-out infinite;}
 .pop-icon.anim-weak-heart{animation:iconPulseWeak 1.4s ease-in-out infinite;}
-.pop-icon.anim-wobble{animation:iconWobble 1.2s ease-in-out infinite;}
+.pop-icon.anim-wobble{animation:iconWobble 1.4s linear infinite;}
 .pop-icon.anim-walk{animation:iconWalk 0.5s ease-in-out infinite;}
+.pop-icon.anim-flap{animation:iconFlap 0.7s ease-in-out infinite;}
 .pop-icon.anim-purple{display:flex;align-items:center;justify-content:center;gap:0.3cqw;}
 .pop-icon.anim-purple .pi-heart{display:inline-block;animation:iconPulseStrong 0.8s ease-in-out infinite;}
 .pop-icon.anim-purple .pi-arrow-up{display:inline-block;animation:iconArrowUp 0.7s ease-in-out infinite;}
@@ -231,8 +233,9 @@ function showPopup(icon,title,desc,dur){
   else if(icon==='❤️')                  { el.textContent=icon; el.classList.add('anim-weak-heart'); }
   else if(icon==='💤')                   { el.textContent=icon; el.classList.add('anim-wobble'); }
   else if(icon==='👟')                   { el.textContent=icon; el.classList.add('anim-walk'); }
-  else if(icon==='💜⬆️')               { el.classList.add('anim-purple'); el.innerHTML='<span class="pi-heart">💜</span><span class="pi-arrow-up">⬆️</span>'; }
-  else if(icon==='💜⬇️')               { el.classList.add('anim-purple'); el.innerHTML='<span class="pi-heart">💜</span><span class="pi-arrow-down">⬇️</span>'; }
+  else if(icon==='💸')                   { el.textContent=icon; el.classList.add('anim-flap'); }
+  else if(icon.startsWith('💜⬆'))      { el.classList.add('anim-purple'); el.innerHTML='<span class="pi-heart">💜</span><span class="pi-arrow-up">⬆️</span>'; }
+  else if(icon.startsWith('💜⬇'))      { el.classList.add('anim-purple'); el.innerHTML='<span class="pi-heart">💜</span><span class="pi-arrow-down">⬇️</span>'; }
   else                                   { el.textContent=icon; }
   document.getElementById('popTitle').textContent=title;
   document.getElementById('popDesc').textContent=desc;
@@ -364,7 +367,7 @@ function setupBoard(){
   const ROWS=Math.ceil(N/COLS);
   const estCellW=aW/(COLS-1), estCellH=aH/(ROWS-1);
   const minCell=Math.min(estCellW,estCellH);
-  const ts=Math.max(24,Math.min(Math.floor(minCell*0.80),90));
+  const ts=Math.max(14,Math.min(Math.floor(minCell*0.80),90));
   const{centres,trackPts,arrowPts}=computeWindingPath(W,H,N,ts);
   tilePos=centres.map(({x,y})=>({cx:x,cy:y,x:x-ts/2,y:y-ts/2,w:ts,h:ts,s:ts,angle:0}));
   tilePos._track=trackPts;
@@ -404,11 +407,19 @@ function drawBoard(s){
   // track
   const ts=tilePos[0].s,track=tilePos._track||tilePos;
   ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-  ctx.strokeStyle='#6a1090';ctx.lineWidth=ts*1.0;
-  ctx.beginPath();ctx.moveTo(track[0].x,track[0].y);
-  for(let i=1;i<track.length;i++)ctx.lineTo(track[i].x,track[i].y);
-  ctx.stroke();
-  ctx.strokeStyle='#9030c0';ctx.lineWidth=ts*0.68;ctx.stroke();
+  if(window._transparentBg){
+    ctx.strokeStyle='rgba(180,180,180,0.10)';ctx.lineWidth=ts*1.0;
+    ctx.beginPath();ctx.moveTo(track[0].x,track[0].y);
+    for(let i=1;i<track.length;i++)ctx.lineTo(track[i].x,track[i].y);
+    ctx.stroke();
+    ctx.strokeStyle='rgba(200,200,200,0.10)';ctx.lineWidth=ts*0.68;ctx.stroke();
+  } else {
+    ctx.strokeStyle='#6a1090';ctx.lineWidth=ts*1.0;
+    ctx.beginPath();ctx.moveTo(track[0].x,track[0].y);
+    for(let i=1;i<track.length;i++)ctx.lineTo(track[i].x,track[i].y);
+    ctx.stroke();
+    ctx.strokeStyle='#9030c0';ctx.lineWidth=ts*0.68;ctx.stroke();
+  }
   ctx.restore();
   // direction arrows — one chevron per gap between tiles, exactly centred
   const arrows=tilePos._arrows||[];
@@ -416,7 +427,7 @@ function drawBoard(s){
     const{x:bx,y:by,angle:ang}=arrows[i];
     const sz=ts*0.15;
     ctx.save();ctx.translate(bx,by);ctx.rotate(ang);
-    ctx.globalAlpha=0.22;ctx.strokeStyle='#fff';ctx.lineWidth=ts*0.13;
+    ctx.globalAlpha=window._transparentBg?0.10:0.22;ctx.strokeStyle='#fff';ctx.lineWidth=ts*0.13;
     ctx.lineCap='round';ctx.lineJoin='round';
     ctx.beginPath();ctx.moveTo(-sz*0.5,sz*0.5);ctx.lineTo(sz*0.5,0);ctx.lineTo(-sz*0.5,-sz*0.5);
     ctx.stroke();ctx.restore();
