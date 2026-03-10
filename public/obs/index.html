@@ -21,9 +21,9 @@ body.transparent-bg html{background:transparent!important;}
 .play-area{display:flex;flex-direction:column;align-items:stretch;width:100%;max-width:1300px;height:100%;overflow:hidden;}
 
 /* ── players bar — stacked vertically, grows to share space with board ── */
-.players-bar{display:flex;flex-direction:column;gap:10px;padding:10px 14px 6px;flex:3;min-height:0;max-height:35%;position:relative;}
+.players-bar{display:flex;flex-direction:column;gap:6px;padding:6px 10px 4px;flex:3;min-height:0;max-height:30%;position:relative;}
 /* each card grows equally to fill the bar */
-.player-card{background:var(--panel);border-radius:18px;padding:16px 24px;border:2px solid transparent;transition:border-color .4s,box-shadow .4s;position:relative;overflow:hidden;box-shadow:0 2px 16px rgba(180,60,255,.3);display:flex;align-items:center;gap:20px;flex:1;min-height:0;}
+.player-card{background:var(--panel);border-radius:18px;padding:8px 18px;border:2px solid transparent;transition:border-color .4s,box-shadow .4s;position:relative;overflow:hidden;box-shadow:0 2px 16px rgba(180,60,255,.3);display:flex;align-items:center;gap:16px;flex:1;min-height:0;}
 .player-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;border-radius:18px 18px 0 0;}
 .player-card.p1::before{background:var(--p1c);}
 .player-card.p2::before{background:var(--p2c);}
