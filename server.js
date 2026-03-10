@@ -51,8 +51,11 @@ io.on('connection', (socket) => {
   socket.on('animEvent', (data) => {
     socket.broadcast.emit('animEvent', data);
   });
+
+  socket.on('disconnect', () => {
     console.log(`[-] ${clientType} disconnected (id: ${socket.id})`);
   });
+});
 
 server.listen(PORT, () => {
   console.log(`\n🎮 Stream Quest running!`);
