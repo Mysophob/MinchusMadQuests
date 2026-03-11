@@ -387,11 +387,29 @@ body { display:flex; align-items:stretch; justify-content:center; }
 .burger-item .blabel { line-height: 1.2; }
 .burger-item .bsub { font-family: 'Nunito', sans-serif; font-size: 11px; color: #d8a0ff; font-weight: 600; }
 .burger-divider { height: 1px; background: rgba(180,60,255,.25); margin: 2px 8px; }
+
+/* ── Kicked screen ── */
+#kicked-screen {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: rgba(15,0,40,.97);
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px; text-align: center; padding: 40px;
+}
+#kicked-screen.show { display: flex; }
+#kicked-screen .kicked-icon { font-size: 64px; }
+#kicked-screen h2 { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--accent); }
+#kicked-screen p  { font-size: 16px; color: #d8a0ff; line-height: 1.5; }
 </style>
 </head>
 <body>
 
 <!-- BURGER MENU -->
+<div id="kicked-screen">
+  <div class="kicked-icon">📵</div>
+  <h2>Session Replaced</h2>
+  <p>Another controller has taken over this game.<br>You can close this tab.</p>
+</div>
+
 <button id="burger-btn" onclick="toggleBurger()" aria-label="Menu">
   <span></span><span></span><span></span>
 </button>
@@ -408,6 +426,15 @@ body { display:flex; align-items:stretch; justify-content:center; }
   <div class="burger-item" onclick="givePoint(1)">
     <span class="bicon">🪙</span>
     <div class="blabel" id="burgerPointLabel1">+1 Point — Player 2<div class="bsub">Manually award one point</div></div>
+  </div>
+  <div class="burger-divider"></div>
+  <div class="burger-item" onclick="deductPoint(0)">
+    <span class="bicon">💀</span>
+    <div class="blabel" id="burgerDeductLabel0">-1 Point — Player 1<div class="bsub">Manually deduct one point</div></div>
+  </div>
+  <div class="burger-item" onclick="deductPoint(1)">
+    <span class="bicon">💀</span>
+    <div class="blabel" id="burgerDeductLabel1">-1 Point — Player 2<div class="bsub">Manually deduct one point</div></div>
   </div>
 </div>
 
@@ -555,6 +582,86 @@ const socket = io({ query: { type: 'control' } });
 function emitState() {
   socket.emit('stateUpdate', { ...state, playerNames });
 }
+
+// ── Resume state sent by server on connect ──────────────────────────────────
+socket.on('resumeState', ({ state: savedState, tiles, avatars }) => {
+  // Restore tile types + CFG
+  if (tiles) {
+    tileTypes = tiles.tileTypes || [];
+    if (tiles.CFG) Object.assign(CFG, tiles.CFG);
+  }
+
+  // Restore player names
+  if (savedState.playerNames) {
+    playerNames[0] = savedState.playerNames[0] || 'Player 1';
+    playerNames[1] = savedState.playerNames[1] || 'Player 2';
+  }
+
+  // Restore game state — treat rolling as false (ready to roll again)
+  state = {
+    currentPlayer: savedState.currentPlayer ?? 0,
+    players: savedState.players ?? [
+      { tile: 0, score: 0, overrideColor: null },
+      { tile: 0, score: 0, overrideColor: null }
+    ],
+    rolling: false,
+    gameOver: savedState.gameOver ?? false,
+  };
+
+  // Restore avatars
+  if (avatars) {
+    avatars.forEach((av, idx) => {
+      if (!av) return;
+      const img = new Image();
+      img.onload = () => {
+        playerPhotos[idx] = img;
+        const avatarEl = document.getElementById(`avatar-p${idx+1}`);
+        if (avatarEl) avatarEl.innerHTML = `<img src="${av.dataUrl}" alt="">`;
+        const preview = document.getElementById(`avatarPreview${idx}`);
+        if (preview) { preview.src = av.dataUrl; preview.classList.add('loaded'); }
+        if (idx === 1 && tilePositions.length) drawBoard();
+      };
+      img.src = av.dataUrl;
+    });
+  }
+
+  // Update name displays
+  document.getElementById('pname-p1').textContent = playerNames[0];
+  document.getElementById('pname-p2').textContent = playerNames[1];
+  document.getElementById('rollBtn0').textContent  = '🎲 ' + playerNames[0];
+  document.getElementById('rollBtn1').textContent  = '🎲 ' + playerNames[1];
+
+  // Hide setup, show game
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('winScreen').classList.toggle('show', !!state.gameOver);
+
+  // Let the board render after layout settles
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    setupBoard();
+    showDice('mp', 1);
+    updateUI();
+    setBtnsEnabled(!state.gameOver);
+  }));
+});
+
+// ── Kicked: another controller took over ────────────────────────────────────
+socket.on('kicked', () => {
+  document.getElementById('kicked-screen').classList.add('show');
+  setBtnsEnabled(false);
+});
+
+// ── Disconnected from server ─────────────────────────────────────────────────
+socket.on('disconnect', () => {
+  document.getElementById('kicked-screen').classList.add('show');
+  document.querySelector('#kicked-screen h2').textContent = 'Disconnected';
+  document.querySelector('#kicked-screen p').innerHTML = 'Lost connection to the server.<br>Reconnecting...';
+  setBtnsEnabled(false);
+});
+
+socket.on('connect', () => {
+  // If we reconnect, hide the disconnected screen — resumeState will restore state
+  document.getElementById('kicked-screen').classList.remove('show');
+});
 
 // =====================================================
 //  PLAYER SETUP
@@ -1338,6 +1445,8 @@ function toggleBurger() {
     for (let i = 0; i < 2; i++) {
       const lbl = document.getElementById('burgerPointLabel' + i);
       if (lbl) lbl.childNodes[0].textContent = '+1 Point — ' + (playerNames[i] || 'Player ' + (i+1));
+      const dlbl = document.getElementById('burgerDeductLabel' + i);
+      if (dlbl) dlbl.childNodes[0].textContent = '-1 Point — ' + (playerNames[i] || 'Player ' + (i+1));
     }
   }
 }
@@ -1355,6 +1464,14 @@ function givePoint(pi) {
   toggleBurger();
   state.players[pi].score += 1;
   showScoreFloat(pi, +1);
+  updateUI();
+  emitState();
+}
+
+function deductPoint(pi) {
+  toggleBurger();
+  state.players[pi].score = Math.max(0, state.players[pi].score - 1);
+  showScoreFloat(pi, -1);
   updateUI();
   emitState();
 }

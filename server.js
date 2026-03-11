@@ -14,46 +14,72 @@ app.use('/control', express.static(path.join(__dirname, 'public/control')));
 app.use('/obs',     express.static(path.join(__dirname, 'public/obs')));
 app.get('/', (req, res) => res.redirect('/control'));
 
-// ─── Server-side cache (lets late-joining OBS clients catch up instantly) ─────
-let latestState  = null;
-let latestTiles  = null;
+// ─── Server-side game state (source of truth, survives controller disconnect) ─
+let latestState   = null;
+let latestTiles   = null;
 const avatarCache = [null, null];
+
+// ─── Active controller tracking ───────────────────────────────────────────────
+let activeControllerId = null;
 
 // ─── Socket connections ────────────────────────────────────────────────────────
 io.on('connection', (socket) => {
   const clientType = socket.handshake.query.type || 'unknown';
   console.log(`[+] ${clientType} connected  (id: ${socket.id})`);
 
-  // Catch-up: send everything cached to any new joiner
-  if (latestState) socket.emit('stateUpdate', latestState);
-  if (latestTiles) socket.emit('tilesUpdate',  latestTiles);
-  avatarCache.forEach(av => { if (av) socket.emit('avatarUpdate', av); });
+  if (clientType === 'control') {
+    // Kick the previous controller if still connected
+    if (activeControllerId && activeControllerId !== socket.id) {
+      const oldSocket = io.sockets.sockets.get(activeControllerId);
+      if (oldSocket) {
+        oldSocket.emit('kicked');
+        console.log(`[!] Kicked old controller (id: ${activeControllerId})`);
+      }
+    }
+    activeControllerId = socket.id;
 
-  // Control room sends full game state after every action
+    // Send full saved state to the new controller so it can resume
+    if (latestState) socket.emit('resumeState', {
+      state:   latestState,
+      tiles:   latestTiles,
+      avatars: avatarCache,
+    });
+
+  } else {
+    // OBS or other clients — catch-up as before
+    if (latestState) socket.emit('stateUpdate', latestState);
+    if (latestTiles) socket.emit('tilesUpdate',  latestTiles);
+    avatarCache.forEach(av => { if (av) socket.emit('avatarUpdate', av); });
+  }
+
+  // ── Events from the active controller ───────────────────────────────────────
+
   socket.on('stateUpdate', (state) => {
     latestState = state;
     socket.broadcast.emit('stateUpdate', state);
   });
 
-  // Control room sends tile layout on start / stage advance / shuffle
   socket.on('tilesUpdate', (data) => {
     latestTiles = data;
     socket.broadcast.emit('tilesUpdate', data);
   });
 
-  // Control room sends player avatar as base64 data URL
   socket.on('avatarUpdate', (data) => {
     avatarCache[data.index] = data;
     socket.broadcast.emit('avatarUpdate', data);
   });
 
-  // Control room sends animation events — relay immediately to OBS (no caching needed)
   socket.on('animEvent', (data) => {
     socket.broadcast.emit('animEvent', data);
   });
 
   socket.on('disconnect', () => {
-    console.log(`[-] ${clientType} disconnected (id: ${socket.id})`);
+    if (socket.id === activeControllerId) {
+      activeControllerId = null;
+      console.log(`[-] Active controller disconnected (id: ${socket.id})`);
+    } else {
+      console.log(`[-] ${clientType} disconnected (id: ${socket.id})`);
+    }
   });
 });
 
