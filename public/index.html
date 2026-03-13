@@ -1709,6 +1709,10 @@
         const avatarEl = document.getElementById(`avatar-p${i + 1}`);
         if (playerPhotos[i]) avatarEl.innerHTML = `<img src="${document.getElementById(`avatarPreview${i}`).src}" alt="">`;
         else avatarEl.innerHTML = `<span>${playerNames[i][0].toUpperCase()}</span>`;
+        // Re-emit avatar so server cache and OBS stay in sync
+        if (playerPhotoUrls[i]) {
+          socket.emit('avatarUpdate', { index: i, dataUrl: playerPhotoUrls[i] });
+        }
       }
       document.getElementById('setupScreen').style.display = 'none';
       generateTiles();

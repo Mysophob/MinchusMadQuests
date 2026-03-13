@@ -75,3 +75,12 @@ const CFG = {
   TILE_DIST: { green:0.20, purple:0.10, red:0.20, yellow:0.30 },
 };
 ```
+
+
+
+Row 1 — Pinks
+#F6E4E9 · #ECC3CE · #D696A7 · #B4647A · #953C54
+Row 2 — Peaches
+#FFF2ED · #FFE1D3 · #ECBCA6 · #C78A6E · #A46143
+Row 3 — Purples
+#E0CFDE · #BF9EBC · #A1719C · #874B82 · #702D6A
