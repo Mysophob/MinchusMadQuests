@@ -1336,8 +1336,13 @@
       background: rgba(255, 80, 80, .3);
     }
 
+    .milestone-btn-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
     .milestone-add-btn {
-      align-self: center;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -1357,6 +1362,92 @@
       background: rgba(240, 114, 160, .22);
       border-color: rgba(240, 114, 160, .7);
     }
+
+    .milestone-paste-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 18px;
+      background: rgba(96, 165, 250, .12);
+      border: 1px dashed rgba(96, 165, 250, .4);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+
+    .milestone-paste-btn:hover {
+      background: rgba(96, 165, 250, .22);
+      border-color: rgba(96, 165, 250, .7);
+    }
+
+    #milestone-paste-area {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    #milestone-paste-input {
+      width: 100%;
+      min-height: 120px;
+      padding: 10px 12px;
+      background: var(--bg2);
+      border: 1px solid rgba(96, 165, 250, .5);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      resize: vertical;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color .2s;
+    }
+
+    #milestone-paste-input:focus {
+      border-color: rgba(96, 165, 250, .9);
+    }
+
+    .milestone-paste-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .milestone-paste-confirm {
+      flex: 1;
+      padding: 8px;
+      background: rgba(74, 222, 128, .2);
+      border: 1px solid rgba(74, 222, 128, .5);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .milestone-paste-confirm:hover { background: rgba(74, 222, 128, .35); }
+
+    .milestone-paste-cancel {
+      flex: 1;
+      padding: 8px;
+      background: rgba(248, 113, 113, .15);
+      border: 1px solid rgba(248, 113, 113, .35);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .milestone-paste-cancel:hover { background: rgba(248, 113, 113, .3); }
 
     #milestone-list:empty::after {
       content: 'No milestones yet — add one below!';
@@ -2199,7 +2290,17 @@
         </div>
       </div>
       <div id="milestone-list"></div>
-      <button class="milestone-add-btn" onclick="addMilestone()">＋ Add Milestone</button>
+      <div class="milestone-btn-row">
+        <button class="milestone-add-btn" onclick="addMilestone()">＋ Add</button>
+        <button class="milestone-paste-btn" onclick="openMilestonePaste()">📋 Paste List</button>
+      </div>
+      <div id="milestone-paste-area" style="display:none">
+        <textarea id="milestone-paste-input" placeholder="Paste your list here, one per line:&#10;10 : First goal&#10;20 : Second goal&#10;..."></textarea>
+        <div class="milestone-paste-actions">
+          <button class="milestone-paste-confirm" onclick="confirmMilestonePaste()">✓ Import</button>
+          <button class="milestone-paste-cancel" onclick="closeMilestonePaste()">✕ Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2347,17 +2448,20 @@
       document.querySelectorAll('.milestone-player-select').forEach(sel => {
         sel.classList.toggle('visible', scope === 'player');
       });
+      emitMilestones();
     }
 
     function addMilestone(pts = '', desc = '', player = 'all') {
       const id = Date.now() + Math.random();
       milestones.push({ id, pts, desc, player });
       renderMilestoneList();
+      emitMilestones();
     }
 
     function removeMilestone(id) {
       milestones = milestones.filter(m => m.id !== id);
       renderMilestoneList();
+      emitMilestones();
     }
 
     function renderMilestoneList() {
@@ -2387,10 +2491,51 @@
       const m = milestones.find(m => m.id === id);
       if (!m) return;
       m[field] = field === 'pts' ? (parseInt(value) || '') : value;
+      emitMilestones();
+    }
+
+    function openMilestonePaste() {
+      document.getElementById('milestone-paste-area').style.display = 'flex';
+      document.getElementById('milestone-paste-input').focus();
+    }
+
+    function closeMilestonePaste() {
+      document.getElementById('milestone-paste-area').style.display = 'none';
+      document.getElementById('milestone-paste-input').value = '';
+    }
+
+    function confirmMilestonePaste() {
+      const raw = document.getElementById('milestone-paste-input').value.trim();
+      if (!raw) return;
+
+      const parsed = [];
+      raw.split('\n').forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        // Accept formats: "10 : desc", "10: desc", "10 - desc", "10 desc"
+        const m = line.match(/^(\d+)\s*[:|-]?\s*(.+)$/);
+        if (m) {
+          parsed.push({ id: Date.now() + Math.random(), pts: parseInt(m[1]), desc: m[2].trim(), player: 'all' });
+        }
+      });
+
+      if (!parsed.length) return;
+
+      // Sort by pts ascending
+      parsed.sort((a, b) => a.pts - b.pts);
+
+      milestones = parsed;
+      renderMilestoneList();
+      emitMilestones();
+      closeMilestonePaste();
     }
 
     function resetMilestoneFired() {
       _firedMilestones.clear();
+    }
+
+    function emitMilestones() {
+      socket.emit('milestonesUpdate', { milestones, scope: milestoneScope });
     }
 
     // Called after every score change — checks all milestones
@@ -2566,7 +2711,7 @@
     const playerPhotoUrls = [null, null];
     const playerNames = ['Player 1', 'Player 2'];
 
-    socket.on('resumeState', ({ state: savedState, tiles, avatars }) => {
+    socket.on('resumeState', ({ state: savedState, tiles, avatars, milestones: savedMilestones }) => {
       // Restore tile types + CFG
       if (tiles) {
         _gameTiles = tiles.tileTypes || []; // server stores _gameTiles under 'tileTypes' key
@@ -2592,6 +2737,15 @@
         rolling: false,
         gameOver: savedState.gameOver ?? false,
       };
+
+      // Restore milestones
+      if (savedMilestones && Array.isArray(savedMilestones.milestones)) {
+        milestones = savedMilestones.milestones;
+        milestoneScope = savedMilestones.scope || 'all';
+        document.getElementById('scope-all-btn').classList.toggle('active', milestoneScope === 'all');
+        document.getElementById('scope-player-btn').classList.toggle('active', milestoneScope === 'player');
+        renderMilestoneList();
+      }
 
       // Restore avatars
       if (avatars) {
@@ -2705,6 +2859,7 @@
       document.getElementById('setupScreen').style.display = 'none';
       clearLog();
       resetMilestoneFired();
+      emitMilestones();
       gameLog('system', '🎮', null, `Game started — ${playerNames[0]} vs ${playerNames[1]}${milestones.filter(m => m.pts && m.desc).length ? ` · ${milestones.filter(m => m.pts && m.desc).length} milestone(s) set` : ''}`);
       generateTiles();
       setupBoard();

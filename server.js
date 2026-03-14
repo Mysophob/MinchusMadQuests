@@ -20,6 +20,7 @@ app.get('/', (req, res) => res.redirect('/control'));
 let latestState   = null;
 let latestTiles   = null;
 const avatarCache = [null, null];
+let milestonesCache = { milestones: [], scope: 'all' };
 
 // ─── Active controller tracking ───────────────────────────────────────────────
 let activeControllerId = null;
@@ -42,9 +43,10 @@ io.on('connection', (socket) => {
 
     // Send full saved state to the new controller so it can resume
     if (latestState) socket.emit('resumeState', {
-      state:   latestState,
-      tiles:   latestTiles,
-      avatars: avatarCache,
+      state:      latestState,
+      tiles:      latestTiles,
+      avatars:    avatarCache,
+      milestones: milestonesCache,
     });
 
   } else {
@@ -69,6 +71,10 @@ io.on('connection', (socket) => {
   socket.on('avatarUpdate', (data) => {
     avatarCache[data.index] = data;
     socket.broadcast.emit('avatarUpdate', data);
+  });
+
+  socket.on('milestonesUpdate', (data) => {
+    milestonesCache = data;
   });
 
   socket.on('animEvent', (data) => {
