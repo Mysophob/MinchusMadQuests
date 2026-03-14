@@ -11,7 +11,7 @@
   <style>
     :root {
       /* ── Core palette ─────────────────────────────── */
-      --bg: #1d234d;/*#953C54;*/
+      --bg: #953C54;
       --bg2: #B4647A;
       --panel: #343063;
       --accent: #ECBCA6;
@@ -209,7 +209,7 @@
       color: var(--text-dark);
     }
 
-    .player-avatar > img {
+    .player-avatar>img {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -899,21 +899,32 @@
       border-radius: 4vw;
       padding: 5vw 7vw;
       text-align: center;
-      box-shadow: 0 0 0 6px rgba(251,191,36,.18), 0 24px 70px rgba(120,40,80,.55);
+      box-shadow: 0 0 0 6px rgba(251, 191, 36, .18), 0 24px 70px rgba(120, 40, 80, .55);
       transform: scale(0) rotate(-4deg);
       width: 78vw;
       max-width: 78vw;
     }
 
     #obs-milestonePopup.show #obs-milestonePopupInner {
-      animation: obsMilestonePop .55s cubic-bezier(.34,1.8,.64,1) forwards;
+      animation: obsMilestonePop .55s cubic-bezier(.34, 1.8, .64, 1) forwards;
     }
 
     @keyframes obsMilestonePop {
-      0%   { transform: scale(0) rotate(-4deg); }
-      60%  { transform: scale(1.08) rotate(1.5deg); }
-      80%  { transform: scale(0.96) rotate(-0.5deg); }
-      100% { transform: scale(1) rotate(0deg); }
+      0% {
+        transform: scale(0) rotate(-4deg);
+      }
+
+      60% {
+        transform: scale(1.08) rotate(1.5deg);
+      }
+
+      80% {
+        transform: scale(0.96) rotate(-0.5deg);
+      }
+
+      100% {
+        transform: scale(1) rotate(0deg);
+      }
     }
 
     #obs-milestoneStars {
@@ -925,8 +936,13 @@
     }
 
     @keyframes obsStarsWave {
-      from { transform: translateY(0) scale(1); }
-      to   { transform: translateY(-4px) scale(1.06); }
+      from {
+        transform: translateY(0) scale(1);
+      }
+
+      to {
+        transform: translateY(-4px) scale(1.06);
+      }
     }
 
     #obs-milestoneFlag {
@@ -934,13 +950,24 @@
       line-height: 1;
       display: block;
       margin-bottom: 1.5vw;
-      animation: obsFlagBounce .7s cubic-bezier(.34,1.56,.64,1) forwards;
+      animation: obsFlagBounce .7s cubic-bezier(.34, 1.56, .64, 1) forwards;
     }
 
     @keyframes obsFlagBounce {
-      0%   { transform: scale(0) translateY(20px); opacity: 0; }
-      70%  { transform: scale(1.15) translateY(-6px); opacity: 1; }
-      100% { transform: scale(1) translateY(0); opacity: 1; }
+      0% {
+        transform: scale(0) translateY(20px);
+        opacity: 0;
+      }
+
+      70% {
+        transform: scale(1.15) translateY(-6px);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
     }
 
     #obs-milestoneName {
@@ -1050,12 +1077,16 @@
   <div class="play-area">
     <div class="players-bar">
       <div class="player-card p1" id="card-p1">
-        <div class="player-avatar" id="avatar-p1"><div class="turn-badge">TURN</div></div>
+        <div class="player-avatar" id="avatar-p1">
+          <div class="turn-badge">TURN</div>
+        </div>
         <div class="player-name" id="pname-p1">P1</div>
         <div class="score-big" id="score-p1">0</div>
       </div>
       <div class="player-card p2" id="card-p2">
-        <div class="player-avatar" id="avatar-p2"><div class="turn-badge">TURN</div></div>
+        <div class="player-avatar" id="avatar-p2">
+          <div class="turn-badge">TURN</div>
+        </div>
         <div class="player-name" id="pname-p2">P2</div>
         <div class="score-big" id="score-p2">0</div>
       </div>
@@ -1259,7 +1290,7 @@
     // ── OBS Milestone popup ──────────────────────────────────────────────────
     let _obsConfettiRaf = null;
     const _obsConfettiPieces = [];
-    const OBS_CONFETTI_COLORS = ['#fbbf24','#f472b6','#a78bfa','#34d399','#60a5fa','#fb923c','#fff'];
+    const OBS_CONFETTI_COLORS = ['#fbbf24', '#f472b6', '#a78bfa', '#34d399', '#60a5fa', '#fb923c', '#fff'];
 
     function showObsMilestonePopup(pName, target, desc) {
       document.getElementById('obs-milestoneName').textContent = pName;
@@ -1309,8 +1340,8 @@
           ctx.save(); ctx.globalAlpha = Math.max(0, p.alpha);
           ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
           ctx.fillStyle = p.color;
-          if (p.shape === 'circle') { ctx.beginPath(); ctx.arc(0, 0, p.w/2, 0, Math.PI*2); ctx.fill(); }
-          else { ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); }
+          if (p.shape === 'circle') { ctx.beginPath(); ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2); ctx.fill(); }
+          else { ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); }
           ctx.restore();
         });
         if (alive) _obsConfettiRaf = requestAnimationFrame(tick);
@@ -1555,12 +1586,13 @@
       ctx.save();
       ctx.translate(cx, cy);
       // NO rotation — tiles always axis-aligned
+      // Clip to tile boundary so fill never bleeds past the border corners
+      rr(tx, ty, w, h, rad); ctx.clip();
+
       const g = ctx.createLinearGradient(tx, ty, tx, ty + h); g.addColorStop(0, c.t); g.addColorStop(1, c.b);
       ctx.fillStyle = g; rr(tx, ty, w, h, rad); ctx.fill();
       const sh = ctx.createLinearGradient(tx, ty, tx, ty + h * .35); sh.addColorStop(0, 'rgba(255,255,255,.30)'); sh.addColorStop(1, 'rgba(255,255,255,0)');
       ctx.fillStyle = sh; rr(tx + 2, ty + 2, w - 4, h * .35, rad * .6); ctx.fill();
-
-      //ctx.strokeStyle='rgba(0,0,0,0.7)';ctx.lineWidth=3.5;rr(tx,ty,w,h,rad);ctx.stroke();
 
       ctx.strokeStyle = c.r; ctx.lineWidth = 1.8; rr(tx + 0.9, ty + 0.9, w - 1.8, h - 1.8, rad); ctx.stroke();
       const ic = TICON[type];
@@ -1647,7 +1679,7 @@
       ctx.restore();
     }
 
-    function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); }
+    function rr(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.closePath(); }
     window.addEventListener('load', () => {
       showDice('mp', 1); initAvatarLetter(0); initAvatarLetter(1);
       document.getElementById('popIcon').textContent = String.fromCodePoint(0x2B50);

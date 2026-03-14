@@ -133,7 +133,7 @@
       flex-direction: row;
       gap: 8px;
       padding: 8px 10px 10px;
-      background: var(--bg);
+      /*background: var(--bg);*/
       overflow-x: auto;
       overflow-y: hidden;
       align-items: flex-start;
@@ -1240,9 +1240,18 @@
       padding-right: 2px;
     }
 
-    #milestone-list::-webkit-scrollbar { width: 4px; }
-    #milestone-list::-webkit-scrollbar-track { background: transparent; }
-    #milestone-list::-webkit-scrollbar-thumb { background: rgba(240,114,160,.35); border-radius: 4px; }
+    #milestone-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #milestone-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #milestone-list::-webkit-scrollbar-thumb {
+      background: rgba(240, 114, 160, .35);
+      border-radius: 4px;
+    }
 
     .milestone-entry {
       display: flex;
@@ -1265,7 +1274,9 @@
       transition: border-color .2s;
     }
 
-    .milestone-pts-input:focus { border-color: rgba(240,114,160,.7); }
+    .milestone-pts-input:focus {
+      border-color: rgba(240, 114, 160, .7);
+    }
 
     .milestone-desc-input {
       flex: 1;
@@ -1281,7 +1292,9 @@
       transition: border-color .2s;
     }
 
-    .milestone-desc-input:focus { border-color: rgba(240,114,160,.7); }
+    .milestone-desc-input:focus {
+      border-color: rgba(240, 114, 160, .7);
+    }
 
     .milestone-player-select {
       padding: 6px 6px;
@@ -1295,18 +1308,21 @@
       outline: none;
       cursor: pointer;
       flex-shrink: 0;
-      display: none; /* shown only when scope = per-player */
+      display: none;
+      /* shown only when scope = per-player */
     }
 
-    .milestone-player-select.visible { display: block; }
+    .milestone-player-select.visible {
+      display: block;
+    }
 
     .milestone-remove-btn {
       width: 26px;
       height: 26px;
       flex-shrink: 0;
       border-radius: 7px;
-      background: rgba(255,80,80,.15);
-      border: 1px solid rgba(255,80,80,.3);
+      background: rgba(255, 80, 80, .15);
+      border: 1px solid rgba(255, 80, 80, .3);
       color: #ff8080;
       font-size: 14px;
       cursor: pointer;
@@ -1316,7 +1332,9 @@
       transition: background .15s;
     }
 
-    .milestone-remove-btn:hover { background: rgba(255,80,80,.3); }
+    .milestone-remove-btn:hover {
+      background: rgba(255, 80, 80, .3);
+    }
 
     .milestone-add-btn {
       align-self: center;
@@ -1324,8 +1342,8 @@
       align-items: center;
       gap: 6px;
       padding: 7px 18px;
-      background: rgba(240,114,160,.12);
-      border: 1px dashed rgba(240,114,160,.4);
+      background: rgba(240, 114, 160, .12);
+      border: 1px dashed rgba(240, 114, 160, .4);
       border-radius: 10px;
       color: var(--text);
       font-family: 'Nunito', sans-serif;
@@ -1336,8 +1354,8 @@
     }
 
     .milestone-add-btn:hover {
-      background: rgba(240,114,160,.22);
-      border-color: rgba(240,114,160,.7);
+      background: rgba(240, 114, 160, .22);
+      border-color: rgba(240, 114, 160, .7);
     }
 
     #milestone-list:empty::after {
@@ -1384,7 +1402,7 @@
       border-radius: 28px;
       padding: 4cqh 6cqw;
       text-align: center;
-      box-shadow: 0 0 0 6px rgba(251,191,36,.18), 0 24px 70px rgba(120,40,80,.55);
+      box-shadow: 0 0 0 6px rgba(251, 191, 36, .18), 0 24px 70px rgba(120, 40, 80, .55);
       transform: scale(0) rotate(-4deg);
       transition: transform 0s;
       width: 78cqw;
@@ -1392,14 +1410,25 @@
     }
 
     #milestonePopup.show #milestonePopupInner {
-      animation: milestonePop .55s cubic-bezier(.34,1.8,.64,1) forwards;
+      animation: milestonePop .55s cubic-bezier(.34, 1.8, .64, 1) forwards;
     }
 
     @keyframes milestonePop {
-      0%   { transform: scale(0) rotate(-4deg); }
-      60%  { transform: scale(1.08) rotate(1.5deg); }
-      80%  { transform: scale(0.96) rotate(-0.5deg); }
-      100% { transform: scale(1) rotate(0deg); }
+      0% {
+        transform: scale(0) rotate(-4deg);
+      }
+
+      60% {
+        transform: scale(1.08) rotate(1.5deg);
+      }
+
+      80% {
+        transform: scale(0.96) rotate(-0.5deg);
+      }
+
+      100% {
+        transform: scale(1) rotate(0deg);
+      }
     }
 
     #milestoneStars {
@@ -1411,22 +1440,38 @@
     }
 
     @keyframes starsWave {
-      from { transform: translateY(0) scale(1); }
-      to   { transform: translateY(-4px) scale(1.06); }
+      from {
+        transform: translateY(0) scale(1);
+      }
+
+      to {
+        transform: translateY(-4px) scale(1.06);
+      }
     }
 
     #milestoneFlag {
       font-size: 15cqw;
       line-height: 1;
-      animation: flagBounce .7s cubic-bezier(.34,1.56,.64,1) forwards;
+      animation: flagBounce .7s cubic-bezier(.34, 1.56, .64, 1) forwards;
       display: block;
       margin-bottom: 0.8cqh;
     }
 
     @keyframes flagBounce {
-      0%   { transform: scale(0) translateY(20px); opacity: 0; }
-      70%  { transform: scale(1.15) translateY(-6px); opacity: 1; }
-      100% { transform: scale(1) translateY(0); opacity: 1; }
+      0% {
+        transform: scale(0) translateY(20px);
+        opacity: 0;
+      }
+
+      70% {
+        transform: scale(1.15) translateY(-6px);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
     }
 
     #milestoneName {
@@ -1619,7 +1664,9 @@
       animation: menuIn .2s cubic-bezier(.34, 1.56, .64, 1);
     }
 
-    #sim-panel.open { display: flex; }
+    #sim-panel.open {
+      display: flex;
+    }
 
     #sim-panel-header {
       display: flex;
@@ -1638,18 +1685,23 @@
     }
 
     #sim-close-btn {
-      width: 28px; height: 28px;
+      width: 28px;
+      height: 28px;
       border-radius: 8px;
       background: rgba(180, 80, 120, .2);
       border: 1px solid rgba(180, 80, 120, .35);
       color: var(--text);
       font-size: 16px;
       cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: background .15s;
     }
 
-    #sim-close-btn:hover { background: rgba(240, 114, 160, .35); }
+    #sim-close-btn:hover {
+      background: rgba(240, 114, 160, .35);
+    }
 
     #sim-body {
       padding: 14px 16px 16px;
@@ -1673,7 +1725,8 @@
     }
 
     .sim-toggle {
-      width: 44px; height: 24px;
+      width: 44px;
+      height: 24px;
       border-radius: 12px;
       background: rgba(180, 80, 120, .3);
       border: 1px solid rgba(180, 80, 120, .4);
@@ -1683,19 +1736,25 @@
       flex-shrink: 0;
     }
 
-    .sim-toggle.on { background: var(--accent); }
+    .sim-toggle.on {
+      background: var(--accent);
+    }
 
     .sim-toggle-knob {
       position: absolute;
-      top: 2px; left: 2px;
-      width: 18px; height: 18px;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       background: #fff;
       transition: left .2s;
-      box-shadow: 0 1px 4px rgba(0,0,0,.3);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
     }
 
-    .sim-toggle.on .sim-toggle-knob { left: 22px; }
+    .sim-toggle.on .sim-toggle-knob {
+      left: 22px;
+    }
 
     .sim-input {
       width: 80px;
@@ -1711,7 +1770,8 @@
       flex-shrink: 0;
     }
 
-    #sim-run-btn, #sim-stop-btn {
+    #sim-run-btn,
+    #sim-stop-btn {
       width: 100%;
       padding: 10px;
       border-radius: 12px;
@@ -1722,9 +1782,21 @@
       transition: opacity .15s, transform .1s;
     }
 
-    #sim-run-btn { background: linear-gradient(135deg, var(--p1c), var(--accent)); color: var(--panel); }
-    #sim-stop-btn { background: rgba(255,80,80,.25); border: 1px solid rgba(255,80,80,.4); color: #ff8080; }
-    #sim-run-btn:active, #sim-stop-btn:active { transform: scale(.97); }
+    #sim-run-btn {
+      background: linear-gradient(135deg, var(--p1c), var(--accent));
+      color: var(--panel);
+    }
+
+    #sim-stop-btn {
+      background: rgba(255, 80, 80, .25);
+      border: 1px solid rgba(255, 80, 80, .4);
+      color: #ff8080;
+    }
+
+    #sim-run-btn:active,
+    #sim-stop-btn:active {
+      transform: scale(.97);
+    }
 
     #sim-progress-bar-wrap {
       height: 6px;
@@ -1757,14 +1829,14 @@
     }
 
     .sim-result-row {
-      background: rgba(255,255,255,.05);
+      background: rgba(255, 255, 255, .05);
       border-radius: 10px;
       padding: 8px 12px;
       font-family: 'Nunito', sans-serif;
       font-size: 13px;
       font-weight: 700;
       color: var(--text);
-      border-left: 3px solid rgba(180,80,120,.5);
+      border-left: 3px solid rgba(180, 80, 120, .5);
     }
 
     /* ── Game Log Panel ── */
@@ -1858,9 +1930,18 @@
       scroll-behavior: smooth;
     }
 
-    #log-entries::-webkit-scrollbar { width: 5px; }
-    #log-entries::-webkit-scrollbar-track { background: transparent; }
-    #log-entries::-webkit-scrollbar-thumb { background: rgba(180, 80, 120, .4); border-radius: 4px; }
+    #log-entries::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    #log-entries::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #log-entries::-webkit-scrollbar-thumb {
+      background: rgba(180, 80, 120, .4);
+      border-radius: 4px;
+    }
 
     .log-entry {
       display: flex;
@@ -1876,12 +1957,29 @@
       line-height: 1.35;
     }
 
-    .log-entry.log-green  { border-left-color: #4ade80; }
-    .log-entry.log-red    { border-left-color: #f87171; }
-    .log-entry.log-blue   { border-left-color: #60a5fa; }
-    .log-entry.log-purple { border-left-color: #c084fc; }
-    .log-entry.log-yellow { border-left-color: #fbbf24; }
-    .log-entry.log-system { border-left-color: rgba(180, 80, 120, .5); }
+    .log-entry.log-green {
+      border-left-color: #4ade80;
+    }
+
+    .log-entry.log-red {
+      border-left-color: #f87171;
+    }
+
+    .log-entry.log-blue {
+      border-left-color: #60a5fa;
+    }
+
+    .log-entry.log-purple {
+      border-left-color: #c084fc;
+    }
+
+    .log-entry.log-yellow {
+      border-left-color: #fbbf24;
+    }
+
+    .log-entry.log-system {
+      border-left-color: rgba(180, 80, 120, .5);
+    }
 
     .log-icon {
       font-size: 16px;
@@ -1889,7 +1987,9 @@
       margin-top: 1px;
     }
 
-    .log-body { flex: 1; }
+    .log-body {
+      flex: 1;
+    }
 
     .log-who {
       font-weight: 800;
@@ -1898,7 +1998,9 @@
       margin-bottom: 1px;
     }
 
-    .log-msg { font-weight: 600; }
+    .log-msg {
+      font-weight: 600;
+    }
 
     .log-time {
       font-size: 10px;
@@ -1916,6 +2018,7 @@
       color: var(--text);
       opacity: .4;
     }
+
     #kicked-screen {
       display: none;
       position: fixed;
@@ -2026,7 +2129,9 @@
       <button id="sim-run-btn" onclick="runSimulation()">▶ Run Simulation</button>
       <button id="sim-stop-btn" onclick="stopSimulation()" style="display:none">⏹ Stop</button>
       <div id="sim-progress" style="display:none">
-        <div id="sim-progress-bar-wrap"><div id="sim-progress-bar"></div></div>
+        <div id="sim-progress-bar-wrap">
+          <div id="sim-progress-bar"></div>
+        </div>
         <div id="sim-progress-label">Turn 0 / 0</div>
       </div>
       <div id="sim-results" style="display:none">
@@ -2269,9 +2374,9 @@
             value="${m.desc}" oninput="updateMilestone(${m.id},'desc',this.value)">
           <select class="milestone-player-select${milestoneScope === 'player' ? ' visible' : ''}"
             onchange="updateMilestone(${m.id},'player',this.value)">
-            <option value="all"${m.player==='all'?' selected':''}>Both</option>
-            <option value="0"${m.player==='0'||m.player===0?' selected':''}>P1</option>
-            <option value="1"${m.player==='1'||m.player===1?' selected':''}>P2</option>
+            <option value="all"${m.player === 'all' ? ' selected' : ''}>Both</option>
+            <option value="0"${m.player === '0' || m.player === 0 ? ' selected' : ''}>P1</option>
+            <option value="1"${m.player === '1' || m.player === 1 ? ' selected' : ''}>P2</option>
           </select>
           <button class="milestone-remove-btn" onclick="removeMilestone(${m.id})">✕</button>`;
         list.appendChild(row);
@@ -2353,7 +2458,7 @@
     // ── Confetti ─────────────────────────────────────────────────────────────
     let _confettiRaf = null;
     const _confettiPieces = [];
-    const CONFETTI_COLORS = ['#fbbf24','#f472b6','#a78bfa','#34d399','#60a5fa','#fb923c','#fff'];
+    const CONFETTI_COLORS = ['#fbbf24', '#f472b6', '#a78bfa', '#34d399', '#60a5fa', '#fb923c', '#fff'];
 
     function startMilestoneConfetti() {
       const canvas = document.getElementById('milestoneConfetti');
@@ -2499,8 +2604,10 @@
             const avatarEl = document.getElementById(`avatar-p${idx + 1}`);
             if (avatarEl) avatarEl.innerHTML = `<img src="${av.dataUrl}" alt="">`;
             const preview = document.getElementById(`avatarPreview${idx}`);
-            if (preview) { preview.src = av.dataUrl; preview.classList.add('loaded');
-              document.getElementById(`avatarArea${idx}`)?.classList.add('has-photo'); }
+            if (preview) {
+              preview.src = av.dataUrl; preview.classList.add('loaded');
+              document.getElementById(`avatarArea${idx}`)?.classList.add('has-photo');
+            }
             if (idx === 1 && tilePositions.length) drawBoard();
           };
           img.src = av.dataUrl;
@@ -2566,7 +2673,7 @@
           const MAX = 256;
           const scale = Math.min(1, MAX / Math.max(img.width, img.height));
           const canvas = document.createElement('canvas');
-          canvas.width  = Math.round(img.width  * scale);
+          canvas.width = Math.round(img.width * scale);
           canvas.height = Math.round(img.height * scale);
           canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
           const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
@@ -2598,7 +2705,7 @@
       document.getElementById('setupScreen').style.display = 'none';
       clearLog();
       resetMilestoneFired();
-      gameLog('system', '🎮', null, `Game started — ${playerNames[0]} vs ${playerNames[1]}${milestones.filter(m=>m.pts&&m.desc).length ? ` · ${milestones.filter(m=>m.pts&&m.desc).length} milestone(s) set` : ''}`);
+      gameLog('system', '🎮', null, `Game started — ${playerNames[0]} vs ${playerNames[1]}${milestones.filter(m => m.pts && m.desc).length ? ` · ${milestones.filter(m => m.pts && m.desc).length} milestone(s) set` : ''}`);
       generateTiles();
       setupBoard();
       state.currentPlayer = 0;  // game is now in progress
@@ -2687,18 +2794,18 @@
 
     // 3-D boardgame tile colours: face-top, face-bot, ledge (shadow side), rim
     const TILE_C = {
-      blue:    { t: '#4a90d9', b: '#1e5fa8', l: '#0d3875', r: '#000000' },
-      start:   { t: '#27c96e', b: '#0f9e47', l: '#056128', r: '#000000' },
+      blue: { t: '#4a90d9', b: '#1e5fa8', l: '#0d3875', r: '#000000' },
+      start: { t: '#27c96e', b: '#0f9e47', l: '#056128', r: '#000000' },
       stageup: { t: '#f5931e', b: '#c45f00', l: '#7a3a00', r: '#000000' },
-      green:   { t: '#2ec45a', b: '#0e9638', l: '#055520', r: '#000000' },
-      purple:  { t: '#9b4fe0', b: '#6118b8', l: '#380a75', r: '#000000' },
-      red:     { t: '#e8352a', b: '#aa0f0f', l: '#6b0000', r: '#000000' },
-      yellow:  { t: '#f5c800', b: '#b89000', l: '#705800', r: '#000000' },
+      green: { t: '#2ec45a', b: '#0e9638', l: '#055520', r: '#000000' },
+      purple: { t: '#9b4fe0', b: '#6118b8', l: '#380a75', r: '#000000' },
+      red: { t: '#e8352a', b: '#aa0f0f', l: '#6b0000', r: '#000000' },
+      yellow: { t: '#f5c800', b: '#b89000', l: '#705800', r: '#000000' },
     };
     // keep TILE_BG shim so color-spinner still works
     const TILE_BG = {
-      blue:    ['#4a90d9', '#1e5fa8'], green:   ['#2ec45a', '#0e9638'], purple:  ['#9b4fe0', '#6118b8'],
-      red:     ['#e8352a', '#aa0f0f'], yellow:  ['#f5c800', '#b89000'], start:   ['#27c96e', '#0f9e47'], stageup: ['#f5931e', '#c45f00'],
+      blue: ['#4a90d9', '#1e5fa8'], green: ['#2ec45a', '#0e9638'], purple: ['#9b4fe0', '#6118b8'],
+      red: ['#e8352a', '#aa0f0f'], yellow: ['#f5c800', '#b89000'], start: ['#27c96e', '#0f9e47'], stageup: ['#f5931e', '#c45f00'],
     };
     const TILE_ICON = { green: null, purple: null, red: null, yellow: null, stageup: '🏆', start: '🚀', blue: null };
 
@@ -2817,7 +2924,10 @@
 
       const tx = -hw, ty = -hh;
 
-      // ① Face gradient (full height, no ledge)
+      // Clip everything to the tile boundary — fill can never bleed past the border
+      rr(ctx, tx, ty, w, h, rad); ctx.clip();
+
+      // ① Face gradient
       const grad = ctx.createLinearGradient(tx, ty, tx, ty + h);
       grad.addColorStop(0, c.t); grad.addColorStop(1, c.b);
       ctx.fillStyle = grad;
@@ -2830,13 +2940,7 @@
       ctx.fillStyle = shine;
       rr(ctx, tx + 2, ty + 2, w - 4, h * 0.35, rad * 0.6); ctx.fill();
 
-      // ③ Black outer border for contrast
-      /*
-      ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.lineWidth = 3.5;
-      rr(ctx, tx, ty, w, h, rad); ctx.stroke();
-      */
-
-      // ④ Rim
+      // ③ Rim — drawn inside clip so corners are always clean
       ctx.strokeStyle = c.r; ctx.lineWidth = 1.8;
       rr(ctx, tx + 0.9, ty + 0.9, w - 1.8, h - 1.8, rad); ctx.stroke();
 
@@ -2946,12 +3050,7 @@
       let x, y, w, h, r;
       if (typeof c_or_x === 'object') { [x, y, w, h, r] = [x_or_y, y_or_w, w_or_h, h_or_r, r_or_undef]; }
       else { [x, y, w, h, r] = [c_or_x, x_or_y, y_or_w, w_or_h, h_or_r]; }
-      ctx.beginPath();
-      ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-      ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-      ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.closePath();
+      ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.closePath();
     }
 
     // =====================================================
@@ -3626,9 +3725,9 @@
           const scoreAfter = [state.players[0].score, state.players[1].score];
           results.style.display = '';
           document.getElementById('sim-res-p1').innerHTML =
-            `<span style="color:var(--p1c)">${playerNames[0]}</span>: ${scoreAfter[0]} pts <span style="opacity:.6">(+${scoreAfter[0]-scoreBefore[0]} this sim)</span>`;
+            `<span style="color:var(--p1c)">${playerNames[0]}</span>: ${scoreAfter[0]} pts <span style="opacity:.6">(+${scoreAfter[0] - scoreBefore[0]} this sim)</span>`;
           document.getElementById('sim-res-p2').innerHTML =
-            `<span style="color:var(--p2c)">${playerNames[1]}</span>: ${scoreAfter[1]} pts <span style="opacity:.6">(+${scoreAfter[1]-scoreBefore[1]} this sim)</span>`;
+            `<span style="color:var(--p2c)">${playerNames[1]}</span>: ${scoreAfter[1]} pts <span style="opacity:.6">(+${scoreAfter[1] - scoreBefore[1]} this sim)</span>`;
           label.textContent = `Done — ${turn} turns simulated`;
           updateUI();
           emitState();
@@ -3778,7 +3877,7 @@
 
     // Single outside-click handler for both burger menu and log panel
     document.addEventListener('click', e => {
-      const btn  = document.getElementById('burger-btn');
+      const btn = document.getElementById('burger-btn');
       const menu = document.getElementById('burger-menu');
       const panel = document.getElementById('log-panel');
       const simPanel = document.getElementById('sim-panel');
@@ -3791,17 +3890,17 @@
 
       // Close log panel if click is outside both the panel and the burger btn
       if (panel.classList.contains('open') &&
-          !panel.contains(e.target) &&
-          !btn.contains(e.target) &&
-          !menu.contains(e.target)) {
+        !panel.contains(e.target) &&
+        !btn.contains(e.target) &&
+        !menu.contains(e.target)) {
         closeLogPanel();
       }
 
       // Close sim panel if click is outside it
       if (simPanel.classList.contains('open') &&
-          !simPanel.contains(e.target) &&
-          !btn.contains(e.target) &&
-          !menu.contains(e.target)) {
+        !simPanel.contains(e.target) &&
+        !btn.contains(e.target) &&
+        !menu.contains(e.target)) {
         closeSimPanel();
       }
     });
