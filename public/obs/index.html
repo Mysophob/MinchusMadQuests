@@ -13,7 +13,7 @@
       /* ── Core palette ─────────────────────────────── */
       --bg: #953C54;
       --bg2: #B4647A;
-      --panel: #d696a7;
+      --panel: #343063;
       --accent: #ECBCA6;
       --text: #fff2ed;
       --text-special: #ecbca6;
@@ -21,8 +21,8 @@
       --border: #fff2ed;
 
       /* ── Player colors ────────────────────────────── */
-      --p1c: #ff0d0d;
-      --p2c: #21f0ff;
+      --p1c: #dad5ff;
+      --p2c: #fcbdfe;
 
       /* ── Spinner / dice pip gradient ─────────────── */
       --pip-a: #702D6A;
@@ -101,7 +101,7 @@
       overflow: hidden;
     }
 
-    /* ── players bar — stacked vertically, grows to share space with board ── */
+    /* ── players bar — stacked vertically ── */
     .players-bar {
       display: flex;
       flex-direction: column;
@@ -109,7 +109,7 @@
       padding: 6px 10px 4px;
       flex: 3;
       min-height: 0;
-      max-height: 35%;
+      max-height: 24%;
       position: relative;
     }
 
@@ -118,7 +118,7 @@
       background: var(--panel);
       border-radius: 18px;
       padding: 8px 18px;
-      border: 2px solid rgba(255, 242, 237, .5);
+      border: 3px solid var(--border);
       transition: border-color .4s, box-shadow .4s;
       position: relative;
       overflow: hidden;
@@ -128,6 +128,16 @@
       gap: 16px;
       flex: 1;
       min-height: 0;
+    }
+
+    /* ── board fills remaining space ── */
+    .board-area {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 6px 8px 8px;
     }
 
     .player-card::before {
@@ -149,29 +159,30 @@
     }
 
     .player-card.active {
-      border-color: rgba(255, 242, 237, .5);
+      border-color: var(--border);
       /*box-shadow:0 0 0 3px rgba(255,242,237,.9), 0 0 28px rgba(240,114,160,.5);*/
     }
 
     .turn-badge {
       position: absolute;
-      bottom: 8px;
+      bottom: -10px;
       left: 50%;
-      transform: translateX(-50%) scale(.7);
+      transform: translateX(-50%);
       background: linear-gradient(135deg, var(--p1c), var(--p2c));
-      color: var(--text);
+      color: var(--panel);
       font-family: 'Fredoka One', cursive;
-      font-size: 14px;
-      padding: 3px 16px;
+      font-size: 11px;
+      padding: 2px 10px;
       border-radius: 20px;
       opacity: 0;
       transition: all .4s;
       white-space: nowrap;
+      z-index: 2;
+      pointer-events: none;
     }
 
     .player-card.active .turn-badge {
       opacity: 1;
-      transform: translateX(-50%) scale(1);
     }
 
     .player-name-row {
@@ -181,12 +192,13 @@
     }
 
     .player-avatar {
+      position: relative;
       width: clamp(48px, 8cqh, 100px);
       height: clamp(48px, 8cqh, 100px);
       border-radius: 50%;
       flex-shrink: 0;
-      overflow: hidden;
-      border: 3px solid rgba(255, 242, 237, .5);
+      overflow: visible;
+      border: 3px solid var(--border);
       background: rgba(255, 242, 237, .25);
       display: flex;
       align-items: center;
@@ -197,10 +209,13 @@
       color: var(--text-dark);
     }
 
-    .player-avatar img {
+    .player-avatar > img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: 50%;
       display: block;
     }
 
@@ -214,11 +229,15 @@
     }
 
     .p1 .player-name {
-      color: var(--text);
+      color: var(--p1c);
+      /* text-shadow: 2px 0 var(--border), -2px 0 var(--border), 0 2px var(--border), 0 -2px var(--border),
+               1px 1px var(--border), -1px -1px var(--border), 1px -1px var(--border), -1px 1px var(--border); */
     }
 
     .p2 .player-name {
-      color: var(--text);
+      color: var(--p2c);
+      /* text-shadow: 2px 0 var(--border), -2px 0 var(--border), 0 2px var(--border), 0 -2px var(--border),
+               1px 1px var(--border), -1px -1px var(--border), 1px -1px var(--border), -1px 1px var(--border);*/
     }
 
     .dot {
@@ -236,24 +255,17 @@
 
     .p1 .score-big {
       color: var(--p1c);
-      text-shadow: 0 0 16px rgba(232, 64, 90, .5);
+      /* text-shadow: 2px 0 var(--border), -2px 0 var(--border), 0 2px var(--border), 0 -2px var(--border),
+               1px 1px var(--border), -1px -1px var(--border), 1px -1px var(--border), -1px 1px var(--border); */
     }
 
     .p2 .score-big {
       color: var(--p2c);
-      text-shadow: 0 0 16px rgba(160, 112, 200, .5);
+      /* text-shadow: 2px 0 var(--border), -2px 0 var(--border), 0 2px var(--border), 0 -2px var(--border),
+               1px 1px var(--border), -1px -1px var(--border), 1px -1px var(--border), -1px 1px var(--border); */
     }
 
 
-    /* ── board fills remaining space (same as before) ── */
-    .board-area {
-      flex: 5;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      padding: 6px 8px 8px;
-    }
 
     .board-wrapper {
       flex: 1;
@@ -290,11 +302,11 @@
     }
 
     body.transparent-bg .popup {
-      box-shadow: 0 0 0 2px var(--accent) 0 8px 40px 8px var(--accent), 0 0 80px 20px var(--accent);
+      /*box-shadow: 0 0 0 2px var(--accent) 0 8px 40px 8px var(--accent), 0 0 80px 20px var(--accent);*/
     }
 
     body.transparent-bg .dice-popup {
-      box-shadow: 0 0 0 2px var(--accent), 0 8px 40px 8px var(--accent), 0 0 80px 20px var(--accent);
+      /*box-shadow: 0 0 0 2px var(--accent), 0 8px 40px 8px var(--accent), 0 0 80px 20px var(--accent);*/
     }
 
     /* dice popup */
@@ -310,7 +322,7 @@
       padding: 4vw 6vw 5vw;
       text-align: center;
       z-index: 110;
-      box-shadow: 0 0 80px var(--popup-dropshadow), 0 20px 60px var(--popup-dropshadow);
+      /*box-shadow: 0 0 80px var(--popup-dropshadow), 0 20px 60px var(--popup-dropshadow);*/
       transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
       min-width: 80vw;
       max-width: 92vw;
@@ -344,7 +356,7 @@
       grid-template-rows: repeat(3, 1fr);
       padding: 1.5vw;
       gap: 0.5vw;
-      box-shadow: 0 4px 18px rgba(180, 80, 120, .4), inset 0 1px 0 rgba(255, 200, 255, .5);
+      /*box-shadow: 0 4px 18px rgba(180, 80, 120, .4), inset 0 1px 0 rgba(255, 200, 255, .5);*/
       border: 2px solid rgba(240, 114, 160, .35);
     }
 
@@ -552,7 +564,7 @@
       font-size: 28vw;
       color: var(--text-special);
       line-height: 1;
-      text-shadow: 0 0 60px rgba(240, 114, 160, .9), 0 0 20px rgba(240, 114, 160, .5);
+      /*text-shadow: 0 0 60px rgba(240, 114, 160, .9), 0 0 20px rgba(240, 114, 160, .5);*/
       transition: opacity .4s, transform .4s cubic-bezier(.34, 1.56, .64, 1);
       transform: scale(0.5);
     }
@@ -579,7 +591,7 @@
       padding: 5vw 6vw;
       text-align: center;
       z-index: 100;
-      box-shadow: 0 20px 60px var(--accent);
+      /*box-shadow: 0 20px 60px var(--accent);*/
       transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
       width: 90vw;
       max-width: 90vw;
@@ -848,6 +860,115 @@
       padding: 0 5vw;
     }
 
+    .win-screen p {
+      font-size: 6vw;
+      color: var(--text);
+      text-align: center;
+      padding: 0 5vw;
+    }
+
+    /* ── OBS Milestone popup ── */
+    #obs-milestonePopup {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #obs-milestonePopup.show {
+      opacity: 1;
+    }
+
+    #obs-milestoneConfetti {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    #obs-milestonePopupInner {
+      position: relative;
+      z-index: 1;
+      background: var(--panel);
+      border: 3px solid #fbbf24;
+      border-radius: 4vw;
+      padding: 5vw 7vw;
+      text-align: center;
+      box-shadow: 0 0 0 6px rgba(251,191,36,.18), 0 24px 70px rgba(120,40,80,.55);
+      transform: scale(0) rotate(-4deg);
+      width: 78vw;
+      max-width: 78vw;
+    }
+
+    #obs-milestonePopup.show #obs-milestonePopupInner {
+      animation: obsMilestonePop .55s cubic-bezier(.34,1.8,.64,1) forwards;
+    }
+
+    @keyframes obsMilestonePop {
+      0%   { transform: scale(0) rotate(-4deg); }
+      60%  { transform: scale(1.08) rotate(1.5deg); }
+      80%  { transform: scale(0.96) rotate(-0.5deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    #obs-milestoneStars {
+      font-size: 5vw;
+      letter-spacing: .15em;
+      animation: obsStarsWave 1.2s ease-in-out infinite alternate;
+      display: block;
+      margin-bottom: 1vw;
+    }
+
+    @keyframes obsStarsWave {
+      from { transform: translateY(0) scale(1); }
+      to   { transform: translateY(-4px) scale(1.06); }
+    }
+
+    #obs-milestoneFlag {
+      font-size: 18vw;
+      line-height: 1;
+      display: block;
+      margin-bottom: 1.5vw;
+      animation: obsFlagBounce .7s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+
+    @keyframes obsFlagBounce {
+      0%   { transform: scale(0) translateY(20px); opacity: 0; }
+      70%  { transform: scale(1.15) translateY(-6px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    #obs-milestoneName {
+      font-family: 'Fredoka One', cursive;
+      font-size: 5.5vw;
+      margin-bottom: .5vw;
+    }
+
+    #obs-milestonePts {
+      font-family: 'Fredoka One', cursive;
+      font-size: 12vw;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: .8vw;
+    }
+
+    #obs-milestoneDesc {
+      font-family: 'Nunito', sans-serif;
+      font-size: 4.5vw;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.4;
+      opacity: .9;
+    }
+
     /* score float */
     .score-float {
       position: fixed;
@@ -929,14 +1050,12 @@
   <div class="play-area">
     <div class="players-bar">
       <div class="player-card p1" id="card-p1">
-        <div class="turn-badge">TURN</div>
-        <div class="player-avatar" id="avatar-p1"></div>
+        <div class="player-avatar" id="avatar-p1"><div class="turn-badge">TURN</div></div>
         <div class="player-name" id="pname-p1">P1</div>
         <div class="score-big" id="score-p1">0</div>
       </div>
       <div class="player-card p2" id="card-p2">
-        <div class="turn-badge">TURN</div>
-        <div class="player-avatar" id="avatar-p2"></div>
+        <div class="player-avatar" id="avatar-p2"><div class="turn-badge">TURN</div></div>
         <div class="player-name" id="pname-p2">P2</div>
         <div class="score-big" id="score-p2">0</div>
       </div>
@@ -1006,6 +1125,18 @@
     <h1 id="winTitle">Player 1 Wins!</h1>
     <p id="winSub">Amazing game!</p>
   </div>
+
+  <!-- Milestone popup -->
+  <div id="obs-milestonePopup">
+    <canvas id="obs-milestoneConfetti"></canvas>
+    <div id="obs-milestonePopupInner">
+      <div id="obs-milestoneStars">⭐✨🌟✨⭐</div>
+      <div id="obs-milestoneFlag">🏁</div>
+      <div id="obs-milestoneName"></div>
+      <div id="obs-milestonePts"></div>
+      <div id="obs-milestoneDesc"></div>
+    </div>
+  </div>
   <script>
     // transparent=<float 0-1>: alpha of the purple body background (default 1 = fully visible)
     // Does NOT affect the board tiles or player cards — only the bg color/gradient behind everything
@@ -1026,14 +1157,18 @@
 
     const socket = io({ query: { type: 'obs' } });
     const PIP = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
-    let tileTypes = [], allTileTypes = [], currentState = null, CFG = { TILES_PER_BOARD: 29, POINT_GOAL: 50, BOARD_COLS: 3 };
+    let _gameTiles = [], tileTypes = [], currentState = null, CFG = { TILES_PER_BOARD: 29, POINT_GOAL: 50, BOARD_COLS: 3 };
     const photos = [null, null], names = ['Player 1', 'Player 2'];
     function initAvatarLetter(idx) {
       const el = document.getElementById('avatar-p' + (idx + 1));
       if (!photos[idx] && el && !el.querySelector('img')) {
-        el.textContent = names[idx][0].toUpperCase();
-        el.style.color = idx === 0 ? 'var(--p1c)' : 'var(--p2c)';
-        el.style.fontSize = 'clamp(16px,2.5vw,28px)';
+        // Remove any old letter span but keep the .turn-badge
+        el.querySelectorAll(':not(.turn-badge)').forEach(c => c.remove());
+        const span = document.createElement('span');
+        span.textContent = names[idx][0].toUpperCase();
+        span.style.color = idx === 0 ? 'var(--p1c)' : 'var(--p2c)';
+        span.style.fontSize = 'clamp(16px,2.5vw,28px)';
+        el.insertBefore(span, el.querySelector('.turn-badge'));
       }
     }
     let gameStarted = false;
@@ -1063,8 +1198,8 @@
       }
     });
     socket.on('tilesUpdate', d => {
-      tileTypes = d.tileTypes;
-      if (d.allTileTypes) allTileTypes = d.allTileTypes; else allTileTypes = [];
+      _gameTiles = d.tileTypes || []; // control sends _gameTiles under 'tileTypes' key
+      tileTypes = _gameTiles.slice(); // setupBoard will inject connectors
       if (d.CFG) Object.assign(CFG, d.CFG);
       if (gameStarted) {
         requestAnimationFrame(() => requestAnimationFrame(() => { setupBoard(); if (currentState) renderState(currentState); }));
@@ -1072,7 +1207,7 @@
         tryStart();
       }
     });
-    socket.on('avatarUpdate', d => { const img = new Image(); img.onload = () => { photos[d.index] = img; document.getElementById('avatar-p' + (d.index + 1)).innerHTML = '<img src="' + d.dataUrl + '" alt="">'; if (currentState) drawBoard(currentState); }; img.src = d.dataUrl; });
+    socket.on('avatarUpdate', d => { const img = new Image(); img.onload = () => { photos[d.index] = img; const el = document.getElementById('avatar-p' + (d.index + 1)); const badge = el.querySelector('.turn-badge'); el.innerHTML = ''; if (badge) el.appendChild(badge); const i = document.createElement('img'); i.src = d.dataUrl; i.alt = ''; el.insertBefore(i, badge || null); if (currentState) drawBoard(currentState); }; img.src = d.dataUrl; });
     const spinT = { mp: null, ep: null };
     function showDice(px, n) { const p = PIP[n] || []; for (let i = 0; i < 9; i++) { const e = document.getElementById(px + i); if (e) e.classList.toggle('show', p.includes(i)); } }
     function startRoll(id, px) { const e = document.getElementById(id); e.classList.add('rolling'); if (spinT[px]) clearInterval(spinT[px]); spinT[px] = setInterval(() => showDice(px, Math.floor(Math.random() * 6) + 1), 70); }
@@ -1118,7 +1253,76 @@
       else if (ev.type === 'yellowSpin') { spinYellow(ev.labels, ev.winIdx, ev.winIcon, ev.winTitle); }
       else if (ev.type === 'colorSpin') { spinColor(ev.labels, ev.winIdx); }
       else if (ev.type === 'stageUp') { const st = document.getElementById('stageTrans'); st.classList.add('show'); setTimeout(() => { st.classList.remove('show'); }, 3300); }
+      else if (ev.type === 'milestonePopup') { showObsMilestonePopup(ev.pName, ev.target, ev.desc); }
     });
+
+    // ── OBS Milestone popup ──────────────────────────────────────────────────
+    let _obsConfettiRaf = null;
+    const _obsConfettiPieces = [];
+    const OBS_CONFETTI_COLORS = ['#fbbf24','#f472b6','#a78bfa','#34d399','#60a5fa','#fb923c','#fff'];
+
+    function showObsMilestonePopup(pName, target, desc) {
+      document.getElementById('obs-milestoneName').textContent = pName;
+      document.getElementById('obs-milestonePts').textContent = target + ' pts!';
+      document.getElementById('obs-milestoneDesc').textContent = desc;
+
+      const nameEl = document.getElementById('obs-milestoneName');
+      nameEl.style.color = pName === names[1] ? 'var(--p2c)' : 'var(--p1c)';
+
+      const popup = document.getElementById('obs-milestonePopup');
+      popup.classList.add('show');
+      startObsConfetti();
+
+      setTimeout(() => {
+        popup.classList.remove('show');
+        stopObsConfetti();
+      }, 5500);
+    }
+
+    function startObsConfetti() {
+      const canvas = document.getElementById('obs-milestoneConfetti');
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      const ctx = canvas.getContext('2d');
+      _obsConfettiPieces.length = 0;
+      for (let i = 0; i < 110; i++) {
+        _obsConfettiPieces.push({
+          x: canvas.width * (.3 + Math.random() * .4),
+          y: canvas.height * .45,
+          vx: (Math.random() - .5) * 22,
+          vy: -(Math.random() * 18 + 7),
+          rot: Math.random() * 360, rotV: (Math.random() - .5) * 14,
+          w: 10 + Math.random() * 10, h: 5 + Math.random() * 6,
+          color: OBS_CONFETTI_COLORS[Math.floor(Math.random() * OBS_CONFETTI_COLORS.length)],
+          alpha: 1,
+          shape: Math.random() < .5 ? 'rect' : 'circle',
+        });
+      }
+      if (_obsConfettiRaf) cancelAnimationFrame(_obsConfettiRaf);
+      const tick = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        _obsConfettiPieces.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += .5; p.vx *= .98;
+          p.rot += p.rotV; p.alpha -= .007;
+          if (p.alpha <= 0) return;
+          alive = true;
+          ctx.save(); ctx.globalAlpha = Math.max(0, p.alpha);
+          ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+          ctx.fillStyle = p.color;
+          if (p.shape === 'circle') { ctx.beginPath(); ctx.arc(0, 0, p.w/2, 0, Math.PI*2); ctx.fill(); }
+          else { ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); }
+          ctx.restore();
+        });
+        if (alive) _obsConfettiRaf = requestAnimationFrame(tick);
+      };
+      _obsConfettiRaf = requestAnimationFrame(tick);
+    }
+
+    function stopObsConfetti() {
+      if (_obsConfettiRaf) { cancelAnimationFrame(_obsConfettiRaf); _obsConfettiRaf = null; }
+      const canvas = document.getElementById('obs-milestoneConfetti');
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    }
     function spinColor(labels, winIdx) {
       const ITEM_H = Math.round(window.innerWidth * 0.14);
       const popup = document.getElementById('colorPopup');
@@ -1136,10 +1340,14 @@
         track.appendChild(d);
       });
       popup.classList.add('show'); document.getElementById('overlayBg').classList.add('show');
-      const finalY = -((total - 1) * ITEM_H) + 8;
+      // finalY computed from DOM
       requestAnimationFrame(() => requestAnimationFrame(() => {
+        const realH = track.firstElementChild.getBoundingClientRect().height;
+        const wrap = track.closest('.yellow-spinner-wrap');
+        const wrapH = wrap.getBoundingClientRect().height;
+        const fY = -((total - 1) * realH) + (wrapH - realH) / 2;
         track.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.1,1)';
-        track.style.transform = 'translateY(' + finalY + 'px)';
+        track.style.transform = 'translateY(' + fY + 'px)';
       }));
       setTimeout(() => {
         const wrapEl = track.closest('.yellow-spinner-wrap');
@@ -1200,10 +1408,14 @@
       });
       document.getElementById('yellowSpinDesc').textContent = 'Landing on...';
       popup.classList.add('show'); document.getElementById('overlayBg').classList.add('show');
-      const finalY = -((total - 1) * ITEM_H) + 8;
+      // finalY computed from DOM
       requestAnimationFrame(() => requestAnimationFrame(() => {
+        const realH = track.firstElementChild.getBoundingClientRect().height;
+        const wrap = track.closest('.yellow-spinner-wrap');
+        const wrapH = wrap.getBoundingClientRect().height;
+        const fY = -((total - 1) * realH) + (wrapH - realH) / 2;
         track.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.1,1)';
-        track.style.transform = 'translateY(' + finalY + 'px)';
+        track.style.transform = 'translateY(' + fY + 'px)';
       }));
       setTimeout(() => {
         const wrapEl = track.closest('.yellow-spinner-wrap');
@@ -1237,14 +1449,24 @@
     const canvas = document.getElementById('board-canvas'), ctx = canvas.getContext('2d');
     let tilePos = [];
     const TILE_C = {
-      blue: { t: '#a0a4b8', b: '#4b667d', l: '#0c3670', r: '#fff2ed' },
-      start: { t: '#2ec970', b: '#0f9e48', l: '#056028', r: '#fff2ed' },
-      stageup: { t: '#f0901a', b: '#be5c00', l: '#753800', r: '#fff2ed' },
-      green: { t: '#a4af9e', b: '#4f7851', l: '#055220', r: '#fff2ed' },
-      purple: { t: '#a985b1', b: '#57327d', l: '#360a72', r: '#fff2ed' },
-      red: { t: '#c77685', b: '#8b2336', l: '#650000', r: '#fff2ed' },
-      yellow: { t: '#e3baa8', b: '#b0734f', l: '#6e5500', r: '#fff2ed' },
+      blue: { t: '#4a90d9', b: '#1e5fa8', l: '#0d3875', r: '#000000' },
+      start: { t: '#27c96e', b: '#0f9e47', l: '#056128', r: '#000000' },
+      stageup: { t: '#f5931e', b: '#c45f00', l: '#7a3a00', r: '#000000' },
+      green: { t: '#2ec45a', b: '#0e9638', l: '#055520', r: '#000000' },
+      purple: { t: '#9b4fe0', b: '#6118b8', l: '#380a75', r: '#000000' },
+      red: { t: '#e8352a', b: '#aa0f0f', l: '#6b0000', r: '#000000' },
+      yellow: { t: '#f5c800', b: '#b89000', l: '#705800', r: '#000000' },
     };
+    /*
+        const TILE_C = {
+          blue: { t: '#a0a4b8', b: '#4b667d', l: '#0c3670', r: '#fff2ed' },
+          start: { t: '#2ec970', b: '#0f9e48', l: '#056028', r: '#fff2ed' },
+          stageup: { t: '#f0901a', b: '#be5c00', l: '#753800', r: '#fff2ed' },
+          green: { t: '#a4af9e', b: '#4f7851', l: '#055220', r: '#fff2ed' },
+          purple: { t: '#a985b1', b: '#57327d', l: '#360a72', r: '#fff2ed' },
+          red: { t: '#c77685', b: '#8b2336', l: '#650000', r: '#fff2ed' },
+          yellow: { t: '#e3baa8', b: '#b0734f', l: '#6e5500', r: '#fff2ed' },
+        };*/
     const TICON = { green: null, purple: null, red: null, yellow: null, stageup: '🏆', start: '🚀', blue: null };
 
     // OBS: tile 0 (start/🚀) at bottom, tile N-1 (stageup/🏆) at top-left.
@@ -1295,21 +1517,38 @@
     function setupBoard() {
       const wr = canvas.parentElement, rect = wr.getBoundingClientRect();
       canvas.width = Math.floor(rect.width); canvas.height = Math.floor(rect.height);
-      const W = canvas.width, H = canvas.height, N = tileTypes.length; if (!N) return;
-      const cfgCols = Math.max(3, Math.min(CFG.BOARD_COLS || 5, 12));
-      let bestS = 0, bestCOLS = cfgCols, bestROWS = Math.ceil(N / cfgCols);
-      for (let c = 3; c <= 12; c++) {
-        const r = Math.ceil(N / c);
-        const tw = Math.floor((W - 32) / c);
-        const th = Math.floor((H - 32) / (2 * r - 1));
-        const ts2 = Math.max(14, Math.min(tw, th, 110));
-        if (ts2 > bestS) { bestS = ts2; bestCOLS = c; bestROWS = r; }
+      const W = canvas.width, H = canvas.height, N = _gameTiles.length; if (!N) return;
+
+      // Find the COLS value (within a sensible range) that produces the largest tile
+      // that still fits both dimensions — ignoring the controller's BOARD_COLS so the
+      // board always fills the OBS canvas regardless of aspect ratio.
+      const PAD = 24;
+      let bestTs = 0, bestCols = Math.max(3, CFG.BOARD_COLS || 5);
+      const minCols = 2, maxCols = Math.min(N, 14);
+      for (let c = minCols; c <= maxCols; c++) {
+        const rows = Math.ceil(N / c);
+        const tw = Math.floor((W - PAD) / c);
+        const th = Math.floor((H - PAD) / (2 * rows - 1));
+        const ts = Math.min(tw, th);
+        if (ts > bestTs) { bestTs = ts; bestCols = c; }
       }
-      const COLS = bestCOLS, ROWS = bestROWS;
-      const ts = bestS;
+      const COLS = bestCols;
+      const ts = Math.max(14, bestTs);
+      const GAP = 0;
+      const td = ts - GAP; // actual drawn tile size
+
       const { centres } = computeWindingPath(W, H, N, ts, COLS);
-      tilePos = centres.map(({ x, y, angle, connector }) => ({ cx: x, cy: y, x: x - ts / 2, y: y - ts / 2, w: ts, h: ts, s: ts, angle: angle || 0, connector: connector || false }));
+      tilePos = centres.map(({ x, y, angle, connector }) => ({ cx: x, cy: y, x: x - td / 2, y: y - td / 2, w: td, h: td, s: td, angle: angle || 0, connector: connector || false }));
       tilePos._game = tilePos.filter(t => !t.connector);
+
+      // Build tileTypes as the full flat array matching tilePos — same logic as control.
+      // Connector inherits the preceding game tile's type.
+      let gi = 0;
+      tileTypes = tilePos.map(t => {
+        if (!t.connector) return _gameTiles[gi++] ?? 'blue';
+        return _gameTiles[Math.max(0, gi - 1)] ?? 'blue';
+      });
+
       if (currentState) drawBoard(currentState);
     }
 
@@ -1327,7 +1566,7 @@
 
       //ctx.strokeStyle='rgba(0,0,0,0.7)';ctx.lineWidth=3.5;rr(tx,ty,w,h,rad);ctx.stroke();
 
-      ctx.strokeStyle = c.r; ctx.lineWidth = 1.8; rr(tx, ty, w, h, rad); ctx.stroke();
+      ctx.strokeStyle = c.r; ctx.lineWidth = 1.8; rr(tx + 0.9, ty + 0.9, w - 1.8, h - 1.8, rad); ctx.stroke();
       const ic = TICON[type];
       if (ic) {
         ctx.font = `${Math.max(14, w * 0.52)}px serif`;
@@ -1342,32 +1581,27 @@
     function drawBoard(s) {
       if (!tilePos.length) return;
       const W = canvas.width, H = canvas.height; ctx.clearRect(0, 0, W, H);
-      // Background is handled by #bg-overlay — canvas stays transparent
-      // Draw all tiles — connectors use 'blue' type, game tiles use their type
       const ag = s && s.allGreen > 0;
-      let gameIdx = 0;
       for (let i = 0; i < tilePos.length; i++) {
         const t = tilePos[i]; if (!t) continue;
-        const flatType = (allTileTypes.length ? allTileTypes[i] : null)
-          || (t.connector ? 'blue' : tileTypes[gameIdx] || 'blue');
-        if (!t.connector) gameIdx++;
+        const flatType = tileTypes[i] || 'blue';
         const visual = (ag && flatType !== 'start' && flatType !== 'stageup') ? 'green' : flatType;
-        drawTileObs(t, visual, t.connector ? null : gameIdx - 1);
+        drawTileObs(t, visual);
       }
       // Effect badges
 
 
       if (!s || !s.players) return;
       const same = s.players[0].flatPos === s.players[1].flatPos;
-      drawTok(s.players[0].flatPos ?? 0, '#ff0d0d', 0, same ? -1 : 0); 
-      drawTok(s.players[1].flatPos ?? 0, '#21f0ff', 1, same ? 1 : 0);
+      drawTok(s.players[0].flatPos ?? 0, '#dad5ff', 0, same ? -1 : 0);
+      drawTok(s.players[1].flatPos ?? 0, '#fcbdfe', 1, same ? 1 : 0);
     }
 
     function drawTok(fi, col, pi, off) {
       const t = tilePos[Math.min(fi, tilePos.length - 1)]; if (!t) return;
       // Token radius: 42% of tile but with a generous minimum so it reads at small sizes
-      const r = Math.max(t.s * .38, 14);
-      const ox = off * r * 0.85, cx = t.cx + ox, cy = t.cy;
+      const r = Math.max(t.s * .60, 14);
+      const ox = off * r * 0.75, cx = t.cx + ox, cy = t.cy + off * r * 0.75;
       ctx.save();
 
       // Dark backdrop so token always contrasts against any tile colour
@@ -1423,7 +1657,7 @@
       document.getElementById('popIcon').textContent = String.fromCodePoint(0x2B50);
       document.getElementById('yellowIcon').textContent = String.fromCodePoint(0x2B50);
     });
-    window.addEventListener('resize', () => { if (tileTypes.length) setupBoard(); });
+    new ResizeObserver(() => { if (_gameTiles.length) setupBoard(); }).observe(canvas.parentElement);
   </script>
 </body>
 

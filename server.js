@@ -5,7 +5,9 @@ const path       = require('path');
 
 const app    = express();
 const server = http.createServer(app);
-const io     = new Server(server);
+const io     = new Server(server, {
+  maxHttpBufferSize: 10e6,  // 10 MB — allows two full-size avatar photos
+});
 
 const PORT = process.env.PORT || 3000;
 

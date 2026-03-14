@@ -1167,6 +1167,292 @@
       box-shadow: 0 3px 0 var(--start-btn-shadow);
     }
 
+
+    /* ── Milestones section ── */
+    #milestones-section {
+      width: 100%;
+      max-width: 540px;
+      background: var(--panel);
+      border: 2px solid rgba(240, 114, 160, .3);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 4px 24px rgba(120, 40, 80, .2);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #milestones-section h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(14px, 4vw, 18px);
+      color: var(--text);
+      margin: 0 0 2px;
+      text-align: center;
+    }
+
+    /* toggle row */
+    .milestone-scope-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .scope-toggle {
+      display: flex;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(240, 114, 160, .35);
+    }
+
+    .scope-toggle button {
+      padding: 5px 14px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      opacity: .5;
+      transition: background .15s, opacity .15s;
+    }
+
+    .scope-toggle button.active {
+      background: rgba(240, 114, 160, .25);
+      opacity: 1;
+    }
+
+    /* scrollable list */
+    #milestone-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    #milestone-list::-webkit-scrollbar { width: 4px; }
+    #milestone-list::-webkit-scrollbar-track { background: transparent; }
+    #milestone-list::-webkit-scrollbar-thumb { background: rgba(240,114,160,.35); border-radius: 4px; }
+
+    .milestone-entry {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .milestone-pts-input {
+      width: 58px;
+      flex-shrink: 0;
+      padding: 6px 8px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Fredoka One', cursive;
+      font-size: 15px;
+      text-align: center;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .milestone-pts-input:focus { border-color: rgba(240,114,160,.7); }
+
+    .milestone-desc-input {
+      flex: 1;
+      padding: 6px 10px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .milestone-desc-input:focus { border-color: rgba(240,114,160,.7); }
+
+    .milestone-player-select {
+      padding: 6px 6px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: none; /* shown only when scope = per-player */
+    }
+
+    .milestone-player-select.visible { display: block; }
+
+    .milestone-remove-btn {
+      width: 26px;
+      height: 26px;
+      flex-shrink: 0;
+      border-radius: 7px;
+      background: rgba(255,80,80,.15);
+      border: 1px solid rgba(255,80,80,.3);
+      color: #ff8080;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+    }
+
+    .milestone-remove-btn:hover { background: rgba(255,80,80,.3); }
+
+    .milestone-add-btn {
+      align-self: center;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 18px;
+      background: rgba(240,114,160,.12);
+      border: 1px dashed rgba(240,114,160,.4);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+
+    .milestone-add-btn:hover {
+      background: rgba(240,114,160,.22);
+      border-color: rgba(240,114,160,.7);
+    }
+
+    #milestone-list:empty::after {
+      content: 'No milestones yet — add one below!';
+      display: block;
+      text-align: center;
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      color: var(--text);
+      opacity: .4;
+      padding: 12px 0;
+    }
+
+    /* ── Milestone popup ── */
+    #milestonePopup {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #milestonePopup.show {
+      pointer-events: all;
+      opacity: 1;
+    }
+
+    #milestoneConfetti {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    #milestonePopupInner {
+      position: relative;
+      z-index: 1;
+      background: var(--panel);
+      border: 3px solid #fbbf24;
+      border-radius: 28px;
+      padding: 4cqh 6cqw;
+      text-align: center;
+      box-shadow: 0 0 0 6px rgba(251,191,36,.18), 0 24px 70px rgba(120,40,80,.55);
+      transform: scale(0) rotate(-4deg);
+      transition: transform 0s;
+      width: 78cqw;
+      max-width: 78cqw;
+    }
+
+    #milestonePopup.show #milestonePopupInner {
+      animation: milestonePop .55s cubic-bezier(.34,1.8,.64,1) forwards;
+    }
+
+    @keyframes milestonePop {
+      0%   { transform: scale(0) rotate(-4deg); }
+      60%  { transform: scale(1.08) rotate(1.5deg); }
+      80%  { transform: scale(0.96) rotate(-0.5deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    #milestoneStars {
+      font-size: 5cqw;
+      letter-spacing: 0.15em;
+      animation: starsWave 1.2s ease-in-out infinite alternate;
+      display: block;
+      margin-bottom: 0.5cqh;
+    }
+
+    @keyframes starsWave {
+      from { transform: translateY(0) scale(1); }
+      to   { transform: translateY(-4px) scale(1.06); }
+    }
+
+    #milestoneFlag {
+      font-size: 15cqw;
+      line-height: 1;
+      animation: flagBounce .7s cubic-bezier(.34,1.56,.64,1) forwards;
+      display: block;
+      margin-bottom: 0.8cqh;
+    }
+
+    @keyframes flagBounce {
+      0%   { transform: scale(0) translateY(20px); opacity: 0; }
+      70%  { transform: scale(1.15) translateY(-6px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    #milestoneName {
+      font-family: 'Fredoka One', cursive;
+      font-size: 4.5cqw;
+      color: var(--p1c);
+      margin-bottom: 0.3cqh;
+    }
+
+    #milestonePts {
+      font-family: 'Fredoka One', cursive;
+      font-size: 9cqw;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 0.5cqh;
+    }
+
+    #milestoneDesc {
+      font-family: 'Nunito', sans-serif;
+      font-size: 3.8cqw;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.4;
+      opacity: .9;
+    }
+
     .score-float {
       position: fixed;
       font-family: 'Fredoka One', cursive;
@@ -1313,7 +1599,155 @@
       margin: 2px 8px;
     }
 
-    /* ── Kicked screen ── */
+    /* ── Game Log Panel ── */
+    #log-panel {
+      position: fixed;
+      top: 70px;
+      left: 14px;
+      z-index: 998;
+      width: min(420px, calc(100vw - 28px));
+      max-height: min(560px, calc(100vh - 100px));
+      background: var(--panel);
+      border: 2px solid rgba(180, 80, 120, .5);
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(80, 0, 160, .6);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: menuIn .2s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    #log-panel.open {
+      display: flex;
+    }
+
+    #log-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid rgba(180, 80, 120, .25);
+      flex-shrink: 0;
+    }
+
+    #log-panel-header h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 18px;
+      color: var(--text);
+      margin: 0;
+    }
+
+    #log-panel-header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #log-clear-btn {
+      font-family: 'Nunito', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(180, 80, 120, .2);
+      border: 1px solid rgba(180, 80, 120, .35);
+      border-radius: 8px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    #log-clear-btn:hover {
+      background: rgba(180, 80, 120, .38);
+    }
+
+    #log-close-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(180, 80, 120, .2);
+      border: 1px solid rgba(180, 80, 120, .35);
+      color: var(--text);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+
+    #log-close-btn:hover {
+      background: rgba(240, 114, 160, .35);
+    }
+
+    #log-entries {
+      overflow-y: auto;
+      flex: 1;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      scroll-behavior: smooth;
+    }
+
+    #log-entries::-webkit-scrollbar { width: 5px; }
+    #log-entries::-webkit-scrollbar-track { background: transparent; }
+    #log-entries::-webkit-scrollbar-thumb { background: rgba(180, 80, 120, .4); border-radius: 4px; }
+
+    .log-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .04);
+      border-left: 3px solid transparent;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .log-entry.log-green  { border-left-color: #4ade80; }
+    .log-entry.log-red    { border-left-color: #f87171; }
+    .log-entry.log-blue   { border-left-color: #60a5fa; }
+    .log-entry.log-purple { border-left-color: #c084fc; }
+    .log-entry.log-yellow { border-left-color: #fbbf24; }
+    .log-entry.log-system { border-left-color: rgba(180, 80, 120, .5); }
+
+    .log-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .log-body { flex: 1; }
+
+    .log-who {
+      font-weight: 800;
+      font-size: 12px;
+      opacity: .7;
+      margin-bottom: 1px;
+    }
+
+    .log-msg { font-weight: 600; }
+
+    .log-time {
+      font-size: 10px;
+      opacity: .45;
+      flex-shrink: 0;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    #log-empty {
+      text-align: center;
+      padding: 32px 16px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      opacity: .4;
+    }
     #kicked-screen {
       display: none;
       position: fixed;
@@ -1390,6 +1824,26 @@
       <div class="blabel" id="burgerDeductLabel1">-1 Point — Player 2<div class="bsub">Manually deduct one point</div>
       </div>
     </div>
+    <div class="burger-divider"></div>
+    <div class="burger-item" onclick="openLogPanel()">
+      <span class="bicon">📋</span>
+      <div class="blabel">Show Logs<div class="bsub">View game event history</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME LOG PANEL -->
+  <div id="log-panel">
+    <div id="log-panel-header">
+      <h3>📋 Game Log</h3>
+      <div id="log-panel-header-actions">
+        <button id="log-clear-btn" onclick="clearLog()">Clear</button>
+        <button id="log-close-btn" onclick="closeLogPanel()">✕</button>
+      </div>
+    </div>
+    <div id="log-entries">
+      <div id="log-empty">No events yet — start the game!</div>
+    </div>
   </div>
 
 
@@ -1424,6 +1878,20 @@
       </div>
     </div>
     <button class="start-btn" onclick="startGame()">Let's Play! 🎲</button>
+
+    <!-- MILESTONES -->
+    <div id="milestones-section">
+      <h3>🏁 Milestones</h3>
+      <div class="milestone-scope-row">
+        <span>Track per:</span>
+        <div class="scope-toggle">
+          <button id="scope-all-btn" class="active" onclick="setMilestoneScope('all')">🌍 All Players</button>
+          <button id="scope-player-btn" onclick="setMilestoneScope('player')">👤 Per Player</button>
+        </div>
+      </div>
+      <div id="milestone-list"></div>
+      <button class="milestone-add-btn" onclick="addMilestone()">＋ Add Milestone</button>
+    </div>
   </div>
 
   <!-- PLAY AREA -->
@@ -1527,6 +1995,18 @@
     </div>
   </div>
 
+  <!-- Milestone popup -->
+  <div id="milestonePopup">
+    <canvas id="milestoneConfetti"></canvas>
+    <div id="milestonePopupInner">
+      <div id="milestoneStars">⭐✨🌟✨⭐</div>
+      <div id="milestoneFlag">🏁</div>
+      <div id="milestoneName"></div>
+      <div id="milestonePts"></div>
+      <div id="milestoneDesc"></div>
+    </div>
+  </div>
+
   <!-- Bounce-back screen -->
   <div class="bounce-screen" id="bounceTrans">
     <div class="big-icon">🚀</div>
@@ -1543,6 +2023,197 @@
   </div>
 
   <script>
+    // =====================================================
+    //  MILESTONES
+    // =====================================================
+    let milestones = [];        // { pts, desc, player } — player: 'all'|0|1
+    let milestoneScope = 'all'; // 'all' | 'player'
+    const _firedMilestones = new Set(); // keys already triggered this game
+
+    function setMilestoneScope(scope) {
+      milestoneScope = scope;
+      document.getElementById('scope-all-btn').classList.toggle('active', scope === 'all');
+      document.getElementById('scope-player-btn').classList.toggle('active', scope === 'player');
+      // Show/hide player selects
+      document.querySelectorAll('.milestone-player-select').forEach(sel => {
+        sel.classList.toggle('visible', scope === 'player');
+      });
+    }
+
+    function addMilestone(pts = '', desc = '', player = 'all') {
+      const id = Date.now() + Math.random();
+      milestones.push({ id, pts, desc, player });
+      renderMilestoneList();
+    }
+
+    function removeMilestone(id) {
+      milestones = milestones.filter(m => m.id !== id);
+      renderMilestoneList();
+    }
+
+    function renderMilestoneList() {
+      const list = document.getElementById('milestone-list');
+      list.innerHTML = '';
+      milestones.forEach(m => {
+        const row = document.createElement('div');
+        row.className = 'milestone-entry';
+        row.dataset.id = m.id;
+        row.innerHTML = `
+          <input class="milestone-pts-input" type="number" min="1" max="9999" placeholder="pts"
+            value="${m.pts}" oninput="updateMilestone(${m.id},'pts',this.value)">
+          <input class="milestone-desc-input" type="text" placeholder="Message shown when reached…"
+            value="${m.desc}" oninput="updateMilestone(${m.id},'desc',this.value)">
+          <select class="milestone-player-select${milestoneScope === 'player' ? ' visible' : ''}"
+            onchange="updateMilestone(${m.id},'player',this.value)">
+            <option value="all"${m.player==='all'?' selected':''}>Both</option>
+            <option value="0"${m.player==='0'||m.player===0?' selected':''}>P1</option>
+            <option value="1"${m.player==='1'||m.player===1?' selected':''}>P2</option>
+          </select>
+          <button class="milestone-remove-btn" onclick="removeMilestone(${m.id})">✕</button>`;
+        list.appendChild(row);
+      });
+    }
+
+    function updateMilestone(id, field, value) {
+      const m = milestones.find(m => m.id === id);
+      if (!m) return;
+      m[field] = field === 'pts' ? (parseInt(value) || '') : value;
+    }
+
+    function resetMilestoneFired() {
+      _firedMilestones.clear();
+    }
+
+    // Called after every score change — checks all milestones
+    // Milestone popups are queued and drained after the turn fully ends
+    const _milestoneQueue = [];
+
+    function checkMilestones(cp) {
+      const score = state.players[cp].score;
+      milestones.forEach(m => {
+        if (!m.pts || !m.desc) return;
+        const target = parseInt(m.pts);
+        if (isNaN(target)) return;
+        const appliesToPlayer = m.player === 'all' || parseInt(m.player) === cp;
+        if (!appliesToPlayer) return;
+        const key = `${m.id}_p${cp}`;
+        if (_firedMilestones.has(key)) return;
+        if (score >= target) {
+          _firedMilestones.add(key);
+          const pName = playerNames[cp];
+          gameLog('system', '🏁', pName, `Milestone: ${target} pts — ${m.desc}`);
+          _milestoneQueue.push({ pName, target, desc: m.desc, playerIdx: cp });
+        }
+      });
+    }
+
+    function drainMilestoneQueue() {
+      if (!_milestoneQueue.length) return;
+      const { pName, target, desc, playerIdx } = _milestoneQueue.shift();
+      // Small delay so the tile popup has fully closed before milestone appears
+      setTimeout(() => showMilestonePopup(pName, target, desc, playerIdx), 800);
+    }
+
+    function showMilestonePopup(pName, target, desc, playerIdx) {
+      // Fill content
+      document.getElementById('milestoneName').textContent = pName;
+      document.getElementById('milestonePts').textContent = target + ' pts!';
+      document.getElementById('milestoneDesc').textContent = desc;
+
+      // Colour the name by player
+      const nameEl = document.getElementById('milestoneName');
+      nameEl.style.color = playerIdx === 1 ? 'var(--p2c)' : 'var(--p1c)';
+
+      // Show
+      const popup = document.getElementById('milestonePopup');
+      popup.classList.add('show');
+
+      // Confetti burst
+      startMilestoneConfetti();
+
+      // Emit to OBS
+      socket.emit('animEvent', {
+        type: 'milestonePopup',
+        pName, target, desc,
+        duration: 5000
+      });
+
+      // Auto-dismiss after 5.5s
+      setTimeout(() => {
+        popup.classList.remove('show');
+        stopMilestoneConfetti();
+        drainMilestoneQueue(); // chain next
+      }, 5500);
+    }
+
+    // ── Confetti ─────────────────────────────────────────────────────────────
+    let _confettiRaf = null;
+    const _confettiPieces = [];
+    const CONFETTI_COLORS = ['#fbbf24','#f472b6','#a78bfa','#34d399','#60a5fa','#fb923c','#fff'];
+
+    function startMilestoneConfetti() {
+      const canvas = document.getElementById('milestoneConfetti');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const ctx = canvas.getContext('2d');
+      _confettiPieces.length = 0;
+
+      // Spawn a burst of pieces
+      for (let i = 0; i < 90; i++) {
+        _confettiPieces.push({
+          x: canvas.width * (.3 + Math.random() * .4),
+          y: canvas.height * .45,
+          vx: (Math.random() - .5) * 18,
+          vy: -(Math.random() * 16 + 6),
+          rot: Math.random() * 360,
+          rotV: (Math.random() - .5) * 12,
+          w: 8 + Math.random() * 8,
+          h: 4 + Math.random() * 5,
+          color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+          alpha: 1,
+          shape: Math.random() < .5 ? 'rect' : 'circle',
+        });
+      }
+
+      if (_confettiRaf) cancelAnimationFrame(_confettiRaf);
+
+      const tick = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        _confettiPieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += .45; // gravity
+          p.vx *= .98;
+          p.rot += p.rotV;
+          p.alpha -= .008;
+          if (p.alpha <= 0) return;
+          alive = true;
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.alpha);
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot * Math.PI / 180);
+          ctx.fillStyle = p.color;
+          if (p.shape === 'circle') {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          }
+          ctx.restore();
+        });
+        if (alive) _confettiRaf = requestAnimationFrame(tick);
+      };
+      _confettiRaf = requestAnimationFrame(tick);
+    }
+
+    function stopMilestoneConfetti() {
+      if (_confettiRaf) { cancelAnimationFrame(_confettiRaf); _confettiRaf = null; }
+      const canvas = document.getElementById('milestoneConfetti');
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    }
+
     // =====================================================
     //  SOCKET
     // =====================================================
@@ -1589,7 +2260,8 @@
     socket.on('resumeState', ({ state: savedState, tiles, avatars }) => {
       // Restore tile types + CFG
       if (tiles) {
-        tileTypes = tiles.tileTypes || [];
+        _gameTiles = tiles.tileTypes || []; // server stores _gameTiles under 'tileTypes' key
+        tileTypes = _gameTiles.slice();     // setupBoard will rebuild with connectors
         if (tiles.CFG) Object.assign(CFG, tiles.CFG);
       }
 
@@ -1686,12 +2358,21 @@
       reader.onload = e => {
         const img = new Image();
         img.onload = () => {
+          // Resize to max 256px to keep payloads small (fixes Socket.IO 1MB buffer limit)
+          const MAX = 256;
+          const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width  = Math.round(img.width  * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
           playerPhotos[idx] = img;
-          playerPhotoUrls[idx] = e.target.result;
+          playerPhotoUrls[idx] = dataUrl;
           const preview = document.getElementById(`avatarPreview${idx}`);
-          preview.src = e.target.result; preview.classList.add('loaded');
+          preview.src = dataUrl; preview.classList.add('loaded');
           document.getElementById(`avatarArea${idx}`).classList.add('has-photo');
-          socket.emit('avatarUpdate', { index: idx, dataUrl: e.target.result });
+          socket.emit('avatarUpdate', { index: idx, dataUrl });
         };
         img.src = e.target.result;
       };
@@ -1711,12 +2392,15 @@
         else avatarEl.innerHTML = `<span>${playerNames[i][0].toUpperCase()}</span>`;
       }
       document.getElementById('setupScreen').style.display = 'none';
+      clearLog();
+      resetMilestoneFired();
+      gameLog('system', '🎮', null, `Game started — ${playerNames[0]} vs ${playerNames[1]}${milestones.filter(m=>m.pts&&m.desc).length ? ` · ${milestones.filter(m=>m.pts&&m.desc).length} milestone(s) set` : ''}`);
       generateTiles();
       setupBoard();
       state.currentPlayer = 0;  // game is now in progress
       showDice('mp', 1);
       updateUI();
-      socket.emit('tilesUpdate', { tileTypes, allTileTypes, CFG });
+      socket.emit('tilesUpdate', { tileTypes: _gameTiles, CFG });
       emitState();
       setBtnsEnabled(true);
     }
@@ -1736,8 +2420,8 @@
     //  STATE
     // =====================================================
     const PIP_PATTERNS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
-    let tileTypes = [];
-    let allTileTypes = []; // flat array including connector tiles
+    let _gameTiles = []; // game-only tiles: ['start', ...inner..., 'stageup'] — no connectors
+    let tileTypes = [];  // flat array: game tiles + connector tiles, built in setupBoard
 
     let state = {
       currentPlayer: 0,
@@ -1772,24 +2456,22 @@
         const j = Math.floor(Math.random() * (i + 1));
         [typeArr[i], typeArr[j]] = [typeArr[j], typeArr[i]];
       }
-      tileTypes = ['start', ...typeArr, 'stageup'];
-
-      // Coerce starting row (tiles 1..BOARD_COLS) to not contain red
-      const cols = CFG.BOARD_COLS || 5;
-      for (let i = 1; i <= cols && i < tileTypes.length - 1; i++) {
-        if (tileTypes[i] === 'red') tileTypes[i] = 'blue';
-      }
+      // _gameTiles: ordered game-only tiles (no connectors). tileTypes becomes the full
+      // flat array (game tiles + connector tiles) once setupBoard injects connectors.
+      _gameTiles = ['start', ...typeArr, 'stageup'];
+      tileTypes = _gameTiles.slice();
     }
 
     function shuffleTiles() {
-      const total = tileTypes.length;
-      const indices = []; const types = [];
-      for (let i = 1; i < total - 1; i++) { indices.push(i); types.push(tileTypes[i]); }
-      for (let i = types.length - 1; i > 0; i--) {
+      // Shuffle only the inner game tiles (not start/stageup, not connectors)
+      const inner = [];
+      for (let i = 1; i < _gameTiles.length - 1; i++) inner.push(_gameTiles[i]);
+      for (let i = inner.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [types[i], types[j]] = [types[j], types[i]];
+        [inner[i], inner[j]] = [inner[j], inner[i]];
       }
-      for (let i = 0; i < indices.length; i++) tileTypes[indices[i]] = types[i];
+      for (let i = 0; i < inner.length; i++) _gameTiles[i + 1] = inner[i];
+      // tileTypes (flat with connectors) rebuilt by setupBoard
     }
 
     // =====================================================
@@ -1869,12 +2551,10 @@
       canvas.width = Math.floor(rect.width);
       canvas.height = Math.floor(rect.height);
       const W = canvas.width, H = canvas.height;
-      const N = tileTypes.length;
+      const N = _gameTiles.length; // use game-tile count for path geometry
       if (!N) return;
 
       // Pick COLS so tile size is as large as possible given the canvas aspect ratio
-      // ts = min((W-24)/COLS, (H-80)/(2*ceil(N/COLS)-1))
-      // Maximize ts by trying all valid COLS and picking the best
       const cfgCols = Math.max(3, Math.min(CFG.BOARD_COLS || 5, 12));
       let bestS = 0, bestCOLS = cfgCols, bestROWS = Math.ceil(N / cfgCols);
       for (let c = 3; c <= 12; c++) {
@@ -1886,32 +2566,38 @@
       }
       const COLS = bestCOLS, ROWS = bestROWS;
       const s = bestS;
+      const GAP = 0;
+      const sd = s - GAP; // drawn tile size — centres stay s apart
+
+      // Store computed COLS so OBS receives the exact layout
+      CFG.BOARD_COLS = COLS;
 
       const { centres } = computeWindingPath(W, H, N, s, COLS);
 
       tilePositions = centres.map(({ x, y, angle, connector }) => ({
         cx: x, cy: y,
-        x: x - s / 2, y: y - s / 2,
-        w: s, h: s, s,
-        angle: angle || 0,   // stored for token arrow only
+        x: x - sd / 2, y: y - sd / 2,
+        w: sd, h: sd, s: sd,
+        angle: angle || 0,
         connector: connector || false,
       }));
       tilePositions._game = tilePositions.filter(t => !t.connector);
-      buildAllTileTypes();
-      drawBoard();
-    }
 
-    // Build flat type array matching tilePositions (connectors get a random playable type)
-    function buildAllTileTypes() {
-      const playable = ['green', 'red', 'yellow', 'blue', 'purple'];
+      // Build tileTypes as the single flat source of truth (game tiles + connectors).
+      // Connector type inherits from the preceding game tile so landing on a connector
+      // triggers the same effect as that tile.
       let gi = 0;
-      allTileTypes = tilePositions.map((t) => {
-        if (!t.connector) {
-          return tileTypes[gi++] ?? 'blue';
-        } else {
-          return playable[Math.floor(Math.random() * playable.length)];
-        }
+      tileTypes = tilePositions.map(t => {
+        if (!t.connector) return _gameTiles[gi++] ?? 'blue';
+        return _gameTiles[Math.max(0, gi - 1)] ?? 'blue';
       });
+
+      // Coerce red tiles/connectors near the start (first COLS positions) to blue
+      for (let i = 0; i < Math.min(COLS + 1, tileTypes.length - 1); i++) {
+        if (tileTypes[i] === 'red') tileTypes[i] = 'blue';
+      }
+
+      drawBoard();
     }
 
     // ── Tile drawing helper ───────────────────────────────────────────────────────
@@ -1948,7 +2634,7 @@
 
       // ④ Rim
       ctx.strokeStyle = c.r; ctx.lineWidth = 1.8;
-      rr(ctx, tx, ty, w, h, rad); ctx.stroke();
+      rr(ctx, tx + 0.9, ty + 0.9, w - 1.8, h - 1.8, rad); ctx.stroke();
 
       // ⑤ Icon for start/end tiles
       const icon = TILE_ICON[type];
@@ -1976,13 +2662,9 @@
       if (!tilePositions.length) return;
 
       // ── Tiles ─────────────────────────────────────────────────────────────
-      let gameIdx = 0;
       for (let i = 0; i < tilePositions.length; i++) {
         const t = tilePositions[i]; if (!t) continue;
-        t.idx = gameIdx;
-        const flatType = (allTileTypes.length ? allTileTypes[i] : null)
-          || (t.connector ? 'blue' : tileTypes[gameIdx] || 'blue');
-        if (!t.connector) gameIdx++;
+        const flatType = tileTypes[i] || 'blue';
         const visual = (state.allGreen > 0 && flatType !== 'start' && flatType !== 'stageup') ? 'green' : flatType;
         drawTile(t, visual);
       }
@@ -1999,8 +2681,8 @@
       const t = tilePositions[Math.min(flatIdx, tilePositions.length - 1)];
       if (!t) return;
       const r = Math.max(t.s * 0.38, 14);
-      const ox = offset * r * 0.85;
-      const cx = t.cx + ox, cy = t.cy;
+      const od = r * 0.75; // diagonal offset — keeps ~25% of the other avatar visible
+      const cx = t.cx + offset * od, cy = t.cy + offset * od;
 
       ctx.save();
 
@@ -2169,10 +2851,8 @@
       const finish = () => noTick ? finishTurnNoTick() : finishTurn();
       const p = state.players[cp];
       const pName = playerNames[cp];
-      // Use flat type (includes connectors); fall back to tileTypes[p.tile] if allTileTypes not ready
-      let effectiveType = (allTileTypes.length && p.flatPos != null)
-        ? allTileTypes[p.flatPos]
-        : tileTypes[p.tile];
+      // tileTypes is now the full flat array — index directly by flatPos
+      let effectiveType = (p.flatPos != null) ? (tileTypes[p.flatPos] ?? 'blue') : 'blue';
       let wasOverridden = false;
 
       if (p.overrideColor && effectiveType !== 'start' && effectiveType !== 'stageup') {
@@ -2201,9 +2881,11 @@
         const bpts = applyPoints(cp, 1);
         showScoreFloat(cp, +bpts);
         updateUI();
+        gameLog('blue', '🪙', playerNames[cp], `Blue tile → +${bpts} pt${bpts !== 1 ? 's' : ''}${wasOverridden ? ' (overridden)' : ''}${state.doublePoints > 0 ? ' ✨x2' : ''}`);
         socket.emit('animEvent', { type: 'tilePopup', icon: '🪙', title: 'Blue Tile!', desc: `+${bpts} point — lucky find!${x2tag()}`, duration: 1800, scoreFloat: { player: cp, value: +bpts }, overridden: wasOverridden });
         showEventPopupAuto('🪙', 'Blue Tile!', `+${bpts} point — lucky find!${x2tag()}`, 1800, () => { checkWin(cp) || finish(); });
       } else if (effectiveType === 'start') {
+        gameLog('system', '🚀', playerNames[cp], 'Landed on Start — safe zone');
         socket.emit('animEvent', { type: 'tilePopup', icon: '🚀', title: 'Back to Start!', desc: 'Safe zone — move along!', duration: 1800, overridden: wasOverridden });
         showEventPopupAuto('🚀', 'Back to Start!', 'Safe zone — move along!', 1800, () => { finish(); });
       } else {
@@ -2222,6 +2904,7 @@
       updateUI();
 
       const bonusMsg = overflow === 0 ? `+${bonus} pts — landed on Start!` : `+${bonus} pts — back to Start!`;
+      gameLog('system', '🔁', pName, `Bounced back to Start — ${overflow === 0 ? 'landed exactly' : `overshot by ${overflow}`} → +${bonus} pts`);
       document.getElementById('bounceTitle').textContent = `${pName} bounces back!`;
       document.getElementById('bounceDesc').textContent = bonusMsg;
       const bs = document.getElementById('bounceTrans');
@@ -2235,7 +2918,7 @@
           drawBoard(); emitState();
 
           if (overflow > 0) {
-            const newTarget = Math.min(overflow, tileTypes.length - 1);
+            const newTarget = Math.min(overflow, _gameTiles.length - 1);
             state.players[cp].tile = newTarget;
             animateMove(cp, 0, newTarget, () => { updateUI(); emitState(); resolveTileLanding(cp, 0, true); });
           } else {
@@ -2258,6 +2941,7 @@
         if (color === 'green') {
           const final = applyPoints(cp, result);
           showScoreFloat(cp, +final);
+          gameLog('green', '💚', playerNames[cp], `Green tile — rolled ${result}${ov ? ' (overridden)' : ''} → +${final} pt${final !== 1 ? 's' : ''}${state.doublePoints > 0 ? ' ✨x2' : ''}`);
           socket.emit('animEvent', { type: 'tilePopup', icon: '💚', title: 'Green Tile!', desc: `+${final} points!${x2tag()}`, duration: 1800, scoreFloat: { player: cp, value: +final }, eventDiceResult: result, overridden: ov });
           showEventPopupAuto('💚', 'Green Tile!', `+${final} points!${x2tag()}`, 1800, () => { updateUI(); checkWin(cp) || finish(); });
         } else if (color === 'red') {
@@ -2265,6 +2949,7 @@
           state.players[cp].score = Math.max(0, before - 1);
           const lost = before - state.players[cp].score;
           showScoreFloat(cp, -lost);
+          gameLog('red', '❤️', playerNames[cp], `Red tile — rolled ${result}${ov ? ' (overridden)' : ''} → ${lost > 0 ? `−${lost} pt${lost !== 1 ? 's' : ''}` : 'no points lost (already 0)'}`);
           socket.emit('animEvent', { type: 'tilePopup', icon: '❤️', title: 'Red Tile!', desc: `-${lost} points!`, duration: 1800, scoreFloat: { player: cp, value: -lost }, eventDiceResult: result, overridden: ov });
           showEventPopupAuto('❤️', 'Red Tile!', `-${lost} points!`, 1800, () => { updateUI(); finish(); });
         } else if (color === 'purple') {
@@ -2274,6 +2959,7 @@
           if (dir > 0) { walkSteps(cp, result); }
           else { walkStepsBack(cp, result); }
           const icon = dir > 0 ? '💜⬆️' : '💜⬇️';
+          gameLog('purple', icon, playerNames[cp], `Purple tile — rolled ${result}${ov ? ' (overridden)' : ''} → ${dir > 0 ? 'forward' : 'back'} ${result} tile${result !== 1 ? 's' : ''}`);
           socket.emit('animEvent', { type: 'tilePopup', icon, title: 'Purple Tile!', desc: `${dir > 0 ? 'Forward' : 'Back'} ${result} tiles!`, duration: 1800, eventDiceResult: result, overridden: ov });
           showEventPopupAuto(icon, 'Purple Tile!', `${dir > 0 ? 'Forward' : 'Back'} ${result} tiles!`, 1800, () => {
             setTimeout(() => {
@@ -2292,16 +2978,13 @@
       const other = 1 - cp;
       const otherName = playerNames[other];
       const events = [
-        { icon: '🔄', title: 'Swap!', label: `🔄 Swap places with ${otherName}`, fn: () => { const tmp = state.players[cp].tile; state.players[cp].tile = state.players[other].tile; state.players[other].tile = tmp; drawBoard(); socket.emit('animEvent', { type: 'tilePopup', icon: '🔄', title: 'Swap!', desc: `${pName} and ${otherName} swapped!`, duration: 2000 }); showEventPopupAuto('🔄', 'Swap!', `${pName} and ${otherName} swapped!`, 2000, () => { updateUI(); finishTurn(); }); } },
-        { icon: '💸', title: 'Point Heist!', label: `💸 Steal pts from ${otherName}`, fn: () => { const steal = Math.floor(Math.random() * 5) + 1; const actual = Math.min(steal, state.players[other].score); state.players[other].score = Math.max(0, state.players[other].score - actual); state.players[cp].score += actual; showScoreFloat(cp, +actual); showScoreFloat(other, -actual); socket.emit('animEvent', { type: 'tilePopup', icon: '💸', title: 'Point Heist!', desc: `${pName} stole ${actual} pts!`, duration: 2200, scoreFloat: { player: cp, value: +actual } }); showEventPopupAuto('💸', 'Point Heist!', `${pName} stole ${actual} pts!`, 2200, () => { updateUI(); checkWin(cp) || finishTurn(); }); } },
-        { icon: '🕺', title: 'DANCE PARTY!', label: `🕺 Mini Dance Party!`, fn: () => { socket.emit('animEvent', { type: 'tilePopup', icon: '🕺', title: 'DANCE PARTY!', desc: '💃 Everybody move! 🕺', duration: 3000 }); showEventPopupAuto('🕺', 'DANCE PARTY!', '💃 Everybody move! 🕺', 3000, () => { finishTurn(); }); } },
-        { icon: '🎨', title: 'Override Color!', label: `🎨 Override next tile color`, fn: () => { hideYellowPopup(); showColorPicker(cp); } },
-        { icon: '🔀', title: 'Board Shuffle!', label: `🔀 Shuffle all tiles`, fn: () => { shuffleTiles(); setupBoard(); socket.emit('tilesUpdate', { tileTypes, allTileTypes, CFG }); socket.emit('animEvent', { type: 'tilePopup', icon: '🔀', title: 'Board Shuffle!', desc: 'All tiles reshuffled!', duration: 2200 }); showEventPopupAuto('🔀', 'Board Shuffle!', 'All tiles reshuffled!', 2200, () => { finishTurn(); }); } },
-        { icon: '🏠', title: 'Back to Start!', label: `🏠 Go back to Start`, fn: () => { const oldT = state.players[cp].tile; const oldF = state.players[cp].flatPos ?? 0; state.players[cp].tile = 0; state.players[cp].flatPos = 0; socket.emit('animEvent', { type: 'tilePopup', icon: '🏠', title: 'Back to Start!', desc: `${pName} heads back to the beginning!`, duration: 2200 }); showEventPopupAuto('🏠', 'Back to Start!', `${pName} heads back to the beginning!`, 2200, () => { animateMove(cp, oldF, 0, () => { updateUI(); emitState(); finishTurn(); }); }); } },
-        { icon: '🟩', title: 'All Board Green!', label: `🟩 All tiles green!`, fn: () => { state.allGreen = 4; drawBoard(); emitState(); socket.emit('animEvent', { type: 'tilePopup', icon: '🟩', title: 'All Board Green!', desc: 'Every tile is green for 3 rolls! 🌿', duration: 2500 }); showEventPopupAuto('🟩', 'All Board Green!', 'Every tile is green for 3 rolls! 🌿', 2500, () => { finishTurn(); }); } },
-        { icon: '✨', title: 'Double Points!', label: `✨ Double points!`, fn: () => { state.doublePoints = 3; emitState(); socket.emit('animEvent', { type: 'tilePopup', icon: '✨', title: 'Double Points!', desc: 'All point gains are doubled for 2 rolls! ✨x2', duration: 2500 }); showEventPopupAuto('✨', 'Double Points!', 'All point gains are doubled for 2 rolls! ✨x2', 2500, () => { finishTurn(); }); } },
-        { icon: '🎮', title: 'Mini Game!', label: `🎮 Mini Game time!`, fn: () => { socket.emit('animEvent', { type: 'tilePopup', icon: '🎮', title: 'Mini Game!', desc: 'Time for a mini game! 🕹️ Winner gets bragging rights!', duration: 3000 }); showEventPopupAuto('🎮', 'Mini Game!', 'Time for a mini game! 🕹️ Winner gets bragging rights!', 3000, () => { finishTurn(); }); } },
-        { icon: '🎲', title: 'Point Gamble!', label: `🎲 Point Gamble!`, fn: () => { socket.emit('animEvent', { type: 'tilePopup', icon: '🎲', title: 'Point Gamble!', desc: 'High risk, high reward! 🤑 Make your bet!', duration: 3000 }); showEventPopupAuto('🎲', 'Point Gamble!', 'High risk, high reward! 🤑 Make your bet!', 3000, () => { finishTurn(); }); } },
+        { icon: '🔄', title: 'Swap!', label: `🔄 Swap places with ${otherName}`, fn: () => { const tmp = state.players[cp].tile; state.players[cp].tile = state.players[other].tile; state.players[other].tile = tmp; drawBoard(); gameLog('yellow', '🔄', playerNames[cp], `Yellow — Swap! ${pName} and ${otherName} swapped positions`); socket.emit('animEvent', { type: 'tilePopup', icon: '🔄', title: 'Swap!', desc: `${pName} and ${otherName} swapped!`, duration: 2000 }); showEventPopupAuto('🔄', 'Swap!', `${pName} and ${otherName} swapped!`, 2000, () => { updateUI(); finishTurn(); }); } },
+        { icon: '💸', title: 'Point Heist!', label: `💸 Steal pts from ${otherName}`, fn: () => { const steal = Math.floor(Math.random() * 5) + 1; const actual = Math.min(steal, state.players[other].score); state.players[other].score = Math.max(0, state.players[other].score - actual); state.players[cp].score += actual; showScoreFloat(cp, +actual); showScoreFloat(other, -actual); gameLog('yellow', '💸', playerNames[cp], `Yellow — Point Heist! Stole ${actual} pt${actual !== 1 ? 's' : ''} from ${otherName}${actual === 0 ? ' (nothing to steal)' : ''}`); socket.emit('animEvent', { type: 'tilePopup', icon: '💸', title: 'Point Heist!', desc: `${pName} stole ${actual} pts!`, duration: 2200, scoreFloat: { player: cp, value: +actual } }); showEventPopupAuto('💸', 'Point Heist!', `${pName} stole ${actual} pts!`, 2200, () => { updateUI(); checkMilestones(cp); checkMilestones(other); finishTurn(); }); } },
+        { icon: '🕺', title: 'DANCE PARTY!', label: `🕺 Mini Dance Party!`, fn: () => { gameLog('yellow', '🕺', playerNames[cp], 'Yellow — DANCE PARTY! No effect, just vibes 💃'); socket.emit('animEvent', { type: 'tilePopup', icon: '🕺', title: 'DANCE PARTY!', desc: '💃 Everybody move! 🕺', duration: 3000 }); showEventPopupAuto('🕺', 'DANCE PARTY!', '💃 Everybody move! 🕺', 3000, () => { finishTurn(); }); } },
+        { icon: '🔀', title: 'Board Shuffle!', label: `🔀 Shuffle all tiles`, fn: () => { shuffleTiles(); setupBoard(); gameLog('yellow', '🔀', playerNames[cp], 'Yellow — Board Shuffle! All tiles reshuffled'); socket.emit('tilesUpdate', { tileTypes: _gameTiles, CFG }); socket.emit('animEvent', { type: 'tilePopup', icon: '🔀', title: 'Board Shuffle!', desc: 'All tiles reshuffled!', duration: 2200 }); showEventPopupAuto('🔀', 'Board Shuffle!', 'All tiles reshuffled!', 2200, () => { finishTurn(); }); } },
+        { icon: '🏠', title: 'Back to Start!', label: `🏠 Go back to Start`, fn: () => { const oldT = state.players[cp].tile; const oldF = state.players[cp].flatPos ?? 0; state.players[cp].tile = 0; state.players[cp].flatPos = 0; gameLog('yellow', '🏠', playerNames[cp], 'Yellow — Back to Start! Sent back to the beginning'); socket.emit('animEvent', { type: 'tilePopup', icon: '🏠', title: 'Back to Start!', desc: `${pName} heads back to the beginning!`, duration: 2200 }); showEventPopupAuto('🏠', 'Back to Start!', `${pName} heads back to the beginning!`, 2200, () => { animateMove(cp, oldF, 0, () => { updateUI(); emitState(); finishTurn(); }); }); } },
+        { icon: '🟩', title: 'All Board Green!', label: `🟩 All tiles green!`, fn: () => { state.allGreen = 4; drawBoard(); emitState(); gameLog('yellow', '🟩', playerNames[cp], 'Yellow — All Board Green! Every tile is green for the next 3 rolls'); socket.emit('animEvent', { type: 'tilePopup', icon: '🟩', title: 'All Board Green!', desc: 'Every tile is green for 3 rolls! 🌿', duration: 2500 }); showEventPopupAuto('🟩', 'All Board Green!', 'Every tile is green for 3 rolls! 🌿', 2500, () => { finishTurn(); }); } },
+        { icon: '✨', title: 'Double Points!', label: `✨ Double points!`, fn: () => { state.doublePoints = 3; emitState(); gameLog('yellow', '✨', playerNames[cp], 'Yellow — Double Points! All gains ×2 for the next 2 rolls'); socket.emit('animEvent', { type: 'tilePopup', icon: '✨', title: 'Double Points!', desc: 'All point gains are doubled for 2 rolls! ✨x2', duration: 2500 }); showEventPopupAuto('✨', 'Double Points!', 'All point gains are doubled for 2 rolls! ✨x2', 2500, () => { finishTurn(); }); } },
       ];
 
       const winIdx = Math.floor(Math.random() * events.length);
@@ -2315,8 +2998,8 @@
       document.getElementById('yellowSpinDesc').textContent = 'Landing on...';
       showYellowPopup();
       socket.emit('animEvent', { type: 'yellowSpin', labels: allLabels, winIdx, winIcon: events[winIdx].icon || '⭐', winTitle: events[winIdx].title || events[winIdx].label });
-      const finalY = -((totalItems - 1) * ITEM_H) + 8;
-      requestAnimationFrame(() => requestAnimationFrame(() => { track.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform = `translateY(${finalY}px)`; }));
+      const finalY = null; // computed from DOM
+      requestAnimationFrame(() => requestAnimationFrame(() => { const realH = track.firstElementChild.getBoundingClientRect().height; const wrap = track.closest('.yellow-spinner-wrap'); const wrapH = wrap.getBoundingClientRect().height; const fY = -((totalItems - 1) * realH) + (wrapH - realH) / 2; track.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform = `translateY(${fY}px)`; }));
       setTimeout(() => {
         track.closest('.yellow-spinner-wrap').classList.add('landed');
         document.getElementById('yellowIcon').textContent = events[winIdx].icon || '⭐';
@@ -2348,8 +3031,8 @@
       document.getElementById('colorPopup').classList.add('show');
       document.getElementById('overlayBg').classList.add('show');
       socket.emit('animEvent', { type: 'colorSpin', labels: allLabels.map(x => ({ label: x.label, icon: x.icon, bg: x.bg })), winIdx });
-      const finalY = -((totalItems - 1) * ITEM_H) + 8;
-      requestAnimationFrame(() => requestAnimationFrame(() => { track.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform = `translateY(${finalY}px)`; }));
+      const finalY2 = null; // computed from DOM
+      requestAnimationFrame(() => requestAnimationFrame(() => { const realH = track.firstElementChild.getBoundingClientRect().height; const wrap = track.closest('.yellow-spinner-wrap'); const wrapH = wrap.getBoundingClientRect().height; const fY = -((totalItems - 1) * realH) + (wrapH - realH) / 2; track.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform = `translateY(${fY}px)`; }));
       setTimeout(() => {
         track.closest('.yellow-spinner-wrap').classList.add('landed');
         document.getElementById('colorSpinDesc').textContent = `${winner.icon} ${winner.label}!`;
@@ -2362,16 +3045,8 @@
     //  WIN CHECK
     // =====================================================
     function checkWin(cp) {
-      if (state.players[cp].score >= CFG.POINT_GOAL) {
-        state.gameOver = true;
-        const pName = playerNames[cp];
-        document.getElementById('winTitle').textContent = `${pName} Wins!`;
-        document.getElementById('winSub').textContent = `${playerNames[0]}: ${state.players[0].score} pts | ${playerNames[1]}: ${state.players[1].score} pts`;
-        setTimeout(() => document.getElementById('winScreen').classList.add('show'), 800);
-        emitState();
-        return true;
-      }
-      return false;
+      checkMilestones(cp);
+      return false; // game never ends automatically
     }
 
     // =====================================================
@@ -2384,6 +3059,7 @@
       setBtnsEnabled(true);
       state.currentPlayer = -1;
       updateTurnUI();
+      drainMilestoneQueue();
     }
     // Use when a secondary landing resolves within the same roll (e.g. purple tile bounce)
     function finishTurnNoTick() {
@@ -2392,6 +3068,7 @@
       setBtnsEnabled(true);
       state.currentPlayer = -1;
       updateTurnUI();
+      drainMilestoneQueue();
     }
 
     // =====================================================
@@ -2412,12 +3089,12 @@
     function walkSteps(cp, steps) {
       const p = state.players[cp];
       if (!tilePositions.length) {
-        p.tile = Math.min(p.tile + steps, tileTypes.length - 1);
+        p.tile = Math.min(p.tile + steps, _gameTiles.length - 1);
         return { overflow: 0 };
       }
       const flat = buildFlat();
       const maxFlatIdx = flat.length - 1;
-      const lastGameIdx = tileTypes.length - 1;
+      const lastGameIdx = _gameTiles.length - 1;
 
       // Ensure flatPos is initialised and valid
       if (p.flatPos == null || p.flatPos > maxFlatIdx) p.flatPos = 0;
@@ -2483,8 +3160,8 @@
       // Draw the token at an arbitrary canvas position (used during connector pass-through)
       const color = playerIdx === 0 ? '#ff4d6d' : '#00f5d4';
       const r = Math.max(pos.s * 0.38, 14);
-      const ox = offset * r * 0.85;
-      const cx = pos.cx + ox, cy = pos.cy;
+      const od = r * 0.75;
+      const cx = pos.cx + offset * od, cy = pos.cy + offset * od;
       ctx.save();
       ctx.beginPath(); ctx.arc(cx, cy, r + 3, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fill();
@@ -2582,7 +3259,7 @@
     }
     function showScoreFloat(playerIdx, value) {
       const p = state.players[playerIdx];
-      const t = tilePositions[Math.min(p.tile, tilePositions.length - 1)];
+      const t = tilePositions[Math.min(p.flatPos ?? p.tile, tilePositions.length - 1)];
       if (!t) return;
       const rect = canvas.getBoundingClientRect();
       const el = document.createElement('div');
@@ -2628,13 +3305,70 @@
         }
       }
     }
-    // Close on outside click
+
+    // ── Game Log ────────────────────────────────────────────────────────────────
+    const _logEntries = [];
+
+    function gameLog(type, icon, who, msg) {
+      // type: 'green' | 'red' | 'blue' | 'purple' | 'yellow' | 'system'
+      const now = new Date();
+      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const entry = { type, icon, who, msg, time };
+      _logEntries.push(entry);
+
+      const container = document.getElementById('log-entries');
+      const empty = document.getElementById('log-empty');
+      if (empty) empty.remove();
+
+      const el = document.createElement('div');
+      el.className = `log-entry log-${type}`;
+      el.innerHTML = `
+        <span class="log-icon">${icon}</span>
+        <div class="log-body">
+          ${who ? `<div class="log-who">${who}</div>` : ''}
+          <div class="log-msg">${msg}</div>
+        </div>
+        <span class="log-time">${time}</span>`;
+      container.appendChild(el);
+      // Auto-scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function openLogPanel() {
+      // Close burger first
+      document.getElementById('burger-btn').classList.remove('open');
+      document.getElementById('burger-menu').classList.remove('open');
+      document.getElementById('log-panel').classList.add('open');
+    }
+
+    function closeLogPanel() {
+      document.getElementById('log-panel').classList.remove('open');
+    }
+
+    function clearLog() {
+      _logEntries.length = 0;
+      const container = document.getElementById('log-entries');
+      container.innerHTML = '<div id="log-empty">No events yet — start the game!</div>';
+    }
+
+    // Single outside-click handler for both burger menu and log panel
     document.addEventListener('click', e => {
-      const btn = document.getElementById('burger-btn');
+      const btn  = document.getElementById('burger-btn');
       const menu = document.getElementById('burger-menu');
+      const panel = document.getElementById('log-panel');
+
+      // Close burger if click is outside it
       if (!btn.contains(e.target) && !menu.contains(e.target)) {
         btn.classList.remove('open');
         menu.classList.remove('open');
+      }
+
+      // Close log panel if click is outside both the panel and the burger btn
+      if (panel.classList.contains('open') &&
+          !panel.contains(e.target) &&
+          !btn.contains(e.target) &&
+          !menu.contains(e.target)) {
+        closeLogPanel();
       }
     });
 
@@ -2642,6 +3376,7 @@
       toggleBurger();
       state.players[pi].score += 1;
       showScoreFloat(pi, +1);
+      gameLog('system', '🪙', playerNames[pi], 'Manual +1 point awarded');
       updateUI();
       emitState();
     }
@@ -2650,6 +3385,7 @@
       toggleBurger();
       state.players[pi].score = Math.max(0, state.players[pi].score - 1);
       showScoreFloat(pi, -1);
+      gameLog('system', '💀', playerNames[pi], 'Manual −1 point deducted');
       updateUI();
       emitState();
     }
@@ -2681,7 +3417,11 @@
       document.getElementById('setupScreen').style.display = 'flex';
     }
 
-    window.addEventListener('load', () => { showDice('mp', 1); });
+    window.addEventListener('load', () => {
+      showDice('mp', 1);
+      // Seed with one default milestone so the list isn't empty
+      addMilestone(10, 'First milestone! 🎉');
+    });
     window.addEventListener('resize', () => { if (tilePositions.length) setupBoard(); });
   </script>
 </body>
