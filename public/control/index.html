@@ -11,11 +11,11 @@
   <style>
     :root {
       /* ── Core palette ─────────────────────────────── */
-      --bg: #953C54;
+      --bg: #1d234d;
       /* page background */
       --bg2: #B4647A;
       /* page background */
-      --panel: #d696a7;
+      --panel: #343063;
       /* player card background */
       --accent: #ECBCA6;
       /* buttons, borders, highlights */
@@ -23,15 +23,15 @@
       /* general text (our "white") */
       --border: #fff2ed;
       /* general text (our "white") */
-      --text-special: var(--text);
+      --text-special: #ecbca6;
       /* pop-up titles, dice roll number */
-      --text-dark: #702D6A;
+      --text-dark: #2a1018;
       /* dark text on light (pink card) surfaces */
 
       /* ── Player colors ────────────────────────────── */
-      --p1c: #fff2ed;
+      --p1c: #dad5ff;
       /* player 1 */
-      --p2c: #21f0ff;
+      --p2c: #fcbdfe;
       /* player 2 */
 
       /* ── Spinner / dice pip gradient ─────────────── */
@@ -41,19 +41,19 @@
       /* pip gradient end */
 
       /* ── Pick-avatar button (p1) ──────────────────── */
-      --p1-btn-a: #A1719C;
+      --p1-btn-a: #9b8fe0;
       /* p1 button gradient start */
-      --p1-btn-b: #874B82;
+      --p1-btn-b: #6f5dc4;
       /* p1 button gradient end */
-      --p1-btn-shadow: #702D6A;
+      --p1-btn-shadow: #4a3a9a;
       /* p1 button shadow */
 
       /* ── Pick-avatar button (p2) ──────────────────── */
-      --p2-btn-a: #A1719C;
+      --p2-btn-a: #d68fe0;
       /* p2 button gradient start */
-      --p2-btn-b: #874B82;
+      --p2-btn-b: #a855c4;
       /* p2 button gradient end */
-      --p2-btn-shadow: #702D6A;
+      --p2-btn-shadow: #7a3a9a;
       /* p2 button shadow */
 
       /* ── Start Game button    ──────────────────── */
@@ -67,11 +67,14 @@
       /* ── Dice face ────────────────────────────────── */
       --dice-face-a: #FFF2ED;
       /* dice gradient top */
-      --dice-face-b: #ECBCA6;
+      --dice-face-b: #ffe1d3;
       /* dice gradient bottom */
 
       /* ── Legacy accent (spinner landed border) ────── */
       --accent-old: #F6E4E9;
+      --pill-a: #ECBCA6;
+      --pill-b: #C78A6E;
+      --popup-dropshadow: #F6E4E9;
 
       /* --- Spinner --- */
       --spinner-highlight: #F6E4E9;
@@ -224,7 +227,7 @@
       justify-content: center;
       font-family: 'Fredoka One', cursive;
       font-size: 14px;
-      color: var(--text-dark);
+      color: var(--text);
     }
 
     .player-avatar img {
@@ -240,7 +243,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      color: var(--text-dark);
+      color: var(--text);
     }
 
     .dot {
@@ -1599,6 +1602,171 @@
       margin: 2px 8px;
     }
 
+    /* ── Simulate panel ── */
+    #sim-panel {
+      position: fixed;
+      top: 70px;
+      left: 14px;
+      z-index: 998;
+      width: min(340px, calc(100vw - 28px));
+      background: var(--panel);
+      border: 2px solid rgba(180, 80, 120, .5);
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(80, 0, 160, .6);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: menuIn .2s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    #sim-panel.open { display: flex; }
+
+    #sim-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid rgba(180, 80, 120, .25);
+      flex-shrink: 0;
+    }
+
+    #sim-panel-header h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 18px;
+      color: var(--text);
+      margin: 0;
+    }
+
+    #sim-close-btn {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: rgba(180, 80, 120, .2);
+      border: 1px solid rgba(180, 80, 120, .35);
+      color: var(--text);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+
+    #sim-close-btn:hover { background: rgba(240, 114, 160, .35); }
+
+    #sim-body {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sim-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .sim-label {
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .sim-toggle {
+      width: 44px; height: 24px;
+      border-radius: 12px;
+      background: rgba(180, 80, 120, .3);
+      border: 1px solid rgba(180, 80, 120, .4);
+      cursor: pointer;
+      position: relative;
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+
+    .sim-toggle.on { background: var(--accent); }
+
+    .sim-toggle-knob {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left .2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3);
+    }
+
+    .sim-toggle.on .sim-toggle-knob { left: 22px; }
+
+    .sim-input {
+      width: 80px;
+      padding: 6px 10px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Fredoka One', cursive;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
+      flex-shrink: 0;
+    }
+
+    #sim-run-btn, #sim-stop-btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'Fredoka One', cursive;
+      font-size: 16px;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+
+    #sim-run-btn { background: linear-gradient(135deg, var(--p1c), var(--accent)); color: var(--panel); }
+    #sim-stop-btn { background: rgba(255,80,80,.25); border: 1px solid rgba(255,80,80,.4); color: #ff8080; }
+    #sim-run-btn:active, #sim-stop-btn:active { transform: scale(.97); }
+
+    #sim-progress-bar-wrap {
+      height: 6px;
+      background: var(--bg2);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    #sim-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--p1c), var(--accent));
+      border-radius: 4px;
+      transition: width .15s linear;
+    }
+
+    #sim-progress-label {
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      opacity: .7;
+      text-align: center;
+    }
+
+    #sim-results {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sim-result-row {
+      background: rgba(255,255,255,.05);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      border-left: 3px solid rgba(180,80,120,.5);
+    }
+
     /* ── Game Log Panel ── */
     #log-panel {
       position: fixed;
@@ -1828,6 +1996,42 @@
     <div class="burger-item" onclick="openLogPanel()">
       <span class="bicon">📋</span>
       <div class="blabel">Show Logs<div class="bsub">View game event history</div>
+      </div>
+    </div>
+    <div class="burger-divider"></div>
+    <div class="burger-item" onclick="openSimPanel()">
+      <span class="bicon">⚡</span>
+      <div class="blabel">Simulate<div class="bsub">Auto-roll N turns, see results</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIMULATE PANEL -->
+  <div id="sim-panel">
+    <div id="sim-panel-header">
+      <h3>⚡ Simulate</h3>
+      <button id="sim-close-btn" onclick="closeSimPanel()">✕</button>
+    </div>
+    <div id="sim-body">
+      <div class="sim-row">
+        <label class="sim-label">Alternate players</label>
+        <div class="sim-toggle" id="sim-alt-toggle" onclick="toggleSimAlt()">
+          <div class="sim-toggle-knob"></div>
+        </div>
+      </div>
+      <div class="sim-row">
+        <label class="sim-label">Number of turns</label>
+        <input class="sim-input" id="sim-turns" type="number" min="1" max="500" value="20">
+      </div>
+      <button id="sim-run-btn" onclick="runSimulation()">▶ Run Simulation</button>
+      <button id="sim-stop-btn" onclick="stopSimulation()" style="display:none">⏹ Stop</button>
+      <div id="sim-progress" style="display:none">
+        <div id="sim-progress-bar-wrap"><div id="sim-progress-bar"></div></div>
+        <div id="sim-progress-label">Turn 0 / 0</div>
+      </div>
+      <div id="sim-results" style="display:none">
+        <div class="sim-result-row" id="sim-res-p1"></div>
+        <div class="sim-result-row" id="sim-res-p2"></div>
       </div>
     </div>
   </div>
@@ -2483,18 +2687,18 @@
 
     // 3-D boardgame tile colours: face-top, face-bot, ledge (shadow side), rim
     const TILE_C = {
-      blue: { t: '#a0a4b8', b: '#4b667d', l: '#0c3670', r: '#fff2ed' },
-      start: { t: '#2ec970', b: '#0f9e48', l: '#056028', r: '#fff2ed' },
-      stageup: { t: '#f0901a', b: '#be5c00', l: '#753800', r: '#fff2ed' },
-      green: { t: '#a4af9e', b: '#4f7851', l: '#055220', r: '#fff2ed' },
-      purple: { t: '#a985b1', b: '#57327d', l: '#360a72', r: '#fff2ed' },
-      red: { t: '#c77685', b: '#8b2336', l: '#650000', r: '#fff2ed' },
-      yellow: { t: '#e3baa8', b: '#b0734f', l: '#6e5500', r: '#fff2ed' },
+      blue:    { t: '#4a90d9', b: '#1e5fa8', l: '#0d3875', r: '#000000' },
+      start:   { t: '#27c96e', b: '#0f9e47', l: '#056128', r: '#000000' },
+      stageup: { t: '#f5931e', b: '#c45f00', l: '#7a3a00', r: '#000000' },
+      green:   { t: '#2ec45a', b: '#0e9638', l: '#055520', r: '#000000' },
+      purple:  { t: '#9b4fe0', b: '#6118b8', l: '#380a75', r: '#000000' },
+      red:     { t: '#e8352a', b: '#aa0f0f', l: '#6b0000', r: '#000000' },
+      yellow:  { t: '#f5c800', b: '#b89000', l: '#705800', r: '#000000' },
     };
     // keep TILE_BG shim so color-spinner still works
     const TILE_BG = {
-      blue: ['#2e6bad', '#2e6bad'], green: ['#1da851', '#1da851'], purple: ['#7c32d0', '#7c32d0'],
-      red: ['#cc1c1c', '#cc1c1c'], yellow: ['#c9a200', '#c9a200'], start: ['#1e9e50', '#1e9e50'], stageup: ['#d4720a', '#d4720a'],
+      blue:    ['#4a90d9', '#1e5fa8'], green:   ['#2ec45a', '#0e9638'], purple:  ['#9b4fe0', '#6118b8'],
+      red:     ['#e8352a', '#aa0f0f'], yellow:  ['#f5c800', '#b89000'], start:   ['#27c96e', '#0f9e47'], stageup: ['#f5931e', '#c45f00'],
     };
     const TILE_ICON = { green: null, purple: null, red: null, yellow: null, stageup: '🏆', start: '🚀', blue: null };
 
@@ -2673,8 +2877,8 @@
 
       // ── Tokens ────────────────────────────────────────────────────────────
       const sameFlat = state.players[0].flatPos === state.players[1].flatPos;
-      drawToken(state.players[0].flatPos ?? 0, '#ff4d6d', 0, sameFlat ? -1 : 0);
-      drawToken(state.players[1].flatPos ?? 0, '#00f5d4', 1, sameFlat ? 1 : 0);
+      drawToken(state.players[0].flatPos ?? 0, '#dad5ff', 0, sameFlat ? -1 : 0);
+      drawToken(state.players[1].flatPos ?? 0, '#fcbdfe', 1, sameFlat ? 1 : 0);
     }
 
     function drawToken(flatIdx, color, playerIdx, offset) {
@@ -3181,7 +3385,7 @@
 
     function drawTokenAt(playerIdx, pos, offset) {
       // Draw the token at an arbitrary canvas position (used during connector pass-through)
-      const color = playerIdx === 0 ? '#ff4d6d' : '#00f5d4';
+      const color = playerIdx === 0 ? '#dad5ff' : '#fcbdfe';
       const r = Math.max(pos.s * 0.38, 14);
       const od = r * 0.75;
       const cx = pos.cx + offset * od, cy = pos.cy + offset * od;
@@ -3288,7 +3492,7 @@
       const el = document.createElement('div');
       el.className = 'score-float';
       el.style.left = (rect.left + t.cx) + 'px'; el.style.top = (rect.top + t.cy) + 'px';
-      el.style.color = value >= 0 ? '#00f5d4' : '#ff4d6d';
+      el.style.color = value >= 0 ? (playerIdx === 0 ? '#dad5ff' : '#fcbdfe') : '#ff4d6d';
       el.textContent = (value >= 0 ? '+' : '') + value;
       document.body.appendChild(el); setTimeout(() => el.remove(), 1400);
     }
@@ -3357,6 +3561,204 @@
       container.scrollTop = container.scrollHeight;
     }
 
+    // =====================================================
+    //  SIMULATION
+    // =====================================================
+    let _simAlt = true;       // alternate players toggle
+    let _simRunning = false;
+    let _simStopFlag = false;
+
+    function toggleSimAlt() {
+      _simAlt = !_simAlt;
+      document.getElementById('sim-alt-toggle').classList.toggle('on', _simAlt);
+    }
+
+    function openSimPanel() {
+      document.getElementById('burger-btn').classList.remove('open');
+      document.getElementById('burger-menu').classList.remove('open');
+      document.getElementById('sim-panel').classList.add('open');
+      // Initialise toggle visual
+      document.getElementById('sim-alt-toggle').classList.toggle('on', _simAlt);
+    }
+
+    function closeSimPanel() {
+      document.getElementById('sim-panel').classList.remove('open');
+      stopSimulation();
+    }
+
+    function stopSimulation() {
+      _simStopFlag = true;
+    }
+
+    function runSimulation() {
+      if (_simRunning) return;
+      const totalTurns = Math.max(1, Math.min(500, parseInt(document.getElementById('sim-turns').value) || 20));
+
+      // Snapshot current scores so we can show delta at the end
+      const scoreBefore = [state.players[0].score, state.players[1].score];
+
+      // UI setup
+      document.getElementById('sim-run-btn').style.display = 'none';
+      document.getElementById('sim-stop-btn').style.display = '';
+      const progress = document.getElementById('sim-progress');
+      const bar = document.getElementById('sim-progress-bar');
+      const label = document.getElementById('sim-progress-label');
+      const results = document.getElementById('sim-results');
+      progress.style.display = '';
+      results.style.display = 'none';
+      bar.style.width = '0%';
+
+      _simRunning = true;
+      _simStopFlag = false;
+
+      let turn = 0;
+      // Player to roll — start with whichever player's turn it is (or p0 if idle)
+      let simCp = state.currentPlayer >= 0 ? state.currentPlayer : 0;
+
+      const step = () => {
+        if (_simStopFlag || turn >= totalTurns) {
+          _simRunning = false;
+          _simStopFlag = false;
+          document.getElementById('sim-run-btn').style.display = '';
+          document.getElementById('sim-stop-btn').style.display = 'none';
+
+          // Show results
+          const scoreAfter = [state.players[0].score, state.players[1].score];
+          results.style.display = '';
+          document.getElementById('sim-res-p1').innerHTML =
+            `<span style="color:var(--p1c)">${playerNames[0]}</span>: ${scoreAfter[0]} pts <span style="opacity:.6">(+${scoreAfter[0]-scoreBefore[0]} this sim)</span>`;
+          document.getElementById('sim-res-p2').innerHTML =
+            `<span style="color:var(--p2c)">${playerNames[1]}</span>: ${scoreAfter[1]} pts <span style="opacity:.6">(+${scoreAfter[1]-scoreBefore[1]} this sim)</span>`;
+          label.textContent = `Done — ${turn} turns simulated`;
+          updateUI();
+          emitState();
+          return;
+        }
+
+        turn++;
+        bar.style.width = (turn / totalTurns * 100) + '%';
+        label.textContent = `Turn ${turn} / ${totalTurns}`;
+
+        // Run one silent turn
+        simDoTurn(simCp, () => {
+          // Advance player
+          if (_simAlt) simCp = 1 - simCp;
+          // Short delay between turns so UI is readable and browser stays responsive
+          setTimeout(step, 80);
+        });
+      };
+
+      step();
+    }
+
+    // Fast-path single turn: no popups, no animations, no socket events, no yellow spinner
+    function simDoTurn(cp, cb) {
+      // Prevent double-rolling if real game is mid-roll
+      if (state.rolling) { setTimeout(cb, 200); return; }
+
+      state.rolling = true;
+      state.currentPlayer = cp;
+
+      const result = Math.floor(Math.random() * 3) + 1; // d3 roll
+      const p = state.players[cp];
+      const { overflow } = walkSteps(cp, result);
+
+      simResolveTile(cp, overflow, () => {
+        tickEffects();
+        checkMilestones(cp);
+        // drain milestone queue silently (no popup)
+        _milestoneQueue.length = 0;
+        state.rolling = false;
+        state.currentPlayer = -1;
+        updateUI();
+        cb();
+      });
+    }
+
+    // Resolve a tile landing without any popups or animations
+    function simResolveTile(cp, overflow, done) {
+      const p = state.players[cp];
+      let effectiveType = (p.flatPos != null) ? (tileTypes[p.flatPos] ?? 'blue') : 'blue';
+
+      if (p.overrideColor && effectiveType !== 'start' && effectiveType !== 'stageup') {
+        effectiveType = p.overrideColor;
+        p.overrideColor = null;
+      }
+      if (state.allGreen > 0 && effectiveType !== 'start' && effectiveType !== 'stageup') {
+        effectiveType = 'green';
+      }
+
+      if (effectiveType === 'stageup') {
+        // Bounce back: give bonus, reset to start (ignore overflow for sim simplicity)
+        const bonus = overflow === 0 ? 5 : 3;
+        state.players[cp].score += bonus;
+        state.players[cp].tile = 0;
+        state.players[cp].flatPos = 0;
+        done();
+
+      } else if (effectiveType === 'green') {
+        const roll = Math.floor(Math.random() * 3) + 1;
+        applyPoints(cp, roll);
+        done();
+
+      } else if (effectiveType === 'red') {
+        const before = state.players[cp].score;
+        state.players[cp].score = Math.max(0, before - 1);
+        done();
+
+      } else if (effectiveType === 'purple') {
+        const roll = Math.floor(Math.random() * 3) + 1;
+        if (Math.random() < .5) walkSteps(cp, roll);
+        else walkStepsBack(cp, roll);
+        // Resolve the new tile too (one level deep — avoid infinite recursion)
+        simResolveTile(cp, 0, done);
+
+      } else if (effectiveType === 'yellow') {
+        simDoYellow(cp);
+        done();
+
+      } else if (effectiveType === 'blue') {
+        applyPoints(cp, 1);
+        done();
+
+      } else {
+        // start, unknown
+        done();
+      }
+    }
+
+    // Apply a random yellow event silently
+    function simDoYellow(cp) {
+      const other = 1 - cp;
+      const roll = Math.floor(Math.random() * 7); // 7 yellow events
+      switch (roll) {
+        case 0: { // Swap
+          const tmp = state.players[cp].tile;
+          const tmpF = state.players[cp].flatPos;
+          state.players[cp].tile = state.players[other].tile;
+          state.players[cp].flatPos = state.players[other].flatPos;
+          state.players[other].tile = tmp;
+          state.players[other].flatPos = tmpF;
+          break;
+        }
+        case 1: { // Point Heist
+          const steal = Math.min(Math.floor(Math.random() * 5) + 1, state.players[other].score);
+          state.players[other].score = Math.max(0, state.players[other].score - steal);
+          state.players[cp].score += steal;
+          break;
+        }
+        case 2: break; // Dance Party — no effect
+        case 3: shuffleTiles(); setupBoard(); break; // Board Shuffle
+        case 4: { // Back to Start
+          state.players[cp].tile = 0;
+          state.players[cp].flatPos = 0;
+          break;
+        }
+        case 5: state.allGreen = 4; break; // All Board Green
+        case 6: state.doublePoints = 3; break; // Double Points
+      }
+    }
+
     function openLogPanel() {
       // Close burger first
       document.getElementById('burger-btn').classList.remove('open');
@@ -3379,6 +3781,7 @@
       const btn  = document.getElementById('burger-btn');
       const menu = document.getElementById('burger-menu');
       const panel = document.getElementById('log-panel');
+      const simPanel = document.getElementById('sim-panel');
 
       // Close burger if click is outside it
       if (!btn.contains(e.target) && !menu.contains(e.target)) {
@@ -3392,6 +3795,14 @@
           !btn.contains(e.target) &&
           !menu.contains(e.target)) {
         closeLogPanel();
+      }
+
+      // Close sim panel if click is outside it
+      if (simPanel.classList.contains('open') &&
+          !simPanel.contains(e.target) &&
+          !btn.contains(e.target) &&
+          !menu.contains(e.target)) {
+        closeSimPanel();
       }
     });
 
