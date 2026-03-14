@@ -591,7 +591,7 @@
       padding: 5vw 6vw;
       text-align: center;
       z-index: 100;
-      /*box-shadow: 0 20px 60px var(--accent);*/
+      box-shadow: 0 20px 60px var(--accent);
       transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
       width: 90vw;
       max-width: 90vw;
@@ -645,7 +645,7 @@
     .popup .pop-title {
       font-family: 'Fredoka One', cursive;
       font-size: 11vw;
-      color: var(--text-special);
+      color: var(--text);
       margin-bottom: 2vw;
       line-height: 1.1;
     }
@@ -752,12 +752,12 @@
       overflow: hidden;
       text-overflow: ellipsis;
       flex-shrink: 0;
-      color: rgba(248, 232, 255, .4);
+      color: rgba(255, 255, 255, 0.45);
       text-align: center;
     }
 
     .yellow-spin-item.selected {
-      color: var(--text);
+      color: #ffffff;
     }
 
     /* fullscreen stage/win */
@@ -1340,13 +1340,11 @@
         track.appendChild(d);
       });
       popup.classList.add('show'); document.getElementById('overlayBg').classList.add('show');
-      // finalY computed from DOM
       requestAnimationFrame(() => requestAnimationFrame(() => {
-        const realH = track.firstElementChild.getBoundingClientRect().height;
-        const wrap = track.closest('.yellow-spinner-wrap');
-        const wrapH = wrap.getBoundingClientRect().height;
-        const fY = -((total - 1) * realH) + (wrapH - realH) / 2;
-        track.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.1,1)';
+        const itemH = track.closest('.yellow-spinner-wrap').clientHeight;
+        track.querySelectorAll('.yellow-spin-item').forEach(el => { el.style.height = itemH + 'px'; el.style.minHeight = itemH + 'px'; });
+        const fY = -((total - 1) * itemH);
+        track.style.transition = 'transform 4.5s cubic-bezier(0.12,0.8,0.2,1)';
         track.style.transform = 'translateY(' + fY + 'px)';
       }));
       setTimeout(() => {
@@ -1359,7 +1357,7 @@
           popup.classList.remove('show');
           document.getElementById('overlayBg').classList.remove('show');
         }, 2500);
-      }, 4200);
+      }, 4700);
     }
     function showPopup(icon, title, desc, dur, overridden) {
       if (dicePopupTimer) { clearTimeout(dicePopupTimer); dicePopupTimer = null; }
@@ -1395,6 +1393,7 @@
       document.getElementById('yellowIcon').textContent = '⭐';
       document.getElementById('yellowSpinDesc').textContent = 'Landing on...';
       track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateY(0)';
+      document.getElementById('yellowSpinDesc').textContent = 'Landing on...';
       labels.forEach((l, i) => {
         const d = document.createElement('div');
         d.className = 'yellow-spin-item' + (i === total - 1 ? ' selected' : '');
@@ -1406,15 +1405,12 @@
         }
         track.appendChild(d);
       });
-      document.getElementById('yellowSpinDesc').textContent = 'Landing on...';
       popup.classList.add('show'); document.getElementById('overlayBg').classList.add('show');
-      // finalY computed from DOM
       requestAnimationFrame(() => requestAnimationFrame(() => {
-        const realH = track.firstElementChild.getBoundingClientRect().height;
-        const wrap = track.closest('.yellow-spinner-wrap');
-        const wrapH = wrap.getBoundingClientRect().height;
-        const fY = -((total - 1) * realH) + (wrapH - realH) / 2;
-        track.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.1,1)';
+        const itemH = track.closest('.yellow-spinner-wrap').clientHeight;
+        track.querySelectorAll('.yellow-spin-item').forEach(el => { el.style.height = itemH + 'px'; el.style.minHeight = itemH + 'px'; });
+        const fY = -((total - 1) * itemH);
+        track.style.transition = 'transform 4.5s cubic-bezier(0.12,0.8,0.2,1)';
         track.style.transform = 'translateY(' + fY + 'px)';
       }));
       setTimeout(() => {
@@ -1435,7 +1431,7 @@
             setTimeout(() => showPopup(p.icon, p.title, p.desc, p.duration, p.overridden), 200);
           }
         }, 2500);
-      }, 4200);
+      }, 4700);
     }
     function scoreFloat(pi, val) { if (!currentState) return; const game = tilePos._game || tilePos; const t = game[Math.min(currentState.players[pi].tile, game.length - 1)]; if (!t) return; const rect = canvas.getBoundingClientRect(), el = document.createElement('div'); el.className = 'score-float'; el.style.left = (rect.left + t.cx) + 'px'; el.style.top = (rect.top + t.cy) + 'px'; el.style.color = val >= 0 ? '#00f5d4' : '#ff4d6d'; el.textContent = (val >= 0 ? '+' : '') + val; document.body.appendChild(el); setTimeout(() => el.remove(), 1400); }
     function renderState(s) {

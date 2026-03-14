@@ -858,14 +858,14 @@
       overflow: hidden;
       text-overflow: ellipsis;
       flex-shrink: 0;
-      color: rgba(248, 232, 255, .4);
+      color: rgba(255, 255, 255, 0.45);
       text-align: center;
       border-radius: 8px;
       transition: box-shadow 0.3s;
     }
 
     .yellow-spin-item.selected {
-      color: var(--text);
+      color: #ffffff;
     }
 
     .yellow-spin-item.selected.glow {
@@ -2988,24 +2988,36 @@
       ];
 
       const winIdx = Math.floor(Math.random() * events.length);
-      const ITEM_H = 64, VISIBLE_EXTRA = 20, totalItems = VISIBLE_EXTRA + 1;
+      const VISIBLE_EXTRA = 60, totalItems = VISIBLE_EXTRA + 1;
       const track = document.getElementById('yellowTrack');
       track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateY(0)';
       const allLabels = [];
       for (let i = 0; i < VISIBLE_EXTRA; i++) allLabels.push(events[Math.floor(Math.random() * events.length)].label);
       allLabels.push(events[winIdx].label);
-      allLabels.forEach((label, i) => { const div = document.createElement('div'); div.className = 'yellow-spin-item' + (i === totalItems - 1 ? ' selected' : ''); div.textContent = label; track.appendChild(div); });
+      allLabels.forEach((label, i) => {
+        const div = document.createElement('div');
+        div.className = 'yellow-spin-item' + (i === totalItems - 1 ? ' selected' : '');
+        div.textContent = label;
+        track.appendChild(div);
+      });
       document.getElementById('yellowSpinDesc').textContent = 'Landing on...';
       showYellowPopup();
       socket.emit('animEvent', { type: 'yellowSpin', labels: allLabels, winIdx, winIcon: events[winIdx].icon || '⭐', winTitle: events[winIdx].title || events[winIdx].label });
-      const finalY = null; // computed from DOM
-      requestAnimationFrame(() => requestAnimationFrame(() => { const realH = track.firstElementChild.getBoundingClientRect().height; const wrap = track.closest('.yellow-spinner-wrap'); const wrapH = wrap.getBoundingClientRect().height; const fY = -((totalItems - 1) * realH) + (wrapH - realH) / 2; track.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform = `translateY(${fY}px)`; }));
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        // clientHeight excludes border — exact inner height of the clip/wrap
+        const itemH = track.closest('.yellow-spinner-wrap').clientHeight;
+        // Force each item to exactly that height so math is always pixel-perfect
+        track.querySelectorAll('.yellow-spin-item').forEach(el => { el.style.height = itemH + 'px'; el.style.minHeight = itemH + 'px'; });
+        const fY = -((totalItems - 1) * itemH);
+        track.style.transition = 'transform 4.5s cubic-bezier(0.12,0.8,0.2,1)';
+        track.style.transform = `translateY(${fY}px)`;
+      }));
       setTimeout(() => {
         track.closest('.yellow-spinner-wrap').classList.add('landed');
         document.getElementById('yellowIcon').textContent = events[winIdx].icon || '⭐';
         document.getElementById('yellowSpinDesc').textContent = events[winIdx].title || '';
         setTimeout(() => { hideYellowPopup(); track.closest('.yellow-spinner-wrap').classList.remove('landed'); document.getElementById('yellowIcon').textContent = '⭐'; events[winIdx].fn(); }, 2500);
-      }, 4200);
+      }, 4700);
     }
 
     // =====================================================
@@ -3020,24 +3032,35 @@
     function showColorPicker(cp) {
       const winIdx = Math.floor(Math.random() * COLOR_OPTIONS.length);
       const winner = COLOR_OPTIONS[winIdx];
-      const ITEM_H = 64, VISIBLE_EXTRA = 20, totalItems = VISIBLE_EXTRA + 1;
+      const VISIBLE_EXTRA = 60, totalItems = VISIBLE_EXTRA + 1;
       const track = document.getElementById('colorTrack');
       track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateY(0)';
       const allLabels = [];
       for (let i = 0; i < VISIBLE_EXTRA; i++) { const r = COLOR_OPTIONS[Math.floor(Math.random() * COLOR_OPTIONS.length)]; allLabels.push({ label: r.label, icon: r.icon, bg: TILE_BG[r.type][0] }); }
       allLabels.push({ label: winner.label, icon: winner.icon, bg: TILE_BG[winner.type][0] });
-      allLabels.forEach((item, i) => { const div = document.createElement('div'); div.className = 'yellow-spin-item' + (i === totalItems - 1 ? ' selected' : ''); div.style.background = item.bg; div.innerHTML = `<span style="font-size:22px;margin-right:8px">${item.icon}</span>${item.label}`; track.appendChild(div); });
+      allLabels.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'yellow-spin-item' + (i === totalItems - 1 ? ' selected' : '');
+        div.style.background = item.bg;
+        div.innerHTML = `<span style="font-size:22px;margin-right:8px">${item.icon}</span>${item.label}`;
+        track.appendChild(div);
+      });
       document.getElementById('colorSpinDesc').textContent = 'Spinning...';
       document.getElementById('colorPopup').classList.add('show');
       document.getElementById('overlayBg').classList.add('show');
       socket.emit('animEvent', { type: 'colorSpin', labels: allLabels.map(x => ({ label: x.label, icon: x.icon, bg: x.bg })), winIdx });
-      const finalY2 = null; // computed from DOM
-      requestAnimationFrame(() => requestAnimationFrame(() => { const realH = track.firstElementChild.getBoundingClientRect().height; const wrap = track.closest('.yellow-spinner-wrap'); const wrapH = wrap.getBoundingClientRect().height; const fY = -((totalItems - 1) * realH) + (wrapH - realH) / 2; track.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.1,1)'; track.style.transform = `translateY(${fY}px)`; }));
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const itemH = track.closest('.yellow-spinner-wrap').clientHeight;
+        track.querySelectorAll('.yellow-spin-item').forEach(el => { el.style.height = itemH + 'px'; el.style.minHeight = itemH + 'px'; });
+        const fY = -((totalItems - 1) * itemH);
+        track.style.transition = 'transform 4.5s cubic-bezier(0.12,0.8,0.2,1)';
+        track.style.transform = `translateY(${fY}px)`;
+      }));
       setTimeout(() => {
         track.closest('.yellow-spinner-wrap').classList.add('landed');
         document.getElementById('colorSpinDesc').textContent = `${winner.icon} ${winner.label}!`;
         setTimeout(() => { track.closest('.yellow-spinner-wrap').classList.remove('landed'); hideColorPopup(); state.players[cp].overrideColor = winner.type; document.getElementById(`override-p${cp + 1}`).classList.add('show'); emitState(); finishTurn(); }, 2500);
-      }, 4200);
+      }, 4700);
     }
     function hideColorPopup() { document.getElementById('colorPopup').classList.remove('show'); document.getElementById('overlayBg').classList.remove('show'); }
 
