@@ -21,6 +21,7 @@ let latestState   = null;
 let latestTiles   = null;
 const avatarCache = [null, null];
 let milestonesCache = { milestones: [], scope: 'all' };
+let latestLogs    = [];
 
 // ─── Active controller tracking ───────────────────────────────────────────────
 let activeControllerId = null;
@@ -47,6 +48,7 @@ io.on('connection', (socket) => {
       tiles:      latestTiles,
       avatars:    avatarCache,
       milestones: milestonesCache,
+      logs:       latestLogs,
     });
 
   } else {
@@ -75,6 +77,10 @@ io.on('connection', (socket) => {
 
   socket.on('milestonesUpdate', (data) => {
     milestonesCache = data;
+  });
+
+  socket.on('logsUpdate', (data) => {
+    latestLogs = data;
   });
 
   socket.on('animEvent', (data) => {
