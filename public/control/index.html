@@ -2110,6 +2110,129 @@
       opacity: .4;
     }
 
+    /* ── Goals overview panel ── */
+    #goals-panel {
+      position: fixed;
+      top: 70px;
+      left: 14px;
+      z-index: 998;
+      width: min(420px, calc(100vw - 28px));
+      max-height: min(560px, calc(100vh - 100px));
+      background: var(--panel);
+      border: 2px solid rgba(180, 80, 120, .5);
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(80, 0, 160, .6);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: menuIn .2s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    #goals-panel.open {
+      display: flex;
+    }
+
+    #goals-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid rgba(180, 80, 120, .25);
+    }
+
+    #goals-panel-header h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 17px;
+      color: var(--text);
+      margin: 0;
+    }
+
+    #goals-close-btn {
+      background: rgba(255, 255, 255, .08);
+      border: none;
+      color: var(--text);
+      font-size: 18px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #goals-entries {
+      overflow-y: auto;
+      flex: 1;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      scroll-behavior: smooth;
+    }
+
+    #goals-entries::-webkit-scrollbar { width: 5px; }
+    #goals-entries::-webkit-scrollbar-track { background: transparent; }
+    #goals-entries::-webkit-scrollbar-thumb { background: rgba(180, 80, 120, .4); border-radius: 4px; }
+
+    .goal-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .04);
+      border-left: 3px solid transparent;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .goal-entry.goal-done {
+      border-left-color: #4ade80;
+    }
+
+    .goal-entry.goal-pending {
+      border-left-color: #f87171;
+    }
+
+    .goal-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .goal-pts {
+      font-family: 'Fredoka One', cursive;
+      font-size: 14px;
+      flex-shrink: 0;
+      min-width: 48px;
+    }
+
+    .goal-entry.goal-done .goal-pts { color: #4ade80; }
+    .goal-entry.goal-pending .goal-pts { color: #f87171; }
+
+    .goal-desc {
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .goal-status {
+      font-size: 11px;
+      opacity: .6;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    #goals-empty {
+      text-align: center;
+      padding: 32px 16px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      opacity: .4;
+    }
+
     #kicked-screen {
       display: none;
       position: fixed;
@@ -2192,6 +2315,11 @@
       <div class="blabel">Show Logs<div class="bsub">View game event history</div>
       </div>
     </div>
+    <div class="burger-item" onclick="openGoalsPanel()">
+      <span class="bicon">🏁</span>
+      <div class="blabel">Point Goals<div class="bsub">View milestone progress</div>
+      </div>
+    </div>
     <div class="burger-divider"></div>
     <div class="burger-item" onclick="openSimPanel()">
       <span class="bicon">⚡</span>
@@ -2243,6 +2371,17 @@
     </div>
     <div id="log-entries">
       <div id="log-empty">No events yet — start the game!</div>
+    </div>
+  </div>
+
+  <!-- GOALS OVERVIEW PANEL -->
+  <div id="goals-panel">
+    <div id="goals-panel-header">
+      <h3>🏁 Point Goals</h3>
+      <button id="goals-close-btn" onclick="closeGoalsPanel()">✕</button>
+    </div>
+    <div id="goals-entries">
+      <div id="goals-empty">No point goals set — add milestones in setup!</div>
     </div>
   </div>
 
@@ -2690,7 +2829,7 @@
       if (state.allGreen > 0) {
         state.allGreen--;
         if (state.allGreen === 0) {
-          // Restore visual board — tileTypes unchanged, just redraw
+          // Restore visual board — redraw without green override
           drawBoard();
           emitState();
         }
@@ -2714,8 +2853,7 @@
     socket.on('resumeState', ({ state: savedState, tiles, avatars, milestones: savedMilestones }) => {
       // Restore tile types + CFG
       if (tiles) {
-        _gameTiles = tiles.tileTypes || []; // server stores _gameTiles under 'tileTypes' key
-        tileTypes = _gameTiles.slice();     // setupBoard will rebuild with connectors
+        _gameTiles = tiles.tileTypes || [];
         if (tiles.CFG) Object.assign(CFG, tiles.CFG);
       }
 
@@ -2731,8 +2869,8 @@
       state = {
         currentPlayer: savedState.currentPlayer ?? 0,
         players: savedState.players ?? [
-          { tile: 0, flatPos: 0, score: 0, overrideColor: null },
-          { tile: 0, flatPos: 0, score: 0, overrideColor: null }
+          { tile: 0, score: 0, overrideColor: null },
+          { tile: 0, score: 0, overrideColor: null }
         ],
         rolling: false,
         gameOver: savedState.gameOver ?? false,
@@ -2886,14 +3024,13 @@
     //  STATE
     // =====================================================
     const PIP_PATTERNS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
-    let _gameTiles = []; // game-only tiles: ['start', ...inner..., 'stageup'] — no connectors
-    let tileTypes = [];  // flat array: game tiles + connector tiles, built in setupBoard
+    let _gameTiles = []; // game-only tiles: ['start', ...inner..., 'stageup'] — source of truth
 
     let state = {
       currentPlayer: 0,
       players: [
-        { tile: 0, flatPos: 0, score: 0, overrideColor: null },
-        { tile: 0, flatPos: 0, score: 0, overrideColor: null },
+        { tile: 0, score: 0, overrideColor: null },
+        { tile: 0, score: 0, overrideColor: null },
       ],
       rolling: false,
       gameOver: false,
@@ -2922,14 +3059,18 @@
         const j = Math.floor(Math.random() * (i + 1));
         [typeArr[i], typeArr[j]] = [typeArr[j], typeArr[i]];
       }
-      // _gameTiles: ordered game-only tiles (no connectors). tileTypes becomes the full
-      // flat array (game tiles + connector tiles) once setupBoard injects connectors.
+      // _gameTiles: ordered game-only tiles — source of truth for both controller and OBS.
       _gameTiles = ['start', ...typeArr, 'stageup'];
-      tileTypes = _gameTiles.slice();
+
+      // Coerce red tiles near the start to blue (first 8 game tiles after start)
+      // so players don't get punished early. This is the source of truth — OBS
+      // receives _gameTiles with reds already removed.
+      for (let i = 1; i <= 8 && i < _gameTiles.length - 1; i++) {
+        if (_gameTiles[i] === 'red') _gameTiles[i] = 'blue';
+      }
     }
 
     function shuffleTiles() {
-      // Shuffle only the inner game tiles (not start/stageup, not connectors)
       const inner = [];
       for (let i = 1; i < _gameTiles.length - 1; i++) inner.push(_gameTiles[i]);
       for (let i = inner.length - 1; i > 0; i--) {
@@ -2937,7 +3078,6 @@
         [inner[i], inner[j]] = [inner[j], inner[i]];
       }
       for (let i = 0; i < inner.length; i++) _gameTiles[i + 1] = inner[i];
-      // tileTypes (flat with connectors) rebuilt by setupBoard
     }
 
     // =====================================================
@@ -2965,50 +3105,68 @@
     const TILE_ICON = { green: null, purple: null, red: null, yellow: null, stageup: '🏆', start: '🚀', blue: null };
 
     // ── Path layout ───────────────────────────────────────────────────────────────
-    // Control: same layout as OBS — stageup (🏆) anchored top-left, start (🚀) at bottom.
-    // Row 0 = top, RTL so last tile of top row = top-left = stageup.
+    // Winding snake path: stageup (🏆) at top-left, start (🚀) at bottom.
+    // Row 0 = top, RTL. Each row has up to COLS tiles; between rows sits one
+    // connecting tile (a regular game tile) in the gap. All N tiles from
+    // _gameTiles get a position — the connecting tile is just placed vertically
+    // between the end of one row and the start of the next.
     function computeWindingPath(W, H, N, ts, COLS) {
-      const ROWS = Math.ceil(N / COLS);
+      // First, figure out how many visual rows we need.
+      // Each row takes COLS tiles, plus 1 connector tile between rows.
+      // So groups of (COLS+1) tiles, except the last row has no connector after it.
+      let placed = 0, numRows = 0;
+      while (placed < N) {
+        const inRow = Math.min(COLS, N - placed);
+        placed += inRow;
+        numRows++;
+        if (placed < N) placed++; // connector tile
+      }
+
       const gridW = COLS * ts;
-      const gridH = (2 * ROWS - 1) * ts;
-      // Use same margins as setupBoard's tile-size formula: 24px H, 80px V
+      const gridH = (2 * numRows - 1) * ts;
       const leftX = Math.round((W - gridW) / 2) + ts / 2;
       const topY = Math.round((H - gridH) / 2) + ts / 2;
 
+      // Build positions top-to-bottom (visual order), then reverse.
+      // After reversing: index 0 = start (bottom), index N-1 = stageup (top-left).
       const allPts = [];
-      for (let row = 0; row < ROWS; row++) {
+      placed = 0;
+      let row = 0;
+      while (placed < N) {
         const ltr = (row % 2 !== 0);
         const rowY = topY + row * ts * 2;
-        const tilesInRow = Math.min(COLS, N - row * COLS);
-        for (let col = 0; col < tilesInRow; col++) {
+        const inRow = Math.min(COLS, N - placed);
+        for (let col = 0; col < inRow; col++) {
           const gc = ltr ? col : (COLS - 1 - col);
-          allPts.push({ x: leftX + gc * ts, y: rowY, connector: false });
+          allPts.push({ x: leftX + gc * ts, y: rowY });
+          placed++;
         }
-        if (row < ROWS - 1) {
-          const lastGc = ltr ? (tilesInRow - 1) : (COLS - tilesInRow);
-          allPts.push({ x: leftX + lastGc * ts, y: rowY + ts, connector: true });
+        // Place connector tile in the gap if tiles remain
+        if (placed < N) {
+          // Connector sits at the end-of-row column, one ts down
+          const lastCol = ltr ? (inRow - 1) : (COLS - inRow);
+          allPts.push({ x: leftX + lastCol * ts, y: rowY + ts });
+          placed++;
         }
+        row++;
       }
 
       allPts.reverse();
 
-      // For each point, find the next non-connector point and snap angle to nearest axis
+      // Compute direction angles for tokens
       const centres = allPts.map((p, i) => {
-        let ni = i + 1;
-        while (ni < allPts.length && allPts[ni].connector) ni++;
-        if (ni >= allPts.length) ni = i; // last tile: keep same as previous
-        const nx = allPts[ni], ref = allPts[Math.min(i, allPts.length - 1)];
+        const ni = Math.min(i + 1, allPts.length - 1);
+        const nx = allPts[ni];
         const dx = nx.x - p.x, dy = nx.y - p.y;
-        // Snap to one of 4 cardinal angles based on dominant axis
         let angle;
         if (Math.abs(dx) >= Math.abs(dy)) {
-          angle = dx >= 0 ? 0 : Math.PI;        // right or left
+          angle = dx >= 0 ? 0 : Math.PI;
         } else {
-          angle = dy >= 0 ? Math.PI / 2 : -Math.PI / 2; // down or up
+          angle = dy >= 0 ? Math.PI / 2 : -Math.PI / 2;
         }
-        return { x: p.x, y: p.y, angle, connector: p.connector };
+        return { x: p.x, y: p.y, angle };
       });
-      return { centres };
+      return { centres, numRows };
     }
 
     function setupBoard() {
@@ -3017,51 +3175,43 @@
       canvas.width = Math.floor(rect.width);
       canvas.height = Math.floor(rect.height);
       const W = canvas.width, H = canvas.height;
-      const N = _gameTiles.length; // use game-tile count for path geometry
+      const N = _gameTiles.length;
       if (!N) return;
 
-      // Pick COLS so tile size is as large as possible given the canvas aspect ratio
-      const cfgCols = Math.max(3, Math.min(CFG.BOARD_COLS || 5, 12));
-      let bestS = 0, bestCOLS = cfgCols, bestROWS = Math.ceil(N / cfgCols);
+      // Helper: count visual rows for a given COLS
+      // Each row uses COLS tiles + 1 connector between rows (except last row)
+      function countRows(cols) {
+        let p = 0, rows = 0;
+        while (p < N) {
+          p += Math.min(cols, N - p);
+          rows++;
+          if (p < N) p++; // connector
+        }
+        return rows;
+      }
+
+      // Pick COLS so tile size is as large as possible
+      let bestS = 0, bestCOLS = 5;
       for (let c = 3; c <= 12; c++) {
-        const r = Math.ceil(N / c);
+        const r = countRows(c);
         const tw = Math.floor((W - 32) / c);
         const th = Math.floor((H - 32) / (2 * r - 1));
         const ts = Math.max(14, Math.min(tw, th, 110));
-        if (ts > bestS) { bestS = ts; bestCOLS = c; bestROWS = r; }
+        if (ts > bestS) { bestS = ts; bestCOLS = c; }
       }
-      const COLS = bestCOLS, ROWS = bestROWS;
+      const COLS = bestCOLS;
       const s = bestS;
-      const GAP = 0;
-      const sd = s - GAP; // drawn tile size — centres stay s apart
-
-      // Store computed COLS so OBS receives the exact layout
       CFG.BOARD_COLS = COLS;
 
       const { centres } = computeWindingPath(W, H, N, s, COLS);
 
-      tilePositions = centres.map(({ x, y, angle, connector }) => ({
+      // tilePositions[i] corresponds to _gameTiles[i]
+      tilePositions = centres.map(({ x, y, angle }) => ({
         cx: x, cy: y,
-        x: x - sd / 2, y: y - sd / 2,
-        w: sd, h: sd, s: sd,
+        x: x - s / 2, y: y - s / 2,
+        w: s, h: s, s,
         angle: angle || 0,
-        connector: connector || false,
       }));
-      tilePositions._game = tilePositions.filter(t => !t.connector);
-
-      // Build tileTypes as the single flat source of truth (game tiles + connectors).
-      // Connector type inherits from the preceding game tile so landing on a connector
-      // triggers the same effect as that tile.
-      let gi = 0;
-      tileTypes = tilePositions.map(t => {
-        if (!t.connector) return _gameTiles[gi++] ?? 'blue';
-        return _gameTiles[Math.max(0, gi - 1)] ?? 'blue';
-      });
-
-      // Coerce red tiles/connectors near the start (first COLS positions) to blue
-      for (let i = 0; i < Math.min(COLS + 1, tileTypes.length - 1); i++) {
-        if (tileTypes[i] === 'red') tileTypes[i] = 'blue';
-      }
 
       drawBoard();
     }
@@ -3116,32 +3266,26 @@
       const W = canvas.width, H = canvas.height;
       ctx.clearRect(0, 0, W, H);
 
-      // Background
-      /*const bg = ctx.createLinearGradient(0, 0, W, H);
-      bg.addColorStop(0, '#953C54'); bg.addColorStop(1, '#B4647A');
-      ctx.fillStyle = bg; rr(ctx, 0, 0, W, H, 16); ctx.fill();
-      */
-
       if (!tilePositions.length) return;
 
       // ── Tiles ─────────────────────────────────────────────────────────────
       for (let i = 0; i < tilePositions.length; i++) {
         const t = tilePositions[i]; if (!t) continue;
-        const flatType = tileTypes[i] || 'blue';
-        const visual = (state.allGreen > 0 && flatType !== 'start' && flatType !== 'stageup') ? 'green' : flatType;
+        const tileType = _gameTiles[i] || 'blue';
+        const visual = (state.allGreen > 0 && tileType !== 'start' && tileType !== 'stageup') ? 'green' : tileType;
         drawTile(t, visual);
       }
 
 
 
       // ── Tokens ────────────────────────────────────────────────────────────
-      const sameFlat = state.players[0].flatPos === state.players[1].flatPos;
-      drawToken(state.players[0].flatPos ?? 0, '#dad5ff', 0, sameFlat ? -1 : 0);
-      drawToken(state.players[1].flatPos ?? 0, '#fcbdfe', 1, sameFlat ? 1 : 0);
+      const sameTile = state.players[0].tile === state.players[1].tile;
+      drawToken(state.players[0].tile ?? 0, '#dad5ff', 0, sameTile ? -1 : 0);
+      drawToken(state.players[1].tile ?? 0, '#fcbdfe', 1, sameTile ? 1 : 0);
     }
 
-    function drawToken(flatIdx, color, playerIdx, offset) {
-      const t = tilePositions[Math.min(flatIdx, tilePositions.length - 1)];
+    function drawToken(tileIdx, color, playerIdx, offset) {
+      const t = tilePositions[Math.min(tileIdx, tilePositions.length - 1)];
       if (!t) return;
       const r = Math.max(t.s * 0.38, 14);
       const od = r * 0.75; // diagonal offset — keeps ~25% of the other avatar visible
@@ -3291,12 +3435,11 @@
           socket.emit('animEvent', { type: 'diceResult', player: cp, result });
 
           const p = state.players[cp];
-          const oldFlatPos = p.flatPos ?? 0;
           const oldTile = p.tile;
           const { overflow } = walkSteps(cp, result);
 
           resolveDicePopup(pName, result, () => {
-            animateMove(cp, oldFlatPos, p.flatPos, () => { resolveTileLanding(cp, overflow); });
+            animateMove(cp, oldTile, p.tile, () => { resolveTileLanding(cp, overflow); });
           });
         }
       }, 70);
@@ -3309,8 +3452,8 @@
       const finish = () => noTick ? finishTurnNoTick() : finishTurn();
       const p = state.players[cp];
       const pName = playerNames[cp];
-      // tileTypes is now the full flat array — index directly by flatPos
-      let effectiveType = (p.flatPos != null) ? (tileTypes[p.flatPos] ?? 'blue') : 'blue';
+      // Use _gameTiles indexed by p.tile — the single source of truth
+      let effectiveType = _gameTiles[p.tile] ?? 'blue';
       let wasOverridden = false;
 
       if (p.overrideColor && effectiveType !== 'start' && effectiveType !== 'stageup') {
@@ -3372,7 +3515,7 @@
       setTimeout(() => {
         bs.classList.remove('show');
         setTimeout(() => {
-          state.players[cp].tile = 0; state.players[cp].flatPos = 0;
+          state.players[cp].tile = 0;
           drawBoard(); emitState();
 
           if (overflow > 0) {
@@ -3413,7 +3556,6 @@
         } else if (color === 'purple') {
           const dir = Math.random() < .5 ? 1 : -1;
           const oldTile = state.players[cp].tile;
-          const oldFlatPos = state.players[cp].flatPos ?? 0;
           if (dir > 0) { walkSteps(cp, result); }
           else { walkStepsBack(cp, result); }
           const icon = dir > 0 ? '💜⬆️' : '💜⬇️';
@@ -3421,7 +3563,7 @@
           socket.emit('animEvent', { type: 'tilePopup', icon, title: 'Purple Tile!', desc: `${dir > 0 ? 'Forward' : 'Back'} ${result} tiles!`, duration: 1800, eventDiceResult: result, overridden: ov });
           showEventPopupAuto(icon, 'Purple Tile!', `${dir > 0 ? 'Forward' : 'Back'} ${result} tiles!`, 1800, () => {
             setTimeout(() => {
-              animateMove(cp, oldFlatPos, state.players[cp].flatPos, () => { updateUI(); resolveTileLanding(cp, 0, true); });
+              animateMove(cp, oldTile, state.players[cp].tile, () => { updateUI(); resolveTileLanding(cp, 0, true); });
             }, 550);
           });
         }
@@ -3440,7 +3582,7 @@
         { icon: '💸', title: 'Point Heist!', label: `💸 Steal pts from ${otherName}`, fn: () => { const steal = Math.floor(Math.random() * 3) + 1; const actual = Math.min(steal, state.players[other].score); state.players[other].score = Math.max(0, state.players[other].score - actual); state.players[cp].score += actual; showScoreFloat(cp, +actual); showScoreFloat(other, -actual); gameLog('yellow', '💸', playerNames[cp], `Yellow — Point Heist! Stole ${actual} pt${actual !== 1 ? 's' : ''} from ${otherName}${actual === 0 ? ' (nothing to steal)' : ''}`); socket.emit('animEvent', { type: 'tilePopup', icon: '💸', title: 'Point Heist!', desc: `${pName} stole ${actual} pts!`, duration: 2200, scoreFloat: { player: cp, value: +actual } }); showEventPopupAuto('💸', 'Point Heist!', `${pName} stole ${actual} pts!`, 2200, () => { updateUI(); checkMilestones(cp); checkMilestones(other); finishTurn(); }); } },
         { icon: '🕺', title: 'DANCE PARTY!', label: `🕺 Mini Dance Party!`, fn: () => { gameLog('yellow', '🕺', playerNames[cp], 'Yellow — DANCE PARTY! No effect, just vibes 💃'); socket.emit('animEvent', { type: 'tilePopup', icon: '🕺', title: 'DANCE PARTY!', desc: '💃 Everybody move! 🕺', duration: 3000 }); showEventPopupAuto('🕺', 'DANCE PARTY!', '💃 Everybody move! 🕺', 3000, () => { finishTurn(); }); } },
         { icon: '🔀', title: 'Board Shuffle!', label: `🔀 Shuffle all tiles`, fn: () => { shuffleTiles(); setupBoard(); gameLog('yellow', '🔀', playerNames[cp], 'Yellow — Board Shuffle! All tiles reshuffled'); socket.emit('tilesUpdate', { tileTypes: _gameTiles, CFG }); socket.emit('animEvent', { type: 'tilePopup', icon: '🔀', title: 'Board Shuffle!', desc: 'All tiles reshuffled!', duration: 2200 }); showEventPopupAuto('🔀', 'Board Shuffle!', 'All tiles reshuffled!', 2200, () => { finishTurn(); }); } },
-        { icon: '🏠', title: 'Back to Start!', label: `🏠 Go back to Start`, fn: () => { const oldT = state.players[cp].tile; const oldF = state.players[cp].flatPos ?? 0; state.players[cp].tile = 0; state.players[cp].flatPos = 0; gameLog('yellow', '🏠', playerNames[cp], 'Yellow — Back to Start! Sent back to the beginning'); socket.emit('animEvent', { type: 'tilePopup', icon: '🏠', title: 'Back to Start!', desc: `${pName} heads back to the beginning!`, duration: 2200 }); showEventPopupAuto('🏠', 'Back to Start!', `${pName} heads back to the beginning!`, 2200, () => { animateMove(cp, oldF, 0, () => { updateUI(); emitState(); finishTurn(); }); }); } },
+        { icon: '🏠', title: 'Back to Start!', label: `🏠 Go back to Start`, fn: () => { const oldT = state.players[cp].tile; state.players[cp].tile = 0; gameLog('yellow', '🏠', playerNames[cp], 'Yellow — Back to Start! Sent back to the beginning'); socket.emit('animEvent', { type: 'tilePopup', icon: '🏠', title: 'Back to Start!', desc: `${pName} heads back to the beginning!`, duration: 2200 }); showEventPopupAuto('🏠', 'Back to Start!', `${pName} heads back to the beginning!`, 2200, () => { animateMove(cp, oldT, 0, () => { updateUI(); emitState(); finishTurn(); }); }); } },
         { icon: '🟩', title: 'All Board Green!', label: `🟩 All tiles green!`, fn: () => { state.allGreen = 4; drawBoard(); emitState(); gameLog('yellow', '🟩', playerNames[cp], 'Yellow — All Board Green! Every tile is green for the next 3 rolls'); socket.emit('animEvent', { type: 'tilePopup', icon: '🟩', title: 'All Board Green!', desc: 'Every tile is green for 3 rolls! 🌿', duration: 2500 }); showEventPopupAuto('🟩', 'All Board Green!', 'Every tile is green for 3 rolls! 🌿', 2500, () => { finishTurn(); }); } },
         { icon: '✨', title: 'Double Points!', label: `✨ Double points!`, fn: () => { state.doublePoints = 3; emitState(); gameLog('yellow', '✨', playerNames[cp], 'Yellow — Double Points! All gains ×2 for the next 2 rolls'); socket.emit('animEvent', { type: 'tilePopup', icon: '✨', title: 'Double Points!', desc: 'All point gains are doubled for 2 rolls! ✨x2', duration: 2500 }); showEventPopupAuto('✨', 'Double Points!', 'All point gains are doubled for 2 rolls! ✨x2', 2500, () => { finishTurn(); }); } },
       ];
@@ -3555,90 +3697,28 @@
     // =====================================================
     //  MOVE ANIMATION
     // =====================================================
-    // Build flat list of tilePositions (connectors + game tiles) once per call
-    function buildFlat() {
-      const flat = []; let gi = 0;
-      for (let i = 0; i < tilePositions.length; i++) {
-        if (tilePositions[i].connector) flat.push({ connector: true, pos: tilePositions[i] });
-        else flat.push({ connector: false, pos: tilePositions[i], gameIdx: gi++ });
-      }
-      return flat;
-    }
-
-    // Walk `steps` steps from player cp's current flatPos, counting connectors as steps.
-    // Updates p.flatPos and p.tile. Returns overflow (steps past the end).
+    // Walk `steps` game tiles forward from player cp's current tile.
+    // Updates p.tile. Returns overflow (steps past the end).
     function walkSteps(cp, steps) {
       const p = state.players[cp];
-      if (!tilePositions.length) {
-        p.tile = Math.min(p.tile + steps, _gameTiles.length - 1);
-        return { overflow: 0 };
+      const maxIdx = _gameTiles.length - 1;
+      const newTile = p.tile + steps;
+      if (newTile > maxIdx) {
+        const overflow = newTile - maxIdx;
+        p.tile = maxIdx;
+        return { overflow };
       }
-      const flat = buildFlat();
-      const maxFlatIdx = flat.length - 1;
-      const lastGameIdx = _gameTiles.length - 1;
-
-      // Ensure flatPos is initialised and valid
-      if (p.flatPos == null || p.flatPos > maxFlatIdx) p.flatPos = 0;
-
-      let cur = p.flatPos;
-      let remaining = steps;
-
-      while (remaining > 0) {
-        cur++;
-        if (cur > maxFlatIdx) {
-          // Overshot — set to end, return overflow
-          p.flatPos = maxFlatIdx;
-          p.tile = lastGameIdx;
-          return { overflow: remaining };
-        }
-        remaining--;
-      }
-
-      p.flatPos = cur;
-      // Resolve game tile: the last non-connector at or before cur
-      let gi = cur;
-      while (gi >= 0 && flat[gi].connector) gi--;
-      p.tile = gi >= 0 ? flat[gi].gameIdx : 0;
+      p.tile = newTile;
       return { overflow: 0 };
     }
 
-    // Walk backwards `steps` steps from player cp's flatPos
+    // Walk backwards `steps` game tiles from player cp's tile
     function walkStepsBack(cp, steps) {
       const p = state.players[cp];
-      if (!tilePositions.length) {
-        p.tile = Math.max(0, p.tile - steps);
-        return;
-      }
-      const flat = buildFlat();
-      if (p.flatPos == null) p.flatPos = 0;
-      let cur = p.flatPos;
-      let remaining = steps;
-      while (remaining > 0 && cur > 0) { cur--; remaining--; }
-      p.flatPos = cur;
-      let gi = cur;
-      while (gi >= 0 && flat[gi].connector) gi--;
-      p.tile = gi >= 0 ? flat[gi].gameIdx : 0;
-    }
-
-    // Build a map from game-tile-index -> connector position that follows it (towards higher indices)
-    // Used by animateMove to visually pass through connector tiles
-    function buildConnectorMap() {
-      const map = {}; // gameIdx -> connector tilePositions entry
-      let gi = 0;
-      for (let i = 0; i < tilePositions.length; i++) {
-        if (!tilePositions[i].connector) {
-          // Check if the next entry is a connector
-          if (i + 1 < tilePositions.length && tilePositions[i + 1].connector) {
-            map[gi] = tilePositions[i + 1];
-          }
-          gi++;
-        }
-      }
-      return map;
+      p.tile = Math.max(0, p.tile - steps);
     }
 
     function drawTokenAt(playerIdx, pos, offset) {
-      // Draw the token at an arbitrary canvas position (used during connector pass-through)
       const color = playerIdx === 0 ? '#dad5ff' : '#fcbdfe';
       const r = Math.max(pos.s * 0.38, 14);
       const od = r * 0.75;
@@ -3662,27 +3742,24 @@
       ctx.restore();
     }
 
-    // animateMove now works in flatPos space (from/to are flatPos indices)
-    function animateMove(playerIdx, fromFlat, toFlat, cb) {
-      if (fromFlat === toFlat) { drawBoard(); emitState(); cb(); return; }
-      const flat = buildFlat();
-      const dir = toFlat > fromFlat ? 1 : -1;
-      let curFlat = fromFlat;
+    // animateMove works in tile-index space (from/to are indices into _gameTiles)
+    function animateMove(playerIdx, fromTile, toTile, cb) {
+      if (fromTile === toTile) { drawBoard(); emitState(); cb(); return; }
+      const dir = toTile > fromTile ? 1 : -1;
+      let cur = fromTile;
 
       const step = () => {
-        curFlat += dir;
-        const entry = flat[curFlat];
-        // Update game tile state only when on a real tile
-        if (!entry.connector) state.players[playerIdx].tile = entry.gameIdx;
-        state.players[playerIdx].flatPos = curFlat;
+        cur += dir;
+        state.players[playerIdx].tile = cur;
 
         drawBoard();
+        const pos = tilePositions[Math.min(cur, tilePositions.length - 1)];
         const same = state.players[0].tile === state.players[1].tile;
         const offset = same ? (playerIdx === 0 ? -1 : 1) : 0;
-        drawTokenAt(playerIdx, entry.pos, offset);
+        drawTokenAt(playerIdx, pos, offset);
         emitState();
 
-        if (curFlat !== toFlat) setTimeout(step, 160);
+        if (cur !== toTile) setTimeout(step, 160);
         else setTimeout(cb, 180);
       };
       step();
@@ -3740,7 +3817,7 @@
     }
     function showScoreFloat(playerIdx, value) {
       const p = state.players[playerIdx];
-      const t = tilePositions[Math.min(p.flatPos ?? p.tile, tilePositions.length - 1)];
+      const t = tilePositions[Math.min(p.tile, tilePositions.length - 1)];
       if (!t) return;
       const rect = canvas.getBoundingClientRect();
       const el = document.createElement('div');
@@ -3884,8 +3961,12 @@
           document.getElementById('sim-res-p2').innerHTML =
             `<span style="color:var(--p2c)">${playerNames[1]}</span>: ${scoreAfter[1]} pts <span style="opacity:.6">(+${scoreAfter[1] - scoreBefore[1]} this sim)</span>`;
           label.textContent = `Done — ${turn} turns simulated`;
+          // Restore currentPlayer so OBS doesn't think the game ended
+          state.currentPlayer = simCp;
           updateUI();
           emitState();
+          // Sync tiles to OBS in case any board shuffles happened during sim
+          socket.emit('tilesUpdate', { tileTypes: _gameTiles, CFG });
           return;
         }
 
@@ -3924,7 +4005,11 @@
         _milestoneQueue.length = 0;
         state.rolling = false;
         state.currentPlayer = -1;
-        updateUI();
+        // Update local display only — don't emit state to OBS mid-simulation
+        for (let i = 0; i < 2; i++) {
+          document.getElementById(`score-p${i + 1}`).textContent = state.players[i].score;
+        }
+        drawBoard();
         cb();
       });
     }
@@ -3932,7 +4017,7 @@
     // Resolve a tile landing without any popups or animations
     function simResolveTile(cp, overflow, done) {
       const p = state.players[cp];
-      let effectiveType = (p.flatPos != null) ? (tileTypes[p.flatPos] ?? 'blue') : 'blue';
+      let effectiveType = _gameTiles[p.tile] ?? 'blue';
 
       if (p.overrideColor && effectiveType !== 'start' && effectiveType !== 'stageup') {
         effectiveType = p.overrideColor;
@@ -3947,7 +4032,6 @@
         const bonus = overflow === 0 ? 5 : 3;
         state.players[cp].score += bonus;
         state.players[cp].tile = 0;
-        state.players[cp].flatPos = 0;
         done();
 
       } else if (effectiveType === 'green') {
@@ -3988,11 +4072,8 @@
       switch (roll) {
         case 0: { // Swap
           const tmp = state.players[cp].tile;
-          const tmpF = state.players[cp].flatPos;
           state.players[cp].tile = state.players[other].tile;
-          state.players[cp].flatPos = state.players[other].flatPos;
           state.players[other].tile = tmp;
-          state.players[other].flatPos = tmpF;
           break;
         }
         case 1: { // Point Heist
@@ -4005,7 +4086,6 @@
         case 3: shuffleTiles(); setupBoard(); break; // Board Shuffle
         case 4: { // Back to Start
           state.players[cp].tile = 0;
-          state.players[cp].flatPos = 0;
           break;
         }
         case 5: state.allGreen = 4; break; // All Board Green
@@ -4028,6 +4108,51 @@
       _logEntries.length = 0;
       const container = document.getElementById('log-entries');
       container.innerHTML = '<div id="log-empty">No events yet — start the game!</div>';
+    }
+
+    function openGoalsPanel() {
+      document.getElementById('burger-btn').classList.remove('open');
+      document.getElementById('burger-menu').classList.remove('open');
+      renderGoalsPanel();
+      document.getElementById('goals-panel').classList.add('open');
+    }
+
+    function closeGoalsPanel() {
+      document.getElementById('goals-panel').classList.remove('open');
+    }
+
+    function renderGoalsPanel() {
+      const container = document.getElementById('goals-entries');
+      const valid = milestones.filter(m => m.pts && m.desc);
+      if (!valid.length) {
+        container.innerHTML = '<div id="goals-empty">No point goals set — add milestones in setup!</div>';
+        return;
+      }
+      // Sort by points ascending
+      const sorted = [...valid].sort((a, b) => parseInt(a.pts) - parseInt(b.pts));
+      // Highest score among both players
+      const maxScore = Math.max(state.players[0].score, state.players[1].score);
+
+      container.innerHTML = '';
+      sorted.forEach(m => {
+        const target = parseInt(m.pts);
+        // Check if ANY applicable player has reached it
+        let done = false;
+        if (m.player === 'all' || milestoneScope === 'all') {
+          done = state.players[0].score >= target || state.players[1].score >= target;
+        } else {
+          const pi = parseInt(m.player);
+          done = state.players[pi] && state.players[pi].score >= target;
+        }
+        const el = document.createElement('div');
+        el.className = 'goal-entry ' + (done ? 'goal-done' : 'goal-pending');
+        el.innerHTML = `
+          <span class="goal-icon">${done ? '✅' : '⬜'}</span>
+          <span class="goal-pts">${target} pts</span>
+          <span class="goal-desc">${m.desc}</span>
+          <span class="goal-status">${done ? 'Reached!' : `${Math.max(0, target - maxScore)} to go`}</span>`;
+        container.appendChild(el);
+      });
     }
 
     // Single outside-click handler for both burger menu and log panel
@@ -4058,6 +4183,15 @@
         !menu.contains(e.target)) {
         closeSimPanel();
       }
+
+      // Close goals panel if click is outside it
+      const goalsPanel = document.getElementById('goals-panel');
+      if (goalsPanel.classList.contains('open') &&
+        !goalsPanel.contains(e.target) &&
+        !btn.contains(e.target) &&
+        !menu.contains(e.target)) {
+        closeGoalsPanel();
+      }
     });
 
     function givePoint(pi) {
@@ -4067,6 +4201,8 @@
       gameLog('system', '🪙', playerNames[pi], 'Manual +1 point awarded');
       updateUI();
       emitState();
+      // Check milestones after a short delay so burger menu closes first
+      setTimeout(() => { checkMilestones(pi); drainMilestoneQueue(); }, 600);
     }
 
     function deductPoint(pi) {
@@ -4084,8 +4220,8 @@
       state = {
         currentPlayer: -1,
         players: [
-          { tile: 0, flatPos: 0, score: 0, overrideColor: null },
-          { tile: 0, flatPos: 0, score: 0, overrideColor: null }
+          { tile: 0, score: 0, overrideColor: null },
+          { tile: 0, score: 0, overrideColor: null }
         ],
         rolling: false,
         gameOver: false

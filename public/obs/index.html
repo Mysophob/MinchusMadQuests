@@ -11,7 +11,7 @@
   <style>
     :root {
       /* ── Core palette ─────────────────────────────── */
-      --bg: #953C54;
+      --bg: #343063;
       --bg2: #B4647A;
       --panel: #343063;
       --accent: #ECBCA6;
@@ -800,6 +800,8 @@
       font-family: 'Fredoka One', cursive;
       font-size: 16vw;
       color: var(--accent);
+      text-align: center;
+      padding: 0 5vw;
     }
 
     .stage-transition p {
@@ -1188,7 +1190,7 @@
 
     const socket = io({ query: { type: 'obs' } });
     const PIP = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
-    let _gameTiles = [], tileTypes = [], currentState = null, CFG = { TILES_PER_BOARD: 29, POINT_GOAL: 50, BOARD_COLS: 3 };
+    let _gameTiles = [], currentState = null, CFG = { TILES_PER_BOARD: 29, POINT_GOAL: 50, BOARD_COLS: 3 };
     const photos = [null, null], names = ['Player 1', 'Player 2'];
     function initAvatarLetter(idx) {
       const el = document.getElementById('avatar-p' + (idx + 1));
@@ -1205,7 +1207,7 @@
     let gameStarted = false;
 
     function tryStart() {
-      if (!tileTypes.length) return;
+      if (!_gameTiles.length) return;
       if (!currentState || currentState.currentPlayer < 0) return;
       gameStarted = true;
       document.getElementById('waiting').style.display = 'none';
@@ -1217,9 +1219,9 @@
     socket.on('stateUpdate', s => {
       currentState = s;
       if (s.playerNames) { names[0] = s.playerNames[0]; names[1] = s.playerNames[1]; document.getElementById('pname-p1').textContent = names[0]; document.getElementById('pname-p2').textContent = names[1]; initAvatarLetter(0); initAvatarLetter(1); }
-      if (s.currentPlayer < 0) {
-        gameStarted = false;
-        document.getElementById('waiting').style.display = '';
+      // Only show waiting screen if game has never started.
+      // currentPlayer can be -1 between turns (simulation, manual points, etc.)
+      if (!gameStarted && s.currentPlayer < 0) {
         return;
       }
       if (gameStarted) {
@@ -1229,8 +1231,7 @@
       }
     });
     socket.on('tilesUpdate', d => {
-      _gameTiles = d.tileTypes || []; // control sends _gameTiles under 'tileTypes' key
-      tileTypes = _gameTiles.slice(); // setupBoard will inject connectors
+      _gameTiles = d.tileTypes || [];
       if (d.CFG) Object.assign(CFG, d.CFG);
       if (gameStarted) {
         requestAnimationFrame(() => requestAnimationFrame(() => { setupBoard(); if (currentState) renderState(currentState); }));
@@ -1464,7 +1465,7 @@
         }, 2500);
       }, 4700);
     }
-    function scoreFloat(pi, val) { if (!currentState) return; const game = tilePos._game || tilePos; const t = game[Math.min(currentState.players[pi].tile, game.length - 1)]; if (!t) return; const rect = canvas.getBoundingClientRect(), el = document.createElement('div'); el.className = 'score-float'; el.style.left = (rect.left + t.cx) + 'px'; el.style.top = (rect.top + t.cy) + 'px'; el.style.color = val >= 0 ? '#00f5d4' : '#ff4d6d'; el.textContent = (val >= 0 ? '+' : '') + val; document.body.appendChild(el); setTimeout(() => el.remove(), 1400); }
+    function scoreFloat(pi, val) { if (!currentState) return; const t = tilePos[Math.min(currentState.players[pi].tile, tilePos.length - 1)]; if (!t) return; const rect = canvas.getBoundingClientRect(), el = document.createElement('div'); el.className = 'score-float'; el.style.left = (rect.left + t.cx) + 'px'; el.style.top = (rect.top + t.cy) + 'px'; el.style.color = val >= 0 ? '#00f5d4' : '#ff4d6d'; el.textContent = (val >= 0 ? '+' : '') + val; document.body.appendChild(el); setTimeout(() => el.remove(), 1400); }
     function renderState(s) {
       for (let i = 0; i < 2; i++) { document.getElementById('score-p' + (i + 1)).textContent = s.players[i].score; }
       document.getElementById('card-p1').classList.toggle('active', s.currentPlayer === 0);
@@ -1497,37 +1498,46 @@
     const TICON = { green: null, purple: null, red: null, yellow: null, stageup: '🏆', start: '🚀', blue: null };
 
     // OBS: tile 0 (start/🚀) at bottom, tile N-1 (stageup/🏆) at top-left.
-    // Row 0 is topmost, RTL so it ends at left (last tile = top-left = stageup).
+    // Each row has up to COLS tiles; between rows sits one connecting tile
+    // (a regular game tile) in the gap. Returns exactly N positions.
     function computeWindingPath(W, H, N, ts, COLS) {
-      const ROWS = Math.ceil(N / COLS);
+      // Count visual rows
+      let placed = 0, numRows = 0;
+      while (placed < N) {
+        placed += Math.min(COLS, N - placed);
+        numRows++;
+        if (placed < N) placed++; // connector tile
+      }
+
       const gridW = COLS * ts;
-      const gridH = (2 * ROWS - 1) * ts;
+      const gridH = (2 * numRows - 1) * ts;
       const leftX = Math.round((W - gridW) / 2) + ts / 2;
       const topY = Math.round((H - gridH) / 2) + ts / 2;
 
-      // Build allPts in reverse path order (tile N-1 first → tile 0 last)
-      // so that when we reverse them, tile 0 = bottom, tile N-1 = top-left
       const allPts = [];
-      for (let row = 0; row < ROWS; row++) {
+      placed = 0;
+      let row = 0;
+      while (placed < N) {
         const ltr = (row % 2 !== 0);
         const rowY = topY + row * ts * 2;
-        const tilesInRow = Math.min(COLS, N - row * COLS);
-        for (let col = 0; col < tilesInRow; col++) {
+        const inRow = Math.min(COLS, N - placed);
+        for (let col = 0; col < inRow; col++) {
           const gc = ltr ? col : (COLS - 1 - col);
-          allPts.push({ x: leftX + gc * ts, y: rowY, connector: false });
+          allPts.push({ x: leftX + gc * ts, y: rowY });
+          placed++;
         }
-        if (row < ROWS - 1) {
-          const lastGc = ltr ? (tilesInRow - 1) : (COLS - tilesInRow);
-          allPts.push({ x: leftX + lastGc * ts, y: rowY + ts, connector: true });
+        if (placed < N) {
+          const lastCol = ltr ? (inRow - 1) : (COLS - inRow);
+          allPts.push({ x: leftX + lastCol * ts, y: rowY + ts });
+          placed++;
         }
+        row++;
       }
 
       allPts.reverse();
 
       const centres = allPts.map((p, i) => {
-        let ni = i + 1;
-        while (ni < allPts.length && allPts[ni].connector) ni++;
-        if (ni >= allPts.length) ni = i;
+        const ni = Math.min(i + 1, allPts.length - 1);
         const nx = allPts[ni];
         const dx = nx.x - p.x, dy = nx.y - p.y;
         let angle;
@@ -1536,7 +1546,7 @@
         } else {
           angle = dy >= 0 ? Math.PI / 2 : -Math.PI / 2;
         }
-        return { x: p.x, y: p.y, angle, connector: p.connector };
+        return { x: p.x, y: p.y, angle };
       });
       return { centres };
     }
@@ -1546,14 +1556,22 @@
       canvas.width = Math.floor(rect.width); canvas.height = Math.floor(rect.height);
       const W = canvas.width, H = canvas.height, N = _gameTiles.length; if (!N) return;
 
-      // Find the COLS value (within a sensible range) that produces the largest tile
-      // that still fits both dimensions — ignoring the controller's BOARD_COLS so the
-      // board always fills the OBS canvas regardless of aspect ratio.
+      function countRows(cols) {
+        let p = 0, rows = 0;
+        while (p < N) {
+          p += Math.min(cols, N - p);
+          rows++;
+          if (p < N) p++;
+        }
+        return rows;
+      }
+
+      // OBS picks its own COLS to maximize tile size for its aspect ratio.
       const PAD = 24;
-      let bestTs = 0, bestCols = Math.max(3, CFG.BOARD_COLS || 5);
+      let bestTs = 0, bestCols = 5;
       const minCols = 2, maxCols = Math.min(N, 14);
       for (let c = minCols; c <= maxCols; c++) {
-        const rows = Math.ceil(N / c);
+        const rows = countRows(c);
         const tw = Math.floor((W - PAD) / c);
         const th = Math.floor((H - PAD) / (2 * rows - 1));
         const ts = Math.min(tw, th);
@@ -1561,20 +1579,13 @@
       }
       const COLS = bestCols;
       const ts = Math.max(14, bestTs);
-      const GAP = 0;
-      const td = ts - GAP; // actual drawn tile size
 
       const { centres } = computeWindingPath(W, H, N, ts, COLS);
-      tilePos = centres.map(({ x, y, angle, connector }) => ({ cx: x, cy: y, x: x - td / 2, y: y - td / 2, w: td, h: td, s: td, angle: angle || 0, connector: connector || false }));
-      tilePos._game = tilePos.filter(t => !t.connector);
-
-      // Build tileTypes as the full flat array matching tilePos — same logic as control.
-      // Connector inherits the preceding game tile's type.
-      let gi = 0;
-      tileTypes = tilePos.map(t => {
-        if (!t.connector) return _gameTiles[gi++] ?? 'blue';
-        return _gameTiles[Math.max(0, gi - 1)] ?? 'blue';
-      });
+      // tilePos[i] corresponds to _gameTiles[i]
+      tilePos = centres.map(({ x, y, angle }) => ({
+        cx: x, cy: y, x: x - ts / 2, y: y - ts / 2,
+        w: ts, h: ts, s: ts, angle: angle || 0
+      }));
 
       if (currentState) drawBoard(currentState);
     }
@@ -1612,17 +1623,15 @@
       const ag = s && s.allGreen > 0;
       for (let i = 0; i < tilePos.length; i++) {
         const t = tilePos[i]; if (!t) continue;
-        const flatType = tileTypes[i] || 'blue';
-        const visual = (ag && flatType !== 'start' && flatType !== 'stageup') ? 'green' : flatType;
+        const tileType = _gameTiles[i] || 'blue';
+        const visual = (ag && tileType !== 'start' && tileType !== 'stageup') ? 'green' : tileType;
         drawTileObs(t, visual);
       }
-      // Effect badges
-
 
       if (!s || !s.players) return;
-      const same = s.players[0].flatPos === s.players[1].flatPos;
-      drawTok(s.players[0].flatPos ?? 0, '#dad5ff', 0, same ? -1 : 0);
-      drawTok(s.players[1].flatPos ?? 0, '#fcbdfe', 1, same ? 1 : 0);
+      const same = s.players[0].tile === s.players[1].tile;
+      drawTok(s.players[0].tile ?? 0, '#dad5ff', 0, same ? -1 : 0);
+      drawTok(s.players[1].tile ?? 0, '#fcbdfe', 1, same ? 1 : 0);
     }
 
     function drawTok(fi, col, pi, off) {
